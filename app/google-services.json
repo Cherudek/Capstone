@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "586524270481",
+    "firebase_url": "https://turin-guide-1526861835739.firebaseio.com",
+    "project_id": "turin-guide-1526861835739",
+    "storage_bucket": "turin-guide-1526861835739.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:586524270481:android:cd8692603ab055da",
+        "android_client_info": {
+          "package_name": "com.example.gregorio.capstone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "586524270481-p2sv5rg95q4qa1itesc0l5cdjg8vrb83.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhd0RuRgKVkD0OtY7pUkgo35T2n8ve7lc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
