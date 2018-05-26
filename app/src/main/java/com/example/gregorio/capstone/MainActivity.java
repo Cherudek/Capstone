@@ -2,11 +2,10 @@ package com.example.gregorio.capstone;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -14,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 public class MainActivity extends AppCompatActivity
     implements NavigationView.OnNavigationItemSelectedListener {
@@ -95,15 +95,17 @@ public class MainActivity extends AppCompatActivity
     if (id == R.id.nav_map) {
       fragmentClass = MapFragment.class;
     } else if (id == R.id.nav_food) {
-      fragmentClass = BarsFragment.class;
-
+      fragmentClass = FoodFragment.class;
     } else if (id == R.id.nav_bars) {
-      fragmentClass = MapFragment.class;
-
+      fragmentClass = BarsFragment.class;
     } else if (id == R.id.nav_clubs) {
-
-    } else if (id == R.id.nav_share) {
-
+      fragmentClass = ClubsFragment.class;
+    } else if (id == R.id.nav_clubs) {
+      fragmentClass = ClubsFragment.class;
+    } else if (id == R.id.nav_favourites) {
+      fragmentClass = FavouritesFragment.class;
+    } else if (id == R.id.nav_sights) {
+      fragmentClass = SightsFragment.class;
     } else if (id == R.id.nav_send) {
 
     }
