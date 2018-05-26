@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import googleplacesapi.GoogleMaps;
 
 public class MainActivity extends AppCompatActivity
     implements NavigationView.OnNavigationItemSelectedListener {
@@ -50,6 +51,10 @@ public class MainActivity extends AppCompatActivity
 
     NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
+
+    // Check if the Google Play Services are available or not
+    GoogleMaps googleMaps = new GoogleMaps();
+    googleMaps.CheckGooglePlayServices();
 
   }
 
@@ -122,4 +127,17 @@ public class MainActivity extends AppCompatActivity
     drawer.closeDrawer(GravityCompat.START);
     return true;
   }
+
+//  private boolean CheckGooglePlayServices() {
+//    GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+//    int result = googleAPI.isGooglePlayServicesAvailable(this);
+//    if (result != ConnectionResult.SUCCESS) {
+//      if (googleAPI.isUserResolvableError(result)) {
+//        googleAPI.getErrorDialog(this, result,
+//            0).show();
+//      }
+//      return false;
+//    }
+//    return true;
+//  }
 }
