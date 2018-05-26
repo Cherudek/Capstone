@@ -94,13 +94,13 @@ public class MainActivity extends AppCompatActivity
     Class fragmentClass = null;
     if (id == R.id.nav_map) {
       fragmentClass = MapFragment.class;
-    } else if (id == R.id.nav_gallery) {
-      fragmentClass = ListFragment.class;
+    } else if (id == R.id.nav_food) {
+      fragmentClass = BarsFragment.class;
 
-    } else if (id == R.id.nav_slideshow) {
+    } else if (id == R.id.nav_bars) {
       fragmentClass = MapFragment.class;
 
-    } else if (id == R.id.nav_manage) {
+    } else if (id == R.id.nav_clubs) {
 
     } else if (id == R.id.nav_share) {
 

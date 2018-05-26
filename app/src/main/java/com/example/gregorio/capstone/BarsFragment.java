@@ -9,10 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class ListFragment extends Fragment {
+public class BarsFragment extends Fragment {
 
 
-  public ListFragment(){
+  public BarsFragment(){
   }
 
   @Nullable

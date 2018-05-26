@@ -9,4 +9,10 @@
   <string name="title_activity_maps">Map</string>
   <string name="check_out">Check Out</string>
   <string name="london_toast">Hello London Click</string>
+  <string name="nv_map">Maps</string>
+  <string name="nv_food">Food</string>
+  <string name="nv_bars">Bars</string>
+  <string name="nv_clubs">Clubs</string>
+  <string name="nv_sights">Sights</string>
+  <string name="nv_favourites">Favourites</string>
 </resources>
