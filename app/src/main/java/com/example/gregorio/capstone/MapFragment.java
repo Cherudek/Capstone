@@ -5,6 +5,7 @@ import static com.google.android.gms.location.places.Places.getPlaceDetectionCli
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -35,6 +36,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import pojos.Example;
 import retrofit.RetrofitMaps;
@@ -62,11 +65,14 @@ public class MapFragment extends Fragment {
   private final LatLng mDefaultLocation = new LatLng(51.508530, -0.076132);
   private final LatLng mNBH = new LatLng(51.5189618, -0.1450063);
   private static final int DEFAULT_ZOOM = 15;
+  private static AsyncTask asyncTask;
   private Double latitude;
   private Double longitude;
   private String apiKey;
   private SearchView searchEditText;
   private Task<Location> location;
+  private Location location2;
+
 
   public MapFragment(){
   }
@@ -95,19 +101,9 @@ public class MapFragment extends Fragment {
     mapView.getMapAsync(new OnMapReadyCallback() {
       @Override
       public void onMapReady(GoogleMap googleMap) {
-
         mMap = googleMap;
-        // Check Permissions
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-          // No explanation needed; request the permission
-          ActivityCompat.requestPermissions(getActivity(),
-              new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-              MY_LOCATION_REQUEST_CODE);
-          // MY_LOCATION_REQUEST_CODE is an
-          // app-defined int constant. The callback method gets the
-          // result of the request.
-        } else {
+
+        if (checkLocalPermission()) {
           // If the Location Permission id Granted Enable Location on the Map
           mMap.setMyLocationEnabled(true);
           mMap.setOnMarkerClickListener(onMarkerClickListener);
@@ -139,10 +135,6 @@ public class MapFragment extends Fragment {
         .build();
     mGoogleApiClient.connect();
 
-    location = LocationServices.getFusedLocationProviderClient(getActivity()).getLastLocation();
-    Location location2 = location.getResult();
-    latitude = location2.getLatitude();
-    longitude = location2.getLongitude();
 
     // @OnMarkerClickListener added to the map
     onMarkerClickListener = new OnMarkerClickListener() {
@@ -156,6 +148,9 @@ public class MapFragment extends Fragment {
       }
     };
 
+    getLastLocation();
+
+    // Search Query To Launch Retrofit
     searchEditText.setOnQueryTextListener(new OnQueryTextListener() {
       @Override
       public boolean onQueryTextSubmit(String query) {
@@ -174,6 +169,63 @@ public class MapFragment extends Fragment {
     return rootView;
   }
 
+  private boolean checkLocalPermission() {
+    if (ContextCompat.checkSelfPermission(getContext(),
+        Manifest.permission.ACCESS_FINE_LOCATION)
+        != PackageManager.PERMISSION_GRANTED) {
+
+      // Asking user if explanation is needed
+      if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+          Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+        // Show an explanation to the user *asynchronously* -- don't block
+        // this thread waiting for the user's response! After the user
+        // sees the explanation, try again to request the permission.
+
+        //Prompt the user once explanation has been shown
+        ActivityCompat.requestPermissions(getActivity(),
+            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+            MY_LOCATION_REQUEST_CODE);
+      } else {
+        // No explanation needed, we can request the permission.
+        ActivityCompat.requestPermissions(getActivity(),
+            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+            MY_LOCATION_REQUEST_CODE);
+      }
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  public void getLastLocation() {
+    // Get last known recent location using new Google Play Services SDK (v11+)
+    if (checkLocalPermission()) {
+      location = LocationServices.getFusedLocationProviderClient(getActivity()).getLastLocation();
+    }
+    location
+        .addOnSuccessListener(new OnSuccessListener<Location>() {
+          @Override
+          public void onSuccess(Location location) {
+            // GPS location can be null if GPS is switched off
+            if (location != null) {
+              latitude = location.getLatitude();
+              longitude = location.getLongitude();
+              Log.i(LOG_TAG,
+                  "The Last Location is: Latitude: " + latitude + " Longitude: " + longitude);
+            }
+          }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+          @Override
+          public void onFailure(@NonNull Exception e) {
+            Log.d("MapDemoActivity", "Error trying to get last GPS location");
+            e.printStackTrace();
+          }
+        });
+  }
+
+
   private void buildRetrofitAndGetResponse(String type) {
 
     String url = "https://maps.googleapis.com/maps/";
@@ -184,9 +236,6 @@ public class MapFragment extends Fragment {
         .build();
 
     RetrofitMaps service = retrofit.create(RetrofitMaps.class);
-
-    String locationString = location.toString();
-    Log.i(LOG_TAG, "Your Current Location is: " + locationString);
 
     Call<Example> call = service
         .getNearbyPlaces(type, latitude + "," + longitude, DEFAULT_ZOOM, apiKey);
