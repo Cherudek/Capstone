@@ -15,4 +15,5 @@
   <string name="nv_clubs">Clubs</string>
   <string name="nv_sights">Sights</string>
   <string name="nv_favourites">Favourites</string>
+  <string name="search_hint">Search Nearby Places</string>
 </resources>

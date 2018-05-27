@@ -10,10 +10,23 @@
       android:layout_height="match_parent"/>
 
   <TextView
+    android:layout_gravity="top"
     android:id="@+id/maptv"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:textSize="36sp"
-    android:textColor="@color/common_google_signin_btn_text_dark_default"
+    android:textColor="@color/primaryDarkColor"
     android:gravity="center"/>
-  </FrameLayout>
+
+  <SearchView
+    android:id="@+id/editText"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/bottom_margin_medium"
+    android:layout_gravity="bottom|end"
+    android:iconifiedByDefault="false"
+    android:imeOptions="actionSearch"
+    android:inputType="text"
+    android:queryHint="@string/search_hint"/>
+
+</FrameLayout>

@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -55,8 +56,12 @@ public class MapFragment extends Fragment {
 
   private static final int DEFAULT_ZOOM = 15;
 
+  private SearchView searchEditText;
+
+
   public MapFragment(){
   }
+
 
   @Nullable
   @Override
@@ -67,10 +72,11 @@ public class MapFragment extends Fragment {
 
     TextView textView = rootView.findViewById(R.id.maptv);
     textView.setText("MAP FRAGMENT");
+    searchEditText = rootView.findViewById(R.id.editText);
+
 
     mapView = rootView.findViewById(R.id.map);
     mapView.onCreate(savedInstanceState);
-
     mapView.onResume(); // needed to get the map to display immediately
 
     try {
@@ -78,7 +84,6 @@ public class MapFragment extends Fragment {
     } catch (Exception e) {
       e.printStackTrace();
     }
-
 
     mapView.getMapAsync(new OnMapReadyCallback() {
       @Override
@@ -117,10 +122,8 @@ public class MapFragment extends Fragment {
                     .fromResource(R.mipmap.bbc_marker)));
           }
         }
-
       }
     });
-
 
     // Construct a PlaceDetectionClient.
     mPlaceDetectionClient = getPlaceDetectionClient(getContext());

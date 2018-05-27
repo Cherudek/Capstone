@@ -32,8 +32,6 @@ public class MainActivity extends AppCompatActivity
       fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
           .commit();
 
-
-
     FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
     fab.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -54,7 +52,7 @@ public class MainActivity extends AppCompatActivity
 
     // Check if the Google Play Services are available or not
     GoogleMaps googleMaps = new GoogleMaps();
-    googleMaps.CheckGooglePlayServices();
+    googleMaps.CheckGooglePlayServices(this, this);
 
   }
 
@@ -128,16 +126,4 @@ public class MainActivity extends AppCompatActivity
     return true;
   }
 
-//  private boolean CheckGooglePlayServices() {
-//    GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
-//    int result = googleAPI.isGooglePlayServicesAvailable(this);
-//    if (result != ConnectionResult.SUCCESS) {
-//      if (googleAPI.isUserResolvableError(result)) {
-//        googleAPI.getErrorDialog(this, result,
-//            0).show();
-//      }
-//      return false;
-//    }
-//    return true;
-//  }
 }
