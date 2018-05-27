@@ -32,6 +32,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -61,10 +62,10 @@ public class MapFragment extends Fragment {
   private FusedLocationProviderClient mFusedLocationProviderClient;
   private OnMarkerClickListener onMarkerClickListener;
   // A default location (London, Uk) and default zoom to use when location permission is
-  // not granted.
   private final LatLng mDefaultLocation = new LatLng(51.508530, -0.076132);
   private final LatLng mNBH = new LatLng(51.5189618, -0.1450063);
-  private static final int DEFAULT_ZOOM = 15;
+  private static final int DEFAULT_ZOOM = 1500;
+  private final LatLng PiazzaSanCarloTurin = new LatLng(45.0671652, 7.681715);
   private static AsyncTask asyncTask;
   private Double latitude;
   private Double longitude;
@@ -106,7 +107,18 @@ public class MapFragment extends Fragment {
         if (checkLocalPermission()) {
           // If the Location Permission id Granted Enable Location on the Map
           mMap.setMyLocationEnabled(true);
+          mMap.setBuildingsEnabled(true);
           mMap.setOnMarkerClickListener(onMarkerClickListener);
+
+          // Construct a CameraPosition focusing on Mountain View and animate the camera to that position.
+          CameraPosition cameraPosition = new CameraPosition.Builder()
+              .target(PiazzaSanCarloTurin)      // Sets the center of the map to Mountain View
+              .zoom(12)                   // Sets the zoom
+              .bearing(0)                // Sets the orientation of the camera to east
+              .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+              .build();                   // Creates a CameraPosition from the builder
+          mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
           // Set Up Markers on the Map
           if(mMap!=null) {
             // Tower of London Marker
@@ -243,8 +255,9 @@ public class MapFragment extends Fragment {
     call.enqueue(new Callback<Example>() {
       @Override
       public void onResponse(Call<Example> call, Response<Example> response) {
-        try {
-          mMap.clear();
+        mMap.clear();
+        Log.i(LOG_TAG, "The Retrofit Response is: " + response.toString());
+
           // This loop will go through all the results and add marker on each location.
           for (int i = 0; i < response.body().getResults().size(); i++) {
             Double lat = response.body().getResults().get(i).getGeometry().getLocation().getLat();
@@ -266,16 +279,11 @@ public class MapFragment extends Fragment {
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
           }
-        } catch (Exception e) {
-          Log.d(LOG_TAG, "Retrofit: There is an error Fetching Your Query ");
-          e.printStackTrace();
-        }
       }
 
       @Override
       public void onFailure(Call<Example> call, Throwable t) {
-        Log.d("nFailure", t.toString());
-
+        Log.d(LOG_TAG, "onFailure" + t.toString());
       }
     });
   }
