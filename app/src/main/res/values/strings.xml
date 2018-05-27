@@ -16,4 +16,5 @@
   <string name="nv_sights">Sights</string>
   <string name="nv_favourites">Favourites</string>
   <string name="search_hint">Search Nearby Places</string>
+  <string name="hello">Hello</string>
 </resources>

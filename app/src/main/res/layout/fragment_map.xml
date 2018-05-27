@@ -22,11 +22,15 @@
     android:id="@+id/editText"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/bottom_margin_medium"
+    android:layout_marginBottom="@dimen/margin_4x"
+    android:layout_marginLeft="@dimen/margin_2x"
+    android:layout_marginRight="@dimen/margin_2x"
     android:layout_gravity="bottom|end"
     android:iconifiedByDefault="false"
     android:imeOptions="actionSearch"
     android:inputType="text"
-    android:queryHint="@string/search_hint"/>
+    android:background="@color/primaryLightColor"
+    android:queryHint="@string/search_hint"
+    android:textAlignment="center"/>
 
 </FrameLayout>

@@ -4,7 +4,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.transform.Result;
 
 public class Example {
 
@@ -16,7 +15,7 @@ public class Example {
   private String nextPageToken;
   @SerializedName("results")
   @Expose
-  private List<Result> results = new ArrayList<Result>();
+  private List<Results> results = new ArrayList<Results>();
   @SerializedName("status")
   @Expose
   private String status;
@@ -52,14 +51,14 @@ public class Example {
   /**
    * @return The results
    */
-  public List<Result> getResults() {
+  public List<Results> getResults() {
     return results;
   }
 
   /**
    * @param results The results
    */
-  public void setResults(List<Result> results) {
+  public void setResults(List<Results> results) {
     this.results = results;
   }
 
