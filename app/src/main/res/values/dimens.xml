@@ -7,4 +7,7 @@
   <dimen name="fab_margin">16dp</dimen>
   <dimen name="margin_4x">32dp</dimen>
   <dimen name="margin_2x">16dp</dimen>
+  <dimen name="margin_6x">48dp</dimen>
+  <dimen name="margin_7x">56dp</dimen>
+
 </resources>

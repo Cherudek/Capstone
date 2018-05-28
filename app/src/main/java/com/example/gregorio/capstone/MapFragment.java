@@ -5,7 +5,6 @@ import static com.google.android.gms.location.places.Places.getPlaceDetectionCli
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -31,22 +30,14 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import pojos.Example;
-import retrofit.RetrofitMaps;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit.BuildRetrofitGetResponse;
 
 public class MapFragment extends Fragment {
 
@@ -66,14 +57,13 @@ public class MapFragment extends Fragment {
   private final LatLng mNBH = new LatLng(51.5189618, -0.1450063);
   private static final int DEFAULT_ZOOM = 1000;
   private final LatLng PiazzaSanCarloTurin = new LatLng(45.0671652, 7.681715);
-  private static AsyncTask asyncTask;
   private Double latitude;
   private Double longitude;
   private LatLng mCurrentLocation;
   private String apiKey;
   private SearchView searchEditText;
   private Task<Location> location;
-  private Location location2;
+  private BuildRetrofitGetResponse buildRetrofitAndGetResponse;
 
 
   public MapFragment(){
@@ -83,7 +73,6 @@ public class MapFragment extends Fragment {
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
-
     View rootView = inflater.inflate(R.layout.fragment_map, container, false);
     TextView textView = rootView.findViewById(R.id.maptv);
     textView.setText("MAP FRAGMENT");
@@ -93,7 +82,6 @@ public class MapFragment extends Fragment {
     mapView = rootView.findViewById(R.id.map);
     mapView.onCreate(savedInstanceState);
     mapView.onResume(); // needed to get the map to display immediately
-
     try {
       MapsInitializer.initialize(getActivity().getApplicationContext());
     } catch (Exception e) {
@@ -104,13 +92,11 @@ public class MapFragment extends Fragment {
       @Override
       public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
         if (checkLocalPermission()) {
           // If the Location Permission id Granted Enable Location on the Map
           mMap.setMyLocationEnabled(true);
           mMap.setBuildingsEnabled(true);
           mMap.setOnMarkerClickListener(onMarkerClickListener);
-
           // Construct a CameraPosition focusing on Mountain View and animate the camera to that position.
           CameraPosition cameraPosition = new CameraPosition.Builder()
               .target(PiazzaSanCarloTurin)      // Sets the center of the map to Mountain View
@@ -119,20 +105,6 @@ public class MapFragment extends Fragment {
               .tilt(30)                   // Sets the tilt of the camera to 30 degrees
               .build();                   // Creates a CameraPosition from the builder
           mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-          // Set Up Markers on the Map
-          if(mMap!=null) {
-            // Tower of London Marker
-            Marker towerOfLondon = mMap.addMarker(new MarkerOptions().position(mDefaultLocation)
-                .title("Tower Of London"));
-            // New Broadcasting House Marker
-            Marker NewBH = mMap.addMarker(new MarkerOptions()
-                .position(mNBH)
-                .title("New Broadcasting House")
-                .snippet("New BH is cool")
-                .icon(BitmapDescriptorFactory
-                    .fromResource(R.mipmap.bbc_marker)));
-          }
         }
       }
     });
@@ -161,15 +133,20 @@ public class MapFragment extends Fragment {
       }
     };
 
+    // Build a new Retrofit Object for the Search Query
+    buildRetrofitAndGetResponse = new BuildRetrofitGetResponse();
     getLastLocation();
 
-    // Search Query To Launch Retrofit
+    // Search NearbyPlaces Query to Launch Retrofit call
     searchEditText.setOnQueryTextListener(new OnQueryTextListener() {
       @Override
       public boolean onQueryTextSubmit(String query) {
         // Retrofit Call to the new Query
-        buildRetrofitAndGetResponse(searchEditText.getQuery().toString());
-        Log.i(LOG_TAG, "The Search Query is: " + searchEditText.getQuery().toString());
+        query = searchEditText.getQuery().toString();
+        buildRetrofitAndGetResponse
+            .buildRetrofitAndGetResponse(query, latitude, longitude, apiKey, mMap);
+        // buildRetrofitAndGetResponse(searchEditText.getQuery().toString());
+        Log.i(LOG_TAG, "The Search Query is: " + query);
         return false;
       }
 
@@ -183,6 +160,7 @@ public class MapFragment extends Fragment {
     return rootView;
   }
 
+  // Check if local permission is enabled and ask the user to enable it if not to access app functionality
   private boolean checkLocalPermission() {
     if (ContextCompat.checkSelfPermission(getContext(),
         Manifest.permission.ACCESS_FINE_LOCATION)
@@ -212,6 +190,7 @@ public class MapFragment extends Fragment {
     }
   }
 
+  // Get the last known location of the device
   public void getLastLocation() {
     // Get last known recent location using new Google Play Services SDK (v11+)
     if (checkLocalPermission()) {
@@ -225,7 +204,6 @@ public class MapFragment extends Fragment {
             if (location != null) {
               latitude = location.getLatitude();
               longitude = location.getLongitude();
-
               Log.i(LOG_TAG,
                   "The Last Location is: Latitude: " + latitude + " Longitude: " + longitude);
             }
@@ -239,62 +217,4 @@ public class MapFragment extends Fragment {
           }
         });
   }
-
-
-  private void buildRetrofitAndGetResponse(String type) {
-
-    String url = "https://maps.googleapis.com/maps/";
-
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(url)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build();
-
-    RetrofitMaps service = retrofit.create(RetrofitMaps.class);
-
-    Call<Example> call = service
-        .getNearbyPlaces(type, latitude + "," + longitude, DEFAULT_ZOOM, apiKey);
-
-    call.enqueue(new Callback<Example>() {
-      @Override
-      public void onResponse(Call<Example> call, Response<Example> response) {
-        mMap.clear();
-        Log.i(LOG_TAG, "The Retrofit Response is: " + response.toString());
-
-          // This loop will go through all the results and add marker on each location.
-          for (int i = 0; i < response.body().getResults().size(); i++) {
-            Double lat = response.body().getResults().get(i).getGeometry().getLocation().getLat();
-            Double lng = response.body().getResults().get(i).getGeometry().getLocation().getLng();
-            String placeName = response.body().getResults().get(i).getName();
-            String vicinity = response.body().getResults().get(i).getVicinity();
-            MarkerOptions markerOptions = new MarkerOptions();
-            LatLng latLng = new LatLng(lat, lng);
-            // Position of Marker on Map
-            markerOptions.position(latLng);
-            // Adding Title to the Marker
-            markerOptions.title(placeName + " : " + vicinity);
-            // Adding Marker to the Camera.
-            Marker m = mMap.addMarker(markerOptions);
-            // Adding colour to the marker
-            markerOptions
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-            // Construct a CameraPosition focusing on the current location View and animate the camera to that position.
-            mCurrentLocation = new LatLng(latitude, longitude);
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(mCurrentLocation)      // Sets the center of the map to Mountain View
-                .zoom(15)                   // Sets the zoom
-                .bearing(0)                // Sets the orientation of the camera to east
-                .tilt(0)                   // Sets the tilt of the camera to 30 degrees
-                .build();                   // Creates a CameraPosition from the builder
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-          }
-      }
-
-      @Override
-      public void onFailure(Call<Example> call, Throwable t) {
-        Log.d(LOG_TAG, "onFailure" + t.toString());
-      }
-    });
-  }
-
 }
