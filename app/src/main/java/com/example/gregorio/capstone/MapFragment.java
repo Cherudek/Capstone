@@ -64,11 +64,12 @@ public class MapFragment extends Fragment {
   // A default location (London, Uk) and default zoom to use when location permission is
   private final LatLng mDefaultLocation = new LatLng(51.508530, -0.076132);
   private final LatLng mNBH = new LatLng(51.5189618, -0.1450063);
-  private static final int DEFAULT_ZOOM = 1500;
+  private static final int DEFAULT_ZOOM = 1000;
   private final LatLng PiazzaSanCarloTurin = new LatLng(45.0671652, 7.681715);
   private static AsyncTask asyncTask;
   private Double latitude;
   private Double longitude;
+  private LatLng mCurrentLocation;
   private String apiKey;
   private SearchView searchEditText;
   private Task<Location> location;
@@ -166,6 +167,7 @@ public class MapFragment extends Fragment {
     searchEditText.setOnQueryTextListener(new OnQueryTextListener() {
       @Override
       public boolean onQueryTextSubmit(String query) {
+        // Retrofit Call to the new Query
         buildRetrofitAndGetResponse(searchEditText.getQuery().toString());
         Log.i(LOG_TAG, "The Search Query is: " + searchEditText.getQuery().toString());
         return false;
@@ -223,6 +225,7 @@ public class MapFragment extends Fragment {
             if (location != null) {
               latitude = location.getLatitude();
               longitude = location.getLongitude();
+
               Log.i(LOG_TAG,
                   "The Last Location is: Latitude: " + latitude + " Longitude: " + longitude);
             }
@@ -231,7 +234,7 @@ public class MapFragment extends Fragment {
         .addOnFailureListener(new OnFailureListener() {
           @Override
           public void onFailure(@NonNull Exception e) {
-            Log.d("MapDemoActivity", "Error trying to get last GPS location");
+            Log.d(LOG_TAG, "Error trying to get last GPS location");
             e.printStackTrace();
           }
         });
@@ -275,9 +278,15 @@ public class MapFragment extends Fragment {
             // Adding colour to the marker
             markerOptions
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-            // move map camera
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+            // Construct a CameraPosition focusing on the current location View and animate the camera to that position.
+            mCurrentLocation = new LatLng(latitude, longitude);
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(mCurrentLocation)      // Sets the center of the map to Mountain View
+                .zoom(15)                   // Sets the zoom
+                .bearing(0)                // Sets the orientation of the camera to east
+                .tilt(0)                   // Sets the tilt of the camera to 30 degrees
+                .build();                   // Creates a CameraPosition from the builder
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
           }
       }
 
