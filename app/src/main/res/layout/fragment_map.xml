@@ -18,6 +18,14 @@
     android:textColor="@color/primaryDarkColor"
     android:gravity="center"/>
 
+  <Button
+    android:id="@+id/checkout_button"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top"
+    android:onClick="checkOut"
+    android:text="@string/check_out"/>
+
   <SearchView
     android:id="@+id/editText"
     android:layout_width="match_parent"

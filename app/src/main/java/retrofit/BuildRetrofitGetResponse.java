@@ -40,34 +40,40 @@ public class BuildRetrofitGetResponse {
     call.enqueue(new Callback<Example>() {
       @Override
       public void onResponse(Call<Example> call, Response<Example> response) {
-        map.clear();
-        Log.i(LOG_TAG, "The Retrofit Response is: " + response.toString());
-        // This loop will go through all the results and add marker on each location.
-        for (int i = 0; i < response.body().getResults().size(); i++) {
-          Double lat = response.body().getResults().get(i).getGeometry().getLocation().getLat();
-          Double lng = response.body().getResults().get(i).getGeometry().getLocation().getLng();
-          String placeName = response.body().getResults().get(i).getName();
-          String vicinity = response.body().getResults().get(i).getVicinity();
-          MarkerOptions markerOptions = new MarkerOptions();
-          LatLng latLng = new LatLng(lat, lng);
-          // Position of Marker on Map
-          markerOptions.position(latLng);
-          // Adding Title to the Marker
-          markerOptions.title(placeName + " : " + vicinity);
-          // Adding Marker to the Camera.
-          Marker m = map.addMarker(markerOptions);
-          // Adding colour to the marker
-          markerOptions
-              .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-          // Construct a CameraPosition focusing on the current location View and animate the camera to that position.
-          mCurrentLocation = new LatLng(latitude, longitude);
-          CameraPosition cameraPosition = new CameraPosition.Builder()
-              .target(mCurrentLocation)      // Sets the center of the map to Mountain View
-              .zoom(15)                   // Sets the zoom
-              .bearing(0)                // Sets the orientation of the camera to east
-              .tilt(0)                   // Sets the tilt of the camera to 30 degrees
-              .build();                   // Creates a CameraPosition from the builder
-          map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        try {
+          map.clear();
+          Log.i(LOG_TAG, "The Retrofit Response is: " + response.toString());
+          // This loop will go through all the results and add marker on each location.
+          for (int i = 0; i < response.body().getResults().size(); i++) {
+            Double lat = response.body().getResults().get(i).getGeometry().getLocation().getLat();
+            Double lng = response.body().getResults().get(i).getGeometry().getLocation().getLng();
+            String placeName = response.body().getResults().get(i).getName();
+            String vicinity = response.body().getResults().get(i).getVicinity();
+            String id = response.body().getResults().get(i).getId();
+            MarkerOptions markerOptions = new MarkerOptions();
+            LatLng latLng = new LatLng(lat, lng);
+            // Position of Marker on Map
+            markerOptions.position(latLng);
+            // Adding Title to the Marker
+            markerOptions.title(placeName + " : " + vicinity);
+            // Adding Marker to the Camera.
+            Marker m = map.addMarker(markerOptions);
+            // Adding colour to the marker
+            markerOptions
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            // Construct a CameraPosition focusing on the current location View and animate the camera to that position.
+            mCurrentLocation = new LatLng(latitude, longitude);
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(mCurrentLocation)      // Sets the center of the map to Mountain View
+                .zoom(15)                   // Sets the zoom
+                .bearing(0)                // Sets the orientation of the camera to east
+                .tilt(0)                   // Sets the tilt of the camera to 30 degrees
+                .build();                   // Creates a CameraPosition from the builder
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+          }
+        } catch (Exception e) {
+          Log.d("onResponse", "There is an error");
+          e.printStackTrace();
         }
       }
 

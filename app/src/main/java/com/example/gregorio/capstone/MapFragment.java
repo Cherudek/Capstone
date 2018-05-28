@@ -3,27 +3,37 @@ package com.example.gregorio.capstone;
 import static com.google.android.gms.location.places.Places.getPlaceDetectionClient;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -37,6 +47,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import pojos.Favourite;
 import retrofit.BuildRetrofitGetResponse;
 
 public class MapFragment extends Fragment {
@@ -47,6 +60,8 @@ public class MapFragment extends Fragment {
   private LatLngBounds.Builder mBounds = new LatLngBounds.Builder();
   private final int MY_LOCATION_REQUEST_CODE = 101;
   private static final int GOOGLE_API_CLIENT_ID = 0;
+  private static final int REQUEST_PLACE_PICKER = 1;
+
   private GoogleApiClient mGoogleApiClient;
   private PlaceDetectionClient mPlaceDetectionClient;
   // The entry point to the Fused Location Provider API to get location in Android.
@@ -55,16 +70,22 @@ public class MapFragment extends Fragment {
   // A default location (London, Uk) and default zoom to use when location permission is
   private final LatLng mDefaultLocation = new LatLng(51.508530, -0.076132);
   private final LatLng mNBH = new LatLng(51.5189618, -0.1450063);
-  private static final int DEFAULT_ZOOM = 1000;
   private final LatLng PiazzaSanCarloTurin = new LatLng(45.0671652, 7.681715);
   private Double latitude;
   private Double longitude;
-  private LatLng mCurrentLocation;
   private String apiKey;
   private SearchView searchEditText;
   private Task<Location> location;
   private BuildRetrofitGetResponse buildRetrofitAndGetResponse;
-
+  private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
+  private static final String FIREBASE_ROOT_NODE = "checkouts";
+  private DatabaseReference mPlacesDatabaseReference;
+  private FirebaseDatabase mFirebaseDatabase;
+  private Button checkOut;
+  private String mPlaceAttributions;
+  private String mPlaceId;
+  private String mPlaceName;
+  private String mPlaceWebUrl;
 
   public MapFragment(){
   }
@@ -73,8 +94,9 @@ public class MapFragment extends Fragment {
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
-    View rootView = inflater.inflate(R.layout.fragment_map, container, false);
+    final View rootView = inflater.inflate(R.layout.fragment_map, container, false);
     TextView textView = rootView.findViewById(R.id.maptv);
+    checkOut = rootView.findViewById(R.id.checkout_button);
     textView.setText("MAP FRAGMENT");
     textView.setVisibility(View.INVISIBLE);
     searchEditText = rootView.findViewById(R.id.editText);
@@ -87,6 +109,14 @@ public class MapFragment extends Fragment {
     } catch (Exception e) {
       e.printStackTrace();
     }
+
+    checkOut.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        checkOut(rootView);
+      }
+    });
+
 
     mapView.getMapAsync(new OnMapReadyCallback() {
       @Override
@@ -133,20 +163,24 @@ public class MapFragment extends Fragment {
       }
     };
 
+    // Initialize Firebase components
+    mFirebaseDatabase = FirebaseDatabase.getInstance();
+    mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
+
     // Build a new Retrofit Object for the Search Query
     buildRetrofitAndGetResponse = new BuildRetrofitGetResponse();
-    getLastLocation();
 
     // Search NearbyPlaces Query to Launch Retrofit call
     searchEditText.setOnQueryTextListener(new OnQueryTextListener() {
       @Override
       public boolean onQueryTextSubmit(String query) {
         // Retrofit Call to the new Query
+        getLastLocation();
         query = searchEditText.getQuery().toString();
         buildRetrofitAndGetResponse
             .buildRetrofitAndGetResponse(query, latitude, longitude, apiKey, mMap);
-        // buildRetrofitAndGetResponse(searchEditText.getQuery().toString());
         Log.i(LOG_TAG, "The Search Query is: " + query);
+
         return false;
       }
 
@@ -158,6 +192,59 @@ public class MapFragment extends Fragment {
     });
 
     return rootView;
+  }
+
+  // Prompt the user to check out of their location. Called when the "Check Out!" button
+  // is clicked.
+  public void checkOut(View view) {
+    try {
+      PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
+      Intent intent = intentBuilder.build(getActivity());
+      startActivityForResult(intent, REQUEST_PLACE_PICKER);
+    } catch (GooglePlayServicesRepairableException e) {
+      GoogleApiAvailability.getInstance().getErrorDialog(getActivity(), e.getConnectionStatusCode(),
+          REQUEST_PLACE_PICKER);
+    } catch (GooglePlayServicesNotAvailableException e) {
+      Toast.makeText(getContext(), "Please install Google Play Services!", Toast.LENGTH_LONG)
+          .show();
+    }
+  }
+
+  // Once the user has chosen a place, onActivityResult will be called, so we need to implement that now.
+  // This code checks that the intent was successful and uses PlacePicker.getPlace() to obtain the chosen Place.
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (requestCode == REQUEST_PLACE_PICKER) {
+      if (resultCode == Activity.RESULT_OK) {
+        Place place = PlacePicker.getPlace(getContext(), data);
+        mPlaceId = place.getId();
+        mPlaceName = place.getName().toString();
+        if (place.getAttributions() != null) {
+          mPlaceAttributions = place.getAttributions().toString();
+        } else {
+          mPlaceAttributions = "";
+        }
+        if (place.getWebsiteUri() != null) {
+          mPlaceWebUrl = place.getWebsiteUri().toString();
+        } else {
+          mPlaceWebUrl = "";
+        }
+        Favourite favouriteObject = new Favourite(mPlaceId, mPlaceName, mPlaceWebUrl,
+            mPlaceAttributions);
+        String favourite = getString(R.string.nv_favourites);
+        mPlacesDatabaseReference.child(favourite).push().setValue(favouriteObject);
+        Snackbar snackbar = Snackbar
+            .make(getView(), "Location stored on Firebase!", Snackbar.LENGTH_SHORT);
+        snackbar.show();
+
+      } else if (resultCode == PlacePicker.RESULT_ERROR) {
+        Toast.makeText(getContext(),
+            "Places API failure! Check that the API is enabled for your key",
+            Toast.LENGTH_LONG).show();
+      } else {
+        super.onActivityResult(requestCode, resultCode, data);
+      }
+    }
   }
 
   // Check if local permission is enabled and ask the user to enable it if not to access app functionality
