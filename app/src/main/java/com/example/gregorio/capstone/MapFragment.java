@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -30,6 +29,8 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.AutocompletePredictionBufferResponse;
+import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.Places;
@@ -81,7 +82,7 @@ public class MapFragment extends Fragment {
   private static final String FIREBASE_ROOT_NODE = "checkouts";
   private DatabaseReference mPlacesDatabaseReference;
   private FirebaseDatabase mFirebaseDatabase;
-  private Button checkOut;
+  private Button checkOutBtn;
   private String mPlaceAttributions;
   private String mPlaceId;
   private String mPlaceName;
@@ -95,10 +96,7 @@ public class MapFragment extends Fragment {
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     final View rootView = inflater.inflate(R.layout.fragment_map, container, false);
-    TextView textView = rootView.findViewById(R.id.maptv);
-    checkOut = rootView.findViewById(R.id.checkout_button);
-    textView.setText("MAP FRAGMENT");
-    textView.setVisibility(View.INVISIBLE);
+    checkOutBtn = rootView.findViewById(R.id.checkout_button);
     searchEditText = rootView.findViewById(R.id.editText);
     apiKey = getString(com.example.gregorio.capstone.R.string.google_maps_key);
     mapView = rootView.findViewById(R.id.map);
@@ -110,14 +108,14 @@ public class MapFragment extends Fragment {
       e.printStackTrace();
     }
 
-    checkOut.setOnClickListener(new OnClickListener() {
+    checkOutBtn.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
         checkOut(rootView);
       }
     });
 
-
+    // Sync Map to current location (if permitted) on the fragment View
     mapView.getMapAsync(new OnMapReadyCallback() {
       @Override
       public void onMapReady(GoogleMap googleMap) {
@@ -150,19 +148,20 @@ public class MapFragment extends Fragment {
         .build();
     mGoogleApiClient.connect();
 
-
     // @OnMarkerClickListener added to the map
     onMarkerClickListener = new OnMarkerClickListener() {
       @Override
       public boolean onMarkerClick(Marker marker) {
         String title = marker.getTitle();
         Toast toast = Toast
-            .makeText(getContext(), "You Clicked on " + title, Toast.LENGTH_SHORT);
+            .makeText(getContext(), "You clicked on " + title, Toast.LENGTH_SHORT);
         toast.show();
         return false;
       }
     };
 
+    // Enable disk persistence
+    FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     // Initialize Firebase components
     mFirebaseDatabase = FirebaseDatabase.getInstance();
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
@@ -180,19 +179,17 @@ public class MapFragment extends Fragment {
         buildRetrofitAndGetResponse
             .buildRetrofitAndGetResponse(query, latitude, longitude, apiKey, mMap);
         Log.i(LOG_TAG, "The Search Query is: " + query);
-
         return false;
       }
-
       @Override
       public boolean onQueryTextChange(String newText) {
-        Log.i(LOG_TAG, "New Query");
         return false;
       }
     });
 
     return rootView;
   }
+
 
   // Prompt the user to check out of their location. Called when the "Check Out!" button
   // is clicked.
@@ -229,6 +226,7 @@ public class MapFragment extends Fragment {
         } else {
           mPlaceWebUrl = "";
         }
+        // Object to be passed to the firebase db reference.
         Favourite favouriteObject = new Favourite(mPlaceId, mPlaceName, mPlaceWebUrl,
             mPlaceAttributions);
         String favourite = getString(R.string.nv_favourites);
@@ -236,7 +234,6 @@ public class MapFragment extends Fragment {
         Snackbar snackbar = Snackbar
             .make(getView(), "Location stored on Firebase!", Snackbar.LENGTH_SHORT);
         snackbar.show();
-
       } else if (resultCode == PlacePicker.RESULT_ERROR) {
         Toast.makeText(getContext(),
             "Places API failure! Check that the API is enabled for your key",
