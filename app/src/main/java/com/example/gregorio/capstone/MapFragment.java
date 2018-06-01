@@ -2,18 +2,14 @@ package com.example.gregorio.capstone;
 
 import static com.google.android.gms.location.places.Places.getPlaceDetectionClient;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,8 +25,6 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.AutocompletePredictionBufferResponse;
-import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.Places;
@@ -50,6 +44,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import permissions.LocationPermission;
 import pojos.Favourite;
 import retrofit.BuildRetrofitGetResponse;
 
@@ -87,6 +82,7 @@ public class MapFragment extends Fragment {
   private String mPlaceId;
   private String mPlaceName;
   private String mPlaceWebUrl;
+  private LocationPermission locationPermission;
 
   public MapFragment(){
   }
@@ -115,12 +111,15 @@ public class MapFragment extends Fragment {
       }
     });
 
+    locationPermission = new LocationPermission();
+
+
     // Sync Map to current location (if permitted) on the fragment View
     mapView.getMapAsync(new OnMapReadyCallback() {
       @Override
       public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        if (checkLocalPermission()) {
+        if (locationPermission.checkLocalPermission(getContext())) {
           // If the Location Permission id Granted Enable Location on the Map
           mMap.setMyLocationEnabled(true);
           mMap.setBuildingsEnabled(true);
@@ -153,6 +152,12 @@ public class MapFragment extends Fragment {
       @Override
       public boolean onMarkerClick(Marker marker) {
         String title = marker.getTitle();
+        String markerId = marker.getId();
+        Intent markerToDetailIntent = new Intent(getContext(), DetailFragment.class);
+        markerToDetailIntent.putExtra("TITLE", title);
+        markerToDetailIntent.putExtra("ID", markerId);
+        startActivity(markerToDetailIntent);
+
         Toast toast = Toast
             .makeText(getContext(), "You clicked on " + title, Toast.LENGTH_SHORT);
         toast.show();
@@ -244,40 +249,40 @@ public class MapFragment extends Fragment {
     }
   }
 
-  // Check if local permission is enabled and ask the user to enable it if not to access app functionality
-  private boolean checkLocalPermission() {
-    if (ContextCompat.checkSelfPermission(getContext(),
-        Manifest.permission.ACCESS_FINE_LOCATION)
-        != PackageManager.PERMISSION_GRANTED) {
-
-      // Asking user if explanation is needed
-      if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
-          Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-        // Show an explanation to the user *asynchronously* -- don't block
-        // this thread waiting for the user's response! After the user
-        // sees the explanation, try again to request the permission.
-
-        //Prompt the user once explanation has been shown
-        ActivityCompat.requestPermissions(getActivity(),
-            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-            MY_LOCATION_REQUEST_CODE);
-      } else {
-        // No explanation needed, we can request the permission.
-        ActivityCompat.requestPermissions(getActivity(),
-            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-            MY_LOCATION_REQUEST_CODE);
-      }
-      return false;
-    } else {
-      return true;
-    }
-  }
+//  // Check if local permission is enabled and ask the user to enable it if not to access app functionality
+//  private boolean checkLocalPermission() {
+//    if (ContextCompat.checkSelfPermission(getContext(),
+//        Manifest.permission.ACCESS_FINE_LOCATION)
+//        != PackageManager.PERMISSION_GRANTED) {
+//
+//      // Asking user if explanation is needed
+//      if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+//          Manifest.permission.ACCESS_FINE_LOCATION)) {
+//
+//        // Show an explanation to the user *asynchronously* -- don't block
+//        // this thread waiting for the user's response! After the user
+//        // sees the explanation, try again to request the permission.
+//
+//        //Prompt the user once explanation has been shown
+//        ActivityCompat.requestPermissions(getActivity(),
+//            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+//            MY_LOCATION_REQUEST_CODE);
+//      } else {
+//        // No explanation needed, we can request the permission.
+//        ActivityCompat.requestPermissions(getActivity(),
+//            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+//            MY_LOCATION_REQUEST_CODE);
+//      }
+//      return false;
+//    } else {
+//      return true;
+//    }
+//  }
 
   // Get the last known location of the device
   public void getLastLocation() {
     // Get last known recent location using new Google Play Services SDK (v11+)
-    if (checkLocalPermission()) {
+    if (locationPermission.checkLocalPermission(getContext())) {
       location = LocationServices.getFusedLocationProviderClient(getActivity()).getLastLocation();
     }
     location
