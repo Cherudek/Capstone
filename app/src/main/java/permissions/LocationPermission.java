@@ -1,6 +1,7 @@
 package permissions;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
@@ -15,13 +16,13 @@ public class LocationPermission extends AppCompatActivity {
   }
 
   // Check if local permission is enabled and ask the user to enable it if not to access app functionality
-  public final boolean checkLocalPermission(Context context) {
+  public final boolean checkLocalPermission(Context context, Activity activity) {
     if (ContextCompat.checkSelfPermission(context,
         Manifest.permission.ACCESS_FINE_LOCATION)
         != PackageManager.PERMISSION_GRANTED) {
 
       // Asking user if explanation is needed
-      if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+      if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
           Manifest.permission.ACCESS_FINE_LOCATION)) {
 
         // Show an explanation to the user *asynchronously* -- don't block
@@ -29,12 +30,12 @@ public class LocationPermission extends AppCompatActivity {
         // sees the explanation, try again to request the permission.
 
         //Prompt the user once explanation has been shown
-        ActivityCompat.requestPermissions(this,
+        ActivityCompat.requestPermissions(activity,
             new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
             MY_LOCATION_REQUEST_CODE);
       } else {
         // No explanation needed, we can request the permission.
-        ActivityCompat.requestPermissions(this,
+        ActivityCompat.requestPermissions(activity,
             new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
             MY_LOCATION_REQUEST_CODE);
       }

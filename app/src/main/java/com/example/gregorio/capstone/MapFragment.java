@@ -1,13 +1,12 @@
 package com.example.gregorio.capstone;
 
-import static com.google.android.gms.location.places.Places.getPlaceDetectionClient;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -15,19 +14,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.Toast;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlaceDetectionClient;
-import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -44,6 +38,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import googleplacesapi.GoogleMapsApi;
 import permissions.LocationPermission;
 import pojos.Favourite;
 import retrofit.BuildRetrofitGetResponse;
@@ -54,19 +49,15 @@ public class MapFragment extends Fragment {
   private GoogleMap mMap;
   private MapView mapView;
   private LatLngBounds.Builder mBounds = new LatLngBounds.Builder();
-  private final int MY_LOCATION_REQUEST_CODE = 101;
-  private static final int GOOGLE_API_CLIENT_ID = 0;
   private static final int REQUEST_PLACE_PICKER = 1;
-
-  private GoogleApiClient mGoogleApiClient;
-  private PlaceDetectionClient mPlaceDetectionClient;
-  // The entry point to the Fused Location Provider API to get location in Android.
-  private FusedLocationProviderClient mFusedLocationProviderClient;
   private OnMarkerClickListener onMarkerClickListener;
   // A default location (London, Uk) and default zoom to use when location permission is
   private final LatLng mDefaultLocation = new LatLng(51.508530, -0.076132);
   private final LatLng mNBH = new LatLng(51.5189618, -0.1450063);
   private final LatLng PiazzaSanCarloTurin = new LatLng(45.0671652, 7.681715);
+  private final LatLng PiazzaCastello = new LatLng(45.0715073, 7.6840879);
+
+
   private Double latitude;
   private Double longitude;
   private String apiKey;
@@ -77,7 +68,7 @@ public class MapFragment extends Fragment {
   private static final String FIREBASE_ROOT_NODE = "checkouts";
   private DatabaseReference mPlacesDatabaseReference;
   private FirebaseDatabase mFirebaseDatabase;
-  private Button checkOutBtn;
+  private FloatingActionButton checkOutBtn;
   private String mPlaceAttributions;
   private String mPlaceId;
   private String mPlaceName;
@@ -113,20 +104,19 @@ public class MapFragment extends Fragment {
 
     locationPermission = new LocationPermission();
 
-
     // Sync Map to current location (if permitted) on the fragment View
     mapView.getMapAsync(new OnMapReadyCallback() {
       @Override
       public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        if (locationPermission.checkLocalPermission(getContext())) {
+        if (locationPermission.checkLocalPermission(getContext(), getActivity())) {
           // If the Location Permission id Granted Enable Location on the Map
           mMap.setMyLocationEnabled(true);
           mMap.setBuildingsEnabled(true);
           mMap.setOnMarkerClickListener(onMarkerClickListener);
           // Construct a CameraPosition focusing on Mountain View and animate the camera to that position.
           CameraPosition cameraPosition = new CameraPosition.Builder()
-              .target(PiazzaSanCarloTurin)      // Sets the center of the map to Mountain View
+              .target(PiazzaCastello)      // Sets the center of the map to Mountain View
               .zoom(12)                   // Sets the zoom
               .bearing(0)                // Sets the orientation of the camera to east
               .tilt(30)                   // Sets the tilt of the camera to 30 degrees
@@ -136,16 +126,11 @@ public class MapFragment extends Fragment {
       }
     });
 
-    // Construct a PlaceDetectionClient.
-    mPlaceDetectionClient = getPlaceDetectionClient(getContext());
-    // Construct a FusedLocationProviderClient.
-    mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
-    // Set up the API client for Places API
-    mGoogleApiClient = new GoogleApiClient.Builder(getContext())
-        .addApi(Places.GEO_DATA_API)
-        .addApi(LocationServices.API)
-        .build();
-    mGoogleApiClient.connect();
+    // Check if the Google Play Services are available or not
+    GoogleMapsApi googleMapsApi = new GoogleMapsApi();
+    googleMapsApi.CheckGooglePlayServices(getContext(), getActivity());
+    googleMapsApi.GoogleApiClient(getContext());
+
 
     // @OnMarkerClickListener added to the map
     onMarkerClickListener = new OnMarkerClickListener() {
@@ -153,11 +138,14 @@ public class MapFragment extends Fragment {
       public boolean onMarkerClick(Marker marker) {
         String title = marker.getTitle();
         String markerId = marker.getId();
-        Intent markerToDetailIntent = new Intent(getContext(), DetailFragment.class);
-        markerToDetailIntent.putExtra("TITLE", title);
-        markerToDetailIntent.putExtra("ID", markerId);
-        startActivity(markerToDetailIntent);
-
+        // Bundle to launch the Detail Fragment
+        Bundle bundle = new Bundle();
+        bundle.putString("TITLE", title);
+        bundle.putString("ID", markerId);
+        // set DetailFragment Arguments
+        DetailFragment fragobj = new DetailFragment();
+        fragobj.setArguments(bundle);
+        // Toast to confirm the New Fragment
         Toast toast = Toast
             .makeText(getContext(), "You clicked on " + title, Toast.LENGTH_SHORT);
         toast.show();
@@ -249,40 +237,11 @@ public class MapFragment extends Fragment {
     }
   }
 
-//  // Check if local permission is enabled and ask the user to enable it if not to access app functionality
-//  private boolean checkLocalPermission() {
-//    if (ContextCompat.checkSelfPermission(getContext(),
-//        Manifest.permission.ACCESS_FINE_LOCATION)
-//        != PackageManager.PERMISSION_GRANTED) {
-//
-//      // Asking user if explanation is needed
-//      if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
-//          Manifest.permission.ACCESS_FINE_LOCATION)) {
-//
-//        // Show an explanation to the user *asynchronously* -- don't block
-//        // this thread waiting for the user's response! After the user
-//        // sees the explanation, try again to request the permission.
-//
-//        //Prompt the user once explanation has been shown
-//        ActivityCompat.requestPermissions(getActivity(),
-//            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//            MY_LOCATION_REQUEST_CODE);
-//      } else {
-//        // No explanation needed, we can request the permission.
-//        ActivityCompat.requestPermissions(getActivity(),
-//            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//            MY_LOCATION_REQUEST_CODE);
-//      }
-//      return false;
-//    } else {
-//      return true;
-//    }
-//  }
 
   // Get the last known location of the device
   public void getLastLocation() {
     // Get last known recent location using new Google Play Services SDK (v11+)
-    if (locationPermission.checkLocalPermission(getContext())) {
+    if (locationPermission.checkLocalPermission(getContext(), getActivity())) {
       location = LocationServices.getFusedLocationProviderClient(getActivity()).getLastLocation();
     }
     location
