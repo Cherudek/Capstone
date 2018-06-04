@@ -11,6 +11,9 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -55,13 +58,13 @@ public class MapFragment extends Fragment {
   private final LatLng mDefaultLocation = new LatLng(51.508530, -0.076132);
   private final LatLng mNBH = new LatLng(51.5189618, -0.1450063);
   private final LatLng PiazzaSanCarloTurin = new LatLng(45.0671652, 7.681715);
-  private final LatLng PiazzaCastello = new LatLng(45.0715073, 7.6840879);
+  private final LatLng PiazzaCastello = new LatLng(45.0710394, 7.6862986);
 
 
   private Double latitude;
   private Double longitude;
+  private LatLng mCurrentLocation;
   private String apiKey;
-  private SearchView searchEditText;
   private Task<Location> location;
   private BuildRetrofitGetResponse buildRetrofitAndGetResponse;
   private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
@@ -84,7 +87,7 @@ public class MapFragment extends Fragment {
       @Nullable Bundle savedInstanceState) {
     final View rootView = inflater.inflate(R.layout.fragment_map, container, false);
     checkOutBtn = rootView.findViewById(R.id.checkout_button);
-    searchEditText = rootView.findViewById(R.id.editText);
+    //searchEditText = rootView.findViewById(R.id.menu_search);
     apiKey = getString(com.example.gregorio.capstone.R.string.google_maps_key);
     mapView = rootView.findViewById(R.id.map);
     mapView.onCreate(savedInstanceState);
@@ -109,6 +112,7 @@ public class MapFragment extends Fragment {
       @Override
       public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.clear();
         if (locationPermission.checkLocalPermission(getContext(), getActivity())) {
           // If the Location Permission id Granted Enable Location on the Map
           mMap.setMyLocationEnabled(true);
@@ -116,7 +120,7 @@ public class MapFragment extends Fragment {
           mMap.setOnMarkerClickListener(onMarkerClickListener);
           // Construct a CameraPosition focusing on Mountain View and animate the camera to that position.
           CameraPosition cameraPosition = new CameraPosition.Builder()
-              .target(PiazzaCastello)      // Sets the center of the map to Mountain View
+              .target(PiazzaCastello)      // Sets the center of the map to Piazza Castello
               .zoom(12)                   // Sets the zoom
               .bearing(0)                // Sets the orientation of the camera to east
               .tilt(30)                   // Sets the tilt of the camera to 30 degrees
@@ -154,35 +158,51 @@ public class MapFragment extends Fragment {
     };
 
     // Enable disk persistence
-    FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+    //  FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     // Initialize Firebase components
     mFirebaseDatabase = FirebaseDatabase.getInstance();
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
-
     // Build a new Retrofit Object for the Search Query
     buildRetrofitAndGetResponse = new BuildRetrofitGetResponse();
 
-    // Search NearbyPlaces Query to Launch Retrofit call
-    searchEditText.setOnQueryTextListener(new OnQueryTextListener() {
+    return rootView;
+  }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    super.onCreateOptionsMenu(menu, inflater);
+    menu.clear();
+    inflater.inflate(R.menu.main, menu);
+    MenuItem menuItem = menu.findItem(R.id.menu_search);
+    final SearchView searchView = new SearchView(getContext());
+    searchView.setOnQueryTextListener(new OnQueryTextListener() {
       @Override
       public boolean onQueryTextSubmit(String query) {
         // Retrofit Call to the new Query
         getLastLocation();
-        query = searchEditText.getQuery().toString();
+        query = searchView.getQuery().toString();
         buildRetrofitAndGetResponse
             .buildRetrofitAndGetResponse(query, latitude, longitude, apiKey, mMap);
         Log.i(LOG_TAG, "The Search Query is: " + query);
         return false;
       }
+
       @Override
       public boolean onQueryTextChange(String newText) {
         return false;
       }
     });
-
-    return rootView;
   }
 
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    int id = item.getItemId();
+    //noinspection SimplifiableIfStatement
+    if (id == R.id.menu_search) {
+      return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
 
   // Prompt the user to check out of their location. Called when the "Check Out!" button
   // is clicked.

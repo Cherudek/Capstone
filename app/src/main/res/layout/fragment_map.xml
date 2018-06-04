@@ -17,20 +17,4 @@
     android:layout_gravity="bottom|end"
     android:src="@drawable/ic_baseline_add_24px"
     />
-
-  <SearchView
-    android:id="@+id/editText"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/margin_7x"
-    android:layout_marginLeft="@dimen/margin_2x"
-    android:layout_marginRight="@dimen/margin_2x"
-    android:layout_gravity="bottom|end"
-    android:iconifiedByDefault="false"
-    android:imeOptions="actionSearch"
-    android:inputType="text"
-    android:background="@color/primaryLightColor"
-    android:queryHint="@string/search_hint"
-    android:textAlignment="center"/>
-
 </android.support.design.widget.CoordinatorLayout>
