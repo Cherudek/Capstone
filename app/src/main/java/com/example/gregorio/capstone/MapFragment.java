@@ -1,6 +1,7 @@
 package com.example.gregorio.capstone;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
@@ -18,7 +19,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.SearchView;
-import android.widget.SearchView.OnQueryTextListener;
 import android.widget.Toast;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -46,7 +46,8 @@ import permissions.LocationPermission;
 import pojos.Favourite;
 import retrofit.BuildRetrofitGetResponse;
 
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment implements SearchView.OnQueryTextListener,
+    MenuItem.OnActionExpandListener {
 
   public static final String LOG_TAG = MapFragment.class.getSimpleName();
   private GoogleMap mMap;
@@ -77,8 +78,16 @@ public class MapFragment extends Fragment {
   private String mPlaceName;
   private String mPlaceWebUrl;
   private LocationPermission locationPermission;
+  private Context mContext;
 
   public MapFragment(){
+  }
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    mContext = getActivity();
+    setHasOptionsMenu(true);
   }
 
   @Nullable
@@ -126,6 +135,7 @@ public class MapFragment extends Fragment {
               .tilt(30)                   // Sets the tilt of the camera to 30 degrees
               .build();                   // Creates a CameraPosition from the builder
           mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+          getLastLocation();
         }
       }
     });
@@ -174,35 +184,41 @@ public class MapFragment extends Fragment {
     menu.clear();
     inflater.inflate(R.menu.main, menu);
     MenuItem menuItem = menu.findItem(R.id.menu_search);
-    final SearchView searchView = new SearchView(getContext());
-    searchView.setOnQueryTextListener(new OnQueryTextListener() {
-      @Override
-      public boolean onQueryTextSubmit(String query) {
-        // Retrofit Call to the new Query
-        getLastLocation();
-        query = searchView.getQuery().toString();
-        buildRetrofitAndGetResponse
-            .buildRetrofitAndGetResponse(query, latitude, longitude, apiKey, mMap);
-        Log.i(LOG_TAG, "The Search Query is: " + query);
-        return false;
-      }
-
-      @Override
-      public boolean onQueryTextChange(String newText) {
-        return false;
-      }
-    });
+    SearchView searchView = (SearchView) menuItem.getActionView();
+    searchView.setOnQueryTextListener(this);
+    searchView.setQueryHint("Search Nearby Places");
+    searchView.setIconified(true);
+    searchView.setSubmitButtonEnabled(true);
+    searchView.setQueryRefinementEnabled(true);
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    int id = item.getItemId();
-    //noinspection SimplifiableIfStatement
-    if (id == R.id.menu_search) {
-      return true;
-    }
-    return super.onOptionsItemSelected(item);
+  public boolean onQueryTextSubmit(String query) {
+    // Retrofit Call to the new Query
+    buildRetrofitAndGetResponse
+        .buildRetrofitAndGetResponse(query, latitude, longitude, apiKey, mMap);
+    Log.i(LOG_TAG, "The Search Query is: " + query);
+    return true;
   }
+
+  @Override
+  public boolean onQueryTextChange(String newText) {
+    return false;
+  }
+
+  @Override
+  public boolean onMenuItemActionExpand(MenuItem item) {
+    return true;
+  }
+
+  @Override
+  public boolean onMenuItemActionCollapse(MenuItem item) {
+    return true;
+  }
+
+
+
+
 
   // Prompt the user to check out of their location. Called when the "Check Out!" button
   // is clicked.
