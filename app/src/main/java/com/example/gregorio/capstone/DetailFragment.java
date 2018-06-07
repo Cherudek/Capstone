@@ -3,10 +3,12 @@ package com.example.gregorio.capstone;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 
 /**
@@ -27,6 +29,8 @@ public class DetailFragment extends Fragment {
   // TODO: Rename and change types of parameters
   private String mTitle;
   private String mId;
+  private TextView tvTitle;
+  private TextView tvId;
 
   private OnFragmentInteractionListener mListener;
 
@@ -62,10 +66,31 @@ public class DetailFragment extends Fragment {
   }
 
   @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    Bundle bundle = getArguments();
+    if (bundle != null) {
+      // Get the Data from the map object clicked in the map fragment
+      mTitle = getArguments().getString(ARG_TITLE);
+      mId = getArguments().getString(ARG_ID);
+
+    }
+  }
+
+  @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
+
+    View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+
+    tvId = rootView.findViewById(R.id.marker_id);
+    tvId.setText(mId);
+    tvTitle = rootView.findViewById(R.id.marker_title);
+    tvTitle.setText(mTitle);
+
     // Inflate the layout for this fragment
-    return inflater.inflate(R.layout.fragment_detail, container, false);
+    return rootView;
+
   }
 
   // TODO: Rename method, update argument and hook method into UI event

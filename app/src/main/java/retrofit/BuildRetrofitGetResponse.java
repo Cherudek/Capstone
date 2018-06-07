@@ -10,7 +10,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import pojos.Example;
+import pojos.NearbyPlaces;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -35,11 +35,11 @@ public class BuildRetrofitGetResponse {
         .build();
     RetrofitMaps service = retrofit.create(RetrofitMaps.class);
 
-    Call<Example> call = service
+    Call<NearbyPlaces> call = service
         .getNearbyPlaces(keywords, latitude + "," + longitude, DEFAULT_ZOOM, apiKey);
-    call.enqueue(new Callback<Example>() {
+    call.enqueue(new Callback<NearbyPlaces>() {
       @Override
-      public void onResponse(Call<Example> call, Response<Example> response) {
+      public void onResponse(Call<NearbyPlaces> call, Response<NearbyPlaces> response) {
         try {
           map.clear();
           Log.i(LOG_TAG, "The Retrofit Response is: " + response.toString());
@@ -54,9 +54,9 @@ public class BuildRetrofitGetResponse {
             LatLng latLng = new LatLng(lat, lng);
             // Position of Marker on Map
             markerOptions.position(latLng);
-            // Adding Title to the Marker
+            // Adding Title (Name of the place) and Vicinity (address) to the Marker
             markerOptions.title(placeName + " : " + vicinity);
-            // Adding Marker to the Camera.
+            // Adding Marker to the Map.
             Marker m = map.addMarker(markerOptions);
             // Adding colour to the marker
             markerOptions
@@ -64,7 +64,8 @@ public class BuildRetrofitGetResponse {
             // Construct a CameraPosition focusing on the current location View and animate the camera to that position.
             mCurrentLocation = new LatLng(latitude, longitude);
             CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(mCurrentLocation)      // Sets the center of the map to Mountain View
+                .target(
+                    mCurrentLocation)      // Sets the center of the map to the current user View
                 .zoom(15)                   // Sets the zoom
                 .bearing(0)                // Sets the orientation of the camera to east
                 .tilt(0)                   // Sets the tilt of the camera to 30 degrees
@@ -78,7 +79,7 @@ public class BuildRetrofitGetResponse {
       }
 
       @Override
-      public void onFailure(Call<Example> call, Throwable t) {
+      public void onFailure(Call<NearbyPlaces> call, Throwable t) {
         Log.d(LOG_TAG, "onFailure" + t.toString());
       }
     });

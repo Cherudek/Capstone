@@ -4,6 +4,7 @@ import static com.google.android.gms.location.places.Places.getPlaceDetectionCli
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -12,7 +13,10 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.Places;
 
-public class GoogleMapsApi {
+public class GoogleMapsApi extends AppCompatActivity {
+
+  private static final int REQUEST_PLACE_PICKER = 1;
+
 
   public GoogleMapsApi() {
   }
@@ -43,4 +47,6 @@ public class GoogleMapsApi {
         .build();
     mGoogleApiClient.connect();
   }
+
+
 }

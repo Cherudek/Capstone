@@ -7,8 +7,17 @@
 
   <!-- TODO: Update blank fragment layout -->
   <TextView
+    android:id="@+id/marker_title"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:text="@string/hello_blank_fragment"/>
+    android:gravity="center_horizontal"
+    android:text="@string/marker_title"/>
+
+  <TextView
+    android:id="@+id/marker_id"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:text="@string/marker_id"/>
 
 </FrameLayout>

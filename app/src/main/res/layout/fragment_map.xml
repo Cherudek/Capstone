@@ -1,20 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  >
+  <data>
+    <import type="android.view.View"/>
+    <variable
+      name="viewmodel"
+      type="viewmodel.MapFragmentViewModel"/>
+  </data>
 <android.support.design.widget.CoordinatorLayout
   android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  xmlns:android="http://schemas.android.com/apk/res/android">
+  android:layout_height="match_parent">
 
-    <com.google.android.gms.maps.MapView
-      android:id="@+id/map"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"/>
+  <com.google.android.gms.maps.MapView
+    android:id="@+id/map"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    />
 
   <android.support.design.widget.FloatingActionButton
     android:id="@+id/checkout_button"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/margin_2x"
+    android:layout_marginBottom="@dimen/margin_9x"
+    android:layout_marginEnd="@dimen/margin_2x"
     android:layout_gravity="bottom|end"
     android:src="@drawable/ic_baseline_add_24px"
     />
 </android.support.design.widget.CoordinatorLayout>
+</layout>

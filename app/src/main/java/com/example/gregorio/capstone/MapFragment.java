@@ -54,12 +54,12 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private MapView mapView;
   private LatLngBounds.Builder mBounds = new LatLngBounds.Builder();
   private static final int REQUEST_PLACE_PICKER = 1;
-  private OnMarkerClickListener onMarkerClickListener;
+  private static final LatLng PiazzaCastello = new LatLng(45.0710394, 7.6862986);
   // A default location (London, Uk) and default zoom to use when location permission is
   private final LatLng mDefaultLocation = new LatLng(51.508530, -0.076132);
   private final LatLng mNBH = new LatLng(51.5189618, -0.1450063);
   private final LatLng PiazzaSanCarloTurin = new LatLng(45.0671652, 7.681715);
-  private final LatLng PiazzaCastello = new LatLng(45.0710394, 7.6862986);
+  private static OnMarkerClickListener onMarkerClickListener;
 
 
   private Double latitude;
@@ -79,6 +79,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private String mPlaceWebUrl;
   private LocationPermission locationPermission;
   private Context mContext;
+  private Boolean locationGranted;
+
+  private OnFragmentInteractionListener mListener;
 
   public MapFragment(){
   }
@@ -94,6 +97,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
+
     final View rootView = inflater.inflate(R.layout.fragment_map, container, false);
     checkOutBtn = rootView.findViewById(R.id.checkout_button);
     //searchEditText = rootView.findViewById(R.id.menu_search);
@@ -115,6 +119,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     });
 
     locationPermission = new LocationPermission();
+    locationGranted = locationPermission.checkLocalPermission(mContext, getActivity());
 
     // Sync Map to current location (if permitted) on the fragment View
     mapView.getMapAsync(new OnMapReadyCallback() {
@@ -122,7 +127,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.clear();
-        if (locationPermission.checkLocalPermission(getContext(), getActivity())) {
+        if (locationPermission.checkLocalPermission(mContext, getActivity())) {
           // If the Location Permission id Granted Enable Location on the Map
           mMap.setMyLocationEnabled(true);
           mMap.setBuildingsEnabled(true);
@@ -133,18 +138,20 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
               .zoom(12)                   // Sets the zoom
               .bearing(0)                // Sets the orientation of the camera to east
               .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-              .build();                   // Creates a CameraPosition from the builder
+              .build();
+          // Creates a CameraPosition from the builder
           mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
           getLastLocation();
+          // mCurrentLocation = new LatLng(latitude, longitude);
+          // bindLocationToMap(mapView, mCurrentLocation);
         }
       }
     });
 
     // Check if the Google Play Services are available or not
     GoogleMapsApi googleMapsApi = new GoogleMapsApi();
-    googleMapsApi.CheckGooglePlayServices(getContext(), getActivity());
-    googleMapsApi.GoogleApiClient(getContext());
-
+    googleMapsApi.CheckGooglePlayServices(mContext, getActivity());
+    googleMapsApi.GoogleApiClient(mContext);
 
     // @OnMarkerClickListener added to the map
     onMarkerClickListener = new OnMarkerClickListener() {
@@ -152,16 +159,12 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       public boolean onMarkerClick(Marker marker) {
         String title = marker.getTitle();
         String markerId = marker.getId();
-        // Bundle to launch the Detail Fragment
-        Bundle bundle = new Bundle();
-        bundle.putString("TITLE", title);
-        bundle.putString("ID", markerId);
-        // set DetailFragment Arguments
-        DetailFragment fragobj = new DetailFragment();
-        fragobj.setArguments(bundle);
+
+        onButtonPressed(marker);
+
         // Toast to confirm the New Fragment
         Toast toast = Toast
-            .makeText(getContext(), "You clicked on " + title, Toast.LENGTH_SHORT);
+            .makeText(mContext, "You clicked on " + title, Toast.LENGTH_SHORT);
         toast.show();
         return false;
       }
@@ -174,10 +177,34 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
     // Build a new Retrofit Object for the Search Query
     buildRetrofitAndGetResponse = new BuildRetrofitGetResponse();
-
     return rootView;
   }
 
+  // TODO: Rename method, update argument and hook method into UI event
+  public void onButtonPressed(Marker marker) {
+    if (mListener != null) {
+      mListener.onFragmentInteraction(marker);
+    }
+  }
+
+  @Override
+  public void onAttach(Context context) {
+    super.onAttach(context);
+    if (context instanceof OnFragmentInteractionListener) {
+      mListener = (OnFragmentInteractionListener) context;
+    } else {
+      throw new RuntimeException(context.toString()
+          + " must implement OnFragmentInteractionListener");
+    }
+  }
+
+  @Override
+  public void onDetach() {
+    super.onDetach();
+    mListener = null;
+  }
+
+  // App bar Search View setUp
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
@@ -190,6 +217,36 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     searchView.setIconified(true);
     searchView.setSubmitButtonEnabled(true);
     searchView.setQueryRefinementEnabled(true);
+    searchView.getQueryHint();
+  }
+
+//  @BindingAdapter("latLong")
+//  public static void bindLocationToMap(MapView mapView, LatLng latLong) {
+//    final CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLong, 10);
+//    mapView.getMapAsync(new OnMapReadyCallback() {
+//      @Override
+//      public void onMapReady(GoogleMap googleMap) {
+//          googleMap.setOnMarkerClickListener(onMarkerClickListener);
+//          // Updates a CameraPosition from the builder
+//          googleMap.animateCamera(cameraUpdate);
+//        }
+//    });
+//  }
+
+  // Prompt the user to check out of their location. Called when the "Check Out!" button
+  // is clicked.
+  public void checkOut(View view) {
+    try {
+      PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
+      Intent intent = intentBuilder.build(getActivity());
+      startActivityForResult(intent, REQUEST_PLACE_PICKER);
+    } catch (GooglePlayServicesRepairableException e) {
+      GoogleApiAvailability.getInstance().getErrorDialog(getActivity(), e.getConnectionStatusCode(),
+          REQUEST_PLACE_PICKER);
+    } catch (GooglePlayServicesNotAvailableException e) {
+      Toast.makeText(mContext, "Please install Google Play Services!", Toast.LENGTH_LONG)
+          .show();
+    }
   }
 
   @Override
@@ -216,33 +273,13 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     return true;
   }
 
-
-
-
-
-  // Prompt the user to check out of their location. Called when the "Check Out!" button
-  // is clicked.
-  public void checkOut(View view) {
-    try {
-      PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
-      Intent intent = intentBuilder.build(getActivity());
-      startActivityForResult(intent, REQUEST_PLACE_PICKER);
-    } catch (GooglePlayServicesRepairableException e) {
-      GoogleApiAvailability.getInstance().getErrorDialog(getActivity(), e.getConnectionStatusCode(),
-          REQUEST_PLACE_PICKER);
-    } catch (GooglePlayServicesNotAvailableException e) {
-      Toast.makeText(getContext(), "Please install Google Play Services!", Toast.LENGTH_LONG)
-          .show();
-    }
-  }
-
   // Once the user has chosen a place, onActivityResult will be called, so we need to implement that now.
   // This code checks that the intent was successful and uses PlacePicker.getPlace() to obtain the chosen Place.
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     if (requestCode == REQUEST_PLACE_PICKER) {
       if (resultCode == Activity.RESULT_OK) {
-        Place place = PlacePicker.getPlace(getContext(), data);
+        Place place = PlacePicker.getPlace(mContext, data);
         mPlaceId = place.getId();
         mPlaceName = place.getName().toString();
         if (place.getAttributions() != null) {
@@ -273,11 +310,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     }
   }
 
-
   // Get the last known location of the device
   public void getLastLocation() {
     // Get last known recent location using new Google Play Services SDK (v11+)
-    if (locationPermission.checkLocalPermission(getContext(), getActivity())) {
+    if (locationPermission.checkLocalPermission(mContext, getActivity())) {
       location = LocationServices.getFusedLocationProviderClient(getActivity()).getLastLocation();
     }
     location
@@ -300,5 +336,22 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
             e.printStackTrace();
           }
         });
+  }
+
+
+  /**
+   * This interface must be implemented by activities that contain this
+   * fragment to allow an interaction in this fragment to be communicated
+   * to the activity and potentially other fragments contained in that
+   * activity.
+   * <p>
+   * See the Android Training lesson <a href=
+   * "http://developer.android.com/training/basics/fragments/communicating.html"
+   * >Communicating with Other Fragments</a> for more information.
+   */
+  public interface OnFragmentInteractionListener {
+
+    // TODO: Update argument type and name
+    void onFragmentInteraction(Marker marker);
   }
 }

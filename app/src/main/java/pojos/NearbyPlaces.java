@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Example {
+public class NearbyPlaces {
 
   @SerializedName("html_attributions")
   @Expose
