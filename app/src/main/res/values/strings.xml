@@ -24,4 +24,5 @@
   <string name="hello_blank_fragment">Hello blank fragment</string>
   <string name="marker_id">Marker Id</string>
   <string name="marker_title">Marker Title</string>
+  <string name="web_url">Web Url</string>
 </resources>

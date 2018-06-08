@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.Marker;
 
 public class MainActivity extends AppCompatActivity
@@ -22,6 +23,8 @@ public class MainActivity extends AppCompatActivity
     MapFragment.OnFragmentInteractionListener, DetailFragment.OnFragmentInteractionListener {
 
   private final static String MAP_FRAGMENT_TAG = "Map Fragment Tag";
+  private final static String DETAIL_FRAGMENT_TAG = "Detail Fragment Tag";
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -121,8 +124,33 @@ public class MainActivity extends AppCompatActivity
     // Replace whatever is in the fragment_container view with this fragment,
     // and add the transaction to the back stack so the user can navigate back
     transaction.replace(R.id.fragment_container, detailFragment);
-    transaction.addToBackStack(null);
+    transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
+    // Commit the transaction
+    transaction.commit();
+  }
 
+  @Override
+  public void OnPlacePickerInteraction(Place place) {
+    Bundle bundle = new Bundle();
+    String placeId = place.getId();
+    String placeName = place.getName().toString();
+    if (place.getWebsiteUri() == null || place.getWebsiteUri().toString().isEmpty()) {
+      String placeWebUrl = "";
+      bundle.putString("PLACE WEB URL", placeWebUrl);
+    } else {
+      String placeWebUrl = place.getWebsiteUri().toString();
+      bundle.putString("PLACE WEB URL", placeWebUrl);
+    }
+    bundle.putString("ID", placeId);
+    bundle.putString("TITLE", placeName);
+    // set DetailFragment Arguments
+    DetailFragment detailFragment = new DetailFragment();
+    detailFragment.setArguments(bundle);
+    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+    // Replace whatever is in the fragment_container view with this fragment,
+    // and add the transaction to the back stack so the user can navigate back
+    transaction.replace(R.id.fragment_container, detailFragment);
+    transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
     // Commit the transaction
     transaction.commit();
   }

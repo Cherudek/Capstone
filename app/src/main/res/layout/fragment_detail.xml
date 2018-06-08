@@ -20,4 +20,11 @@
     android:gravity="center"
     android:text="@string/marker_id"/>
 
+  <TextView
+    android:id="@+id/web_url"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="bottom|center"
+    android:text="@string/web_url"/>
+
 </FrameLayout>

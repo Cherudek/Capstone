@@ -25,12 +25,16 @@ public class DetailFragment extends Fragment {
   // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
   private static final String ARG_TITLE = "TITLE";
   private static final String ARG_ID = "ID";
+  private static final String ARG_WEB_URL = "PLACE WEB URL";
 
   // TODO: Rename and change types of parameters
   private String mTitle;
   private String mId;
+  private String mWebUrl;
   private TextView tvTitle;
   private TextView tvId;
+  private TextView tvWebUrl;
+
 
   private OnFragmentInteractionListener mListener;
 
@@ -62,6 +66,7 @@ public class DetailFragment extends Fragment {
     if (getArguments() != null) {
       mTitle = getArguments().getString(ARG_TITLE);
       mId = getArguments().getString(ARG_ID);
+      mWebUrl = getArguments().getString(ARG_WEB_URL);
     }
   }
 
@@ -73,6 +78,7 @@ public class DetailFragment extends Fragment {
       // Get the Data from the map object clicked in the map fragment
       mTitle = getArguments().getString(ARG_TITLE);
       mId = getArguments().getString(ARG_ID);
+      mWebUrl = getArguments().getString(ARG_WEB_URL);
 
     }
   }
@@ -87,6 +93,8 @@ public class DetailFragment extends Fragment {
     tvId.setText(mId);
     tvTitle = rootView.findViewById(R.id.marker_title);
     tvTitle.setText(mTitle);
+    tvWebUrl = rootView.findViewById(R.id.web_url);
+    tvWebUrl.setText(mWebUrl);
 
     // Inflate the layout for this fragment
     return rootView;

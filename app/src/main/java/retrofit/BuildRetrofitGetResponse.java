@@ -1,7 +1,6 @@
 package retrofit;
 
-import static com.example.gregorio.capstone.MapFragment.LOG_TAG;
-
+import android.net.Uri;
 import android.util.Log;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,6 +20,8 @@ public class BuildRetrofitGetResponse {
 
   private final int DEFAULT_ZOOM = 1500;
   private LatLng mCurrentLocation;
+  private static final String LOG_TAG = BuildRetrofitGetResponse.class.getSimpleName();
+  private GoogleMap mMap;
 
   public BuildRetrofitGetResponse() {
   }
@@ -28,6 +29,7 @@ public class BuildRetrofitGetResponse {
   // Retrofit call to check the keywords of the NearbyPlaces
   public void buildRetrofitAndGetResponse(String keywords, final Double latitude,
       final Double longitude, String apiKey, final GoogleMap map) {
+    mMap = map;
     String url = "https://maps.googleapis.com/maps/";
     Retrofit retrofit = new Retrofit.Builder()
         .baseUrl(url)
@@ -37,11 +39,11 @@ public class BuildRetrofitGetResponse {
 
     Call<NearbyPlaces> call = service
         .getNearbyPlaces(keywords, latitude + "," + longitude, DEFAULT_ZOOM, apiKey);
+
     call.enqueue(new Callback<NearbyPlaces>() {
       @Override
       public void onResponse(Call<NearbyPlaces> call, Response<NearbyPlaces> response) {
         try {
-          map.clear();
           Log.i(LOG_TAG, "The Retrofit Response is: " + response.toString());
           // This loop will go through all the results and add marker on each location.
           for (int i = 0; i < response.body().getResults().size(); i++) {
@@ -50,17 +52,23 @@ public class BuildRetrofitGetResponse {
             String placeName = response.body().getResults().get(i).getName();
             String vicinity = response.body().getResults().get(i).getVicinity();
             String id = response.body().getResults().get(i).getId();
+            String icon = response.body().getResults().get(i).getIcon();
+            Uri iconUri = Uri.parse(icon);
+            iconUri.getPath();
+            Log.i(LOG_TAG, "The Icon Id is: " + icon);
             MarkerOptions markerOptions = new MarkerOptions();
             LatLng latLng = new LatLng(lat, lng);
             // Position of Marker on Map
             markerOptions.position(latLng);
             // Adding Title (Name of the place) and Vicinity (address) to the Marker
-            markerOptions.title(placeName + " : " + vicinity);
+            markerOptions.title(placeName);
+            markerOptions.snippet(vicinity);
+
             // Adding Marker to the Map.
-            Marker m = map.addMarker(markerOptions);
+            Marker m = mMap.addMarker(markerOptions);
             // Adding colour to the marker
             markerOptions
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
             // Construct a CameraPosition focusing on the current location View and animate the camera to that position.
             mCurrentLocation = new LatLng(latitude, longitude);
             CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -70,7 +78,7 @@ public class BuildRetrofitGetResponse {
                 .bearing(0)                // Sets the orientation of the camera to east
                 .tilt(0)                   // Sets the tilt of the camera to 30 degrees
                 .build();                   // Creates a CameraPosition from the builder
-            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
           }
         } catch (Exception e) {
           Log.d("onResponse", "There is an error");
@@ -83,6 +91,11 @@ public class BuildRetrofitGetResponse {
         Log.d(LOG_TAG, "onFailure" + t.toString());
       }
     });
+  }
+
+  public CameraPosition getCameraPosition() {
+    CameraPosition cameraPosition = mMap.getCameraPosition();
+    return cameraPosition;
   }
 
 }

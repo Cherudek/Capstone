@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +27,7 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
@@ -43,13 +43,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import googleplacesapi.GoogleMapsApi;
 import permissions.LocationPermission;
-import pojos.Favourite;
 import retrofit.BuildRetrofitGetResponse;
 
 public class MapFragment extends Fragment implements SearchView.OnQueryTextListener,
     MenuItem.OnActionExpandListener {
 
   public static final String LOG_TAG = MapFragment.class.getSimpleName();
+  public static final String MAP_TAG = "Current Map Tag";
+
   private GoogleMap mMap;
   private MapView mapView;
   private LatLngBounds.Builder mBounds = new LatLngBounds.Builder();
@@ -59,7 +60,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private final LatLng mDefaultLocation = new LatLng(51.508530, -0.076132);
   private final LatLng mNBH = new LatLng(51.5189618, -0.1450063);
   private final LatLng PiazzaSanCarloTurin = new LatLng(45.0671652, 7.681715);
-  private static OnMarkerClickListener onMarkerClickListener;
+  private OnMarkerClickListener onMarkerClickListener;
+  private OnInfoWindowClickListener onInfoWindowClickListener;
+  private OnClickListener pickerClickListener;
+
 
 
   private Double latitude;
@@ -73,13 +77,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private DatabaseReference mPlacesDatabaseReference;
   private FirebaseDatabase mFirebaseDatabase;
   private FloatingActionButton checkOutBtn;
-  private String mPlaceAttributions;
-  private String mPlaceId;
-  private String mPlaceName;
-  private String mPlaceWebUrl;
   private LocationPermission locationPermission;
   private Context mContext;
   private Boolean locationGranted;
+  private CameraPosition cameraPosition;
 
   private OnFragmentInteractionListener mListener;
 
@@ -96,7 +97,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   @Nullable
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
+      @Nullable final Bundle savedInstanceState) {
 
     final View rootView = inflater.inflate(R.layout.fragment_map, container, false);
     checkOutBtn = rootView.findViewById(R.id.checkout_button);
@@ -126,24 +127,29 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       @Override
       public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.clear();
-        if (locationPermission.checkLocalPermission(mContext, getActivity())) {
-          // If the Location Permission id Granted Enable Location on the Map
-          mMap.setMyLocationEnabled(true);
-          mMap.setBuildingsEnabled(true);
-          mMap.setOnMarkerClickListener(onMarkerClickListener);
-          // Construct a CameraPosition focusing on Mountain View and animate the camera to that position.
-          CameraPosition cameraPosition = new CameraPosition.Builder()
-              .target(PiazzaCastello)      // Sets the center of the map to Piazza Castello
-              .zoom(12)                   // Sets the zoom
-              .bearing(0)                // Sets the orientation of the camera to east
-              .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-              .build();
-          // Creates a CameraPosition from the builder
+
+        if (savedInstanceState != null) {
+          CameraPosition cameraPosition = savedInstanceState.getParcelable(MAP_TAG);
           mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        } else {
+          mMap.clear();
+          if (locationPermission.checkLocalPermission(mContext, getActivity())) {
+            // If the Location Permission id Granted Enable Location on the Map
+            mMap.setMyLocationEnabled(true);
+            mMap.setBuildingsEnabled(true);
+            mMap.setOnMarkerClickListener(onMarkerClickListener);
+            mMap.setOnInfoWindowClickListener(onInfoWindowClickListener);
+            // Construct a CameraPosition focusing on Mountain View and animate the camera to that position.
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(PiazzaCastello)      // Sets the center of the map to Piazza Castello
+                .zoom(12)                   // Sets the zoom
+                .bearing(0)                // Sets the orientation of the camera to east
+                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                .build();
+            // Creates a CameraPosition from the builder
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+          }
           getLastLocation();
-          // mCurrentLocation = new LatLng(latitude, longitude);
-          // bindLocationToMap(mapView, mCurrentLocation);
         }
       }
     });
@@ -159,9 +165,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       public boolean onMarkerClick(Marker marker) {
         String title = marker.getTitle();
         String markerId = marker.getId();
-
-        onButtonPressed(marker);
-
         // Toast to confirm the New Fragment
         Toast toast = Toast
             .makeText(mContext, "You clicked on " + title, Toast.LENGTH_SHORT);
@@ -169,6 +172,15 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         return false;
       }
     };
+
+    onInfoWindowClickListener = new OnInfoWindowClickListener() {
+      @Override
+      public void onInfoWindowClick(Marker marker) {
+        onButtonPressed(marker);
+      }
+    };
+
+
 
     // Enable disk persistence
     //  FirebaseDatabase.getInstance().setPersistenceEnabled(true);
@@ -184,6 +196,12 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public void onButtonPressed(Marker marker) {
     if (mListener != null) {
       mListener.onFragmentInteraction(marker);
+    }
+  }
+
+  public void onPlacePickerPressed(Place place) {
+    if (mListener != null) {
+      mListener.OnPlacePickerInteraction(place);
     }
   }
 
@@ -220,18 +238,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     searchView.getQueryHint();
   }
 
-//  @BindingAdapter("latLong")
-//  public static void bindLocationToMap(MapView mapView, LatLng latLong) {
-//    final CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLong, 10);
-//    mapView.getMapAsync(new OnMapReadyCallback() {
-//      @Override
-//      public void onMapReady(GoogleMap googleMap) {
-//          googleMap.setOnMarkerClickListener(onMarkerClickListener);
-//          // Updates a CameraPosition from the builder
-//          googleMap.animateCamera(cameraUpdate);
-//        }
-//    });
-//  }
 
   // Prompt the user to check out of their location. Called when the "Check Out!" button
   // is clicked.
@@ -280,26 +286,19 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     if (requestCode == REQUEST_PLACE_PICKER) {
       if (resultCode == Activity.RESULT_OK) {
         Place place = PlacePicker.getPlace(mContext, data);
-        mPlaceId = place.getId();
-        mPlaceName = place.getName().toString();
-        if (place.getAttributions() != null) {
-          mPlaceAttributions = place.getAttributions().toString();
-        } else {
-          mPlaceAttributions = "";
-        }
-        if (place.getWebsiteUri() != null) {
-          mPlaceWebUrl = place.getWebsiteUri().toString();
-        } else {
-          mPlaceWebUrl = "";
-        }
-        // Object to be passed to the firebase db reference.
-        Favourite favouriteObject = new Favourite(mPlaceId, mPlaceName, mPlaceWebUrl,
-            mPlaceAttributions);
-        String favourite = getString(R.string.nv_favourites);
-        mPlacesDatabaseReference.child(favourite).push().setValue(favouriteObject);
-        Snackbar snackbar = Snackbar
-            .make(getView(), "Location stored on Firebase!", Snackbar.LENGTH_SHORT);
-        snackbar.show();
+        onPlacePickerPressed(place);
+
+        // TODO: MOVE THIS IN THE ADD TO FAVOURITE FRAGMENT
+//        // Object to be passed to the firebase db reference.
+//        Favourite favouriteObject = new Favourite(mPlaceId, mPlaceName, mPlaceWebUrl,
+//            mPlaceAttributions);
+//        String favourite = getString(R.string.nv_favourites);
+//        mPlacesDatabaseReference.child(favourite).push().setValue(favouriteObject);
+//        Snackbar snackbar = Snackbar
+//            .make(getView(), "Location stored on Firebase!", Snackbar.LENGTH_SHORT);
+//        snackbar.show();
+
+
       } else if (resultCode == PlacePicker.RESULT_ERROR) {
         Toast.makeText(getContext(),
             "Places API failure! Check that the API is enabled for your key",
@@ -339,6 +338,12 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   }
 
 
+  @Override
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putParcelable(MAP_TAG, cameraPosition);
+  }
+
   /**
    * This interface must be implemented by activities that contain this
    * fragment to allow an interaction in this fragment to be communicated
@@ -350,8 +355,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
    * >Communicating with Other Fragments</a> for more information.
    */
   public interface OnFragmentInteractionListener {
-
     // TODO: Update argument type and name
     void onFragmentInteraction(Marker marker);
+
+    void OnPlacePickerInteraction(Place place);
   }
+
 }
