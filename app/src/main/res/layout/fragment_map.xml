@@ -5,7 +5,7 @@
     <import type="android.view.View"/>
     <variable
       name="viewmodel"
-      type="viewmodel.MapFragmentViewModel"/>
+      type="viewmodel.NearbyPlacesListViewModel"/>
   </data>
 <android.support.design.widget.CoordinatorLayout
   android:layout_width="match_parent"

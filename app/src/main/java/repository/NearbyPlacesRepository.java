@@ -4,11 +4,13 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import java.util.List;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import pojos.NearbyPlaces;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+@Singleton
 public class NearbyPlacesRepository {
 
   private RetrofitMapsApi retrofitMapsApi;
@@ -28,7 +30,6 @@ public class NearbyPlacesRepository {
           public void onResponse(Call<List<NearbyPlaces>> call,
               Response<List<NearbyPlaces>> response) {
             data.setValue(response.body());
-
           }
 
           @Override
