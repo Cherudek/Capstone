@@ -29,6 +29,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -64,8 +65,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private OnInfoWindowClickListener onInfoWindowClickListener;
   private OnClickListener pickerClickListener;
 
-
-
   private Double latitude;
   private Double longitude;
   private LatLng mCurrentLocation;
@@ -94,6 +93,18 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     setHasOptionsMenu(true);
   }
 
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    if (savedInstanceState != null) {
+      GoogleMapOptions googleMapOptions = new GoogleMapOptions();
+      cameraPosition = savedInstanceState.getParcelable(MAP_TAG);
+      googleMapOptions.camera(cameraPosition);
+    }
+  }
+
+
+
   @Nullable
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -105,12 +116,12 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     apiKey = getString(com.example.gregorio.capstone.R.string.google_maps_key);
     mapView = rootView.findViewById(R.id.map);
     mapView.onCreate(savedInstanceState);
-    mapView.onResume(); // needed to get the map to display immediately
-    try {
-      MapsInitializer.initialize(getActivity().getApplicationContext());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+//    mapView.onResume(); // needed to get the map to display immediately
+//    try {
+//      MapsInitializer.initialize(getActivity().getApplicationContext());
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//    }
 
     checkOutBtn.setOnClickListener(new OnClickListener() {
       @Override
@@ -122,37 +133,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     locationPermission = new LocationPermission();
     locationGranted = locationPermission.checkLocalPermission(mContext, getActivity());
 
-    // Sync Map to current location (if permitted) on the fragment View
-    mapView.getMapAsync(new OnMapReadyCallback() {
-      @Override
-      public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
-        if (savedInstanceState != null) {
-          CameraPosition cameraPosition = savedInstanceState.getParcelable(MAP_TAG);
-          mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        } else {
-          mMap.clear();
-          if (locationPermission.checkLocalPermission(mContext, getActivity())) {
-            // If the Location Permission id Granted Enable Location on the Map
-            mMap.setMyLocationEnabled(true);
-            mMap.setBuildingsEnabled(true);
-            mMap.setOnMarkerClickListener(onMarkerClickListener);
-            mMap.setOnInfoWindowClickListener(onInfoWindowClickListener);
-            // Construct a CameraPosition focusing on Mountain View and animate the camera to that position.
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(PiazzaCastello)      // Sets the center of the map to Piazza Castello
-                .zoom(12)                   // Sets the zoom
-                .bearing(0)                // Sets the orientation of the camera to east
-                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-                .build();
-            // Creates a CameraPosition from the builder
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-          }
-          getLastLocation();
-        }
-      }
-    });
+    setUpMap();
 
     // Check if the Google Play Services are available or not
     GoogleMapsApi googleMapsApi = new GoogleMapsApi();
@@ -179,8 +160,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         onButtonPressed(marker);
       }
     };
-
-
 
     // Enable disk persistence
     //  FirebaseDatabase.getInstance().setPersistenceEnabled(true);
@@ -323,6 +302,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
             if (location != null) {
               latitude = location.getLatitude();
               longitude = location.getLongitude();
+              mCurrentLocation = new LatLng(latitude, longitude);
               Log.i(LOG_TAG,
                   "The Last Location is: Latitude: " + latitude + " Longitude: " + longitude);
             }
@@ -337,6 +317,61 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         });
   }
 
+
+  @Override
+  public void onPause() {
+    mapView.onPause();
+    super.onPause();
+    cameraPosition = mMap.getCameraPosition();
+    mMap = null;
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    setUpMap();
+    mapView.onResume();
+    if (cameraPosition != null) {
+      mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
+  }
+
+  private void setUpMap() {
+    try {
+      MapsInitializer.initialize(getActivity().getApplicationContext());
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    // Sync Map to current location (if permitted) on the fragment View
+    mapView.getMapAsync(new OnMapReadyCallback() {
+      @Override
+      public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        if (cameraPosition != null) {
+          mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        } else {
+          mMap.clear();
+          if (locationPermission.checkLocalPermission(mContext, getActivity())) {
+            // If the Location Permission id Granted Enable Location on the Map
+            mMap.setMyLocationEnabled(true);
+            mMap.setBuildingsEnabled(true);
+            mMap.setOnMarkerClickListener(onMarkerClickListener);
+            mMap.setOnInfoWindowClickListener(onInfoWindowClickListener);
+            // Construct a CameraPosition focusing on Mountain View and animate the camera to that position.
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(PiazzaCastello)      // Sets the center of the map to Piazza Castello
+                .zoom(12)                   // Sets the zoom
+                .bearing(0)                // Sets the orientation of the camera to east
+                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                .build();
+            // Creates a CameraPosition from the builder
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+          }
+        }
+        getLastLocation();
+      }
+    });
+  }
 
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {

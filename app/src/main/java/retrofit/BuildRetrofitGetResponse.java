@@ -9,6 +9,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import java.util.List;
 import pojos.NearbyPlaces;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -53,6 +54,12 @@ public class BuildRetrofitGetResponse {
             String vicinity = response.body().getResults().get(i).getVicinity();
             String id = response.body().getResults().get(i).getId();
             String icon = response.body().getResults().get(i).getIcon();
+            List photos = response.body().getResults().get(i).getPhotos();
+            int photoSize = photos.size();
+            Log.i(LOG_TAG, "Photo Size Array is: " + photoSize);
+//            Object photo = photos.get(1);
+//            photo.toString();
+
             Uri iconUri = Uri.parse(icon);
             iconUri.getPath();
             Log.i(LOG_TAG, "The Icon Id is: " + icon);

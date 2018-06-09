@@ -10,7 +10,7 @@ public class Favourite {
   public Favourite() {
   }
 
-  public Favourite(String placeId, String name, String websiteUrl, String attributions) {
+  public Favourite(String placeId, String name, String websiteUrl) {
     this.placeId = placeId;
     this.name = name;
     this.websiteUrl = websiteUrl;
@@ -41,11 +41,5 @@ public class Favourite {
     this.websiteUrl = websiteUrl;
   }
 
-  public String getAttributions() {
-    return attributions;
-  }
 
-  public void setAttributions(String attributions) {
-    this.attributions = attributions;
-  }
 }

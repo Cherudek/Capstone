@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.Marker;
 
@@ -24,6 +25,9 @@ public class MainActivity extends AppCompatActivity
 
   private final static String MAP_FRAGMENT_TAG = "Map Fragment Tag";
   private final static String DETAIL_FRAGMENT_TAG = "Detail Fragment Tag";
+  private FrameLayout mapLayout;
+  private FrameLayout detailLayout;
+  private MapFragment mapFragment;
 
 
   @Override
@@ -34,7 +38,11 @@ public class MainActivity extends AppCompatActivity
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
-      MapFragment mapFragment = new MapFragment();
+    detailLayout = findViewById(R.id.fragment_container_detail);
+    detailLayout.setVisibility(View.INVISIBLE);
+    mapLayout = findViewById(R.id.fragment_container);
+
+    mapFragment = new MapFragment();
       FragmentManager fragmentManager = getSupportFragmentManager();
       fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
           .addToBackStack(MAP_FRAGMENT_TAG)
@@ -65,8 +73,12 @@ public class MainActivity extends AppCompatActivity
     DrawerLayout drawer = findViewById(R.id.drawer_layout);
     if (drawer.isDrawerOpen(GravityCompat.START)) {
       drawer.closeDrawer(GravityCompat.START);
+      mapLayout.setVisibility(View.VISIBLE);
+      detailLayout.setVisibility(View.INVISIBLE);
     } else {
       super.onBackPressed();
+      mapLayout.setVisibility(View.VISIBLE);
+      detailLayout.setVisibility(View.INVISIBLE);
     }
   }
 
@@ -79,6 +91,8 @@ public class MainActivity extends AppCompatActivity
     Fragment fragment = null;
     Class fragmentClass = null;
     if (id == R.id.nav_map) {
+      mapLayout.setVisibility(View.VISIBLE);
+      detailLayout.setVisibility(View.INVISIBLE);
       fragmentClass = MapFragment.class;
     } else if (id == R.id.nav_food) {
       fragmentClass = FoodFragment.class;
@@ -100,9 +114,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     FragmentManager fragmentManager = getSupportFragmentManager();
-    fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
-        .addToBackStack(null)
-        .commit();
+    if (fragment != mapFragment) {
+      fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
+          .addToBackStack(null)
+          .commit();
+    }
+
 
     DrawerLayout drawer = findViewById(R.id.drawer_layout);
     drawer.closeDrawer(GravityCompat.START);
@@ -123,7 +140,10 @@ public class MainActivity extends AppCompatActivity
     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
     // Replace whatever is in the fragment_container view with this fragment,
     // and add the transaction to the back stack so the user can navigate back
-    transaction.replace(R.id.fragment_container, detailFragment);
+    mapLayout.setVisibility(View.GONE);
+    FrameLayout detailLayout = findViewById(R.id.fragment_container_detail);
+    detailLayout.setVisibility(View.VISIBLE);
+    transaction.add(R.id.fragment_container_detail, detailFragment);
     transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
     // Commit the transaction
     transaction.commit();
@@ -134,6 +154,7 @@ public class MainActivity extends AppCompatActivity
     Bundle bundle = new Bundle();
     String placeId = place.getId();
     String placeName = place.getName().toString();
+
     if (place.getWebsiteUri() == null || place.getWebsiteUri().toString().isEmpty()) {
       String placeWebUrl = "";
       bundle.putString("PLACE WEB URL", placeWebUrl);
@@ -149,11 +170,14 @@ public class MainActivity extends AppCompatActivity
     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
     // Replace whatever is in the fragment_container view with this fragment,
     // and add the transaction to the back stack so the user can navigate back
-    transaction.replace(R.id.fragment_container, detailFragment);
+    mapLayout.setVisibility(View.INVISIBLE);
+    detailLayout.setVisibility(View.VISIBLE);
+    transaction.replace(R.id.fragment_container_detail, detailFragment);
     transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
     // Commit the transaction
     transaction.commit();
   }
+
 
   @Override
   public void onFragmentInteraction(Uri uri) {

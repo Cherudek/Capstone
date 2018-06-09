@@ -60,6 +60,7 @@ public class DetailFragment extends Fragment {
     return fragment;
   }
 
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -118,6 +119,7 @@ public class DetailFragment extends Fragment {
           + " must implement OnFragmentInteractionListener");
     }
   }
+
 
   @Override
   public void onDetach() {
