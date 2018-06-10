@@ -2,38 +2,58 @@ package repository;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import java.util.List;
-import javax.inject.Inject;
+import android.util.Log;
 import javax.inject.Singleton;
 import pojos.NearbyPlaces;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 @Singleton
 public class NearbyPlacesRepository {
 
-  private RetrofitMapsApi retrofitMapsApi;
 
-  @Inject
-  public NearbyPlacesRepository(RetrofitMapsApi retrofitMapsApi) {
-    this.retrofitMapsApi = retrofitMapsApi;
+  private final static String LOG_TAG = NearbyPlacesRepository.class.getSimpleName();
+  private RetrofitMapsApi retrofitMapsApi;
+  private static NearbyPlacesRepository nearbyPlacesRepository;
+
+  public NearbyPlacesRepository() {
+    Retrofit retrofit = new Retrofit.Builder()
+        .baseUrl(RetrofitMapsApi.url)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build();
+    retrofitMapsApi = retrofit.create(RetrofitMapsApi.class);
   }
 
-  public LiveData<List<NearbyPlaces>> getNearbyPlaces(String keyword, String location, int radius,
+  public synchronized static NearbyPlacesRepository getInstance() {
+    //TODO No need to implement this singleton in Part #2 since Dagger will handle it ...
+    if (nearbyPlacesRepository == null) {
+      if (nearbyPlacesRepository == null) {
+        nearbyPlacesRepository = new NearbyPlacesRepository();
+      }
+    }
+    return nearbyPlacesRepository;
+  }
+
+  public LiveData<NearbyPlaces> getNearbyPlaces(String keyword, String location, int radius,
       String key) {
-    final MutableLiveData<List<NearbyPlaces>> data = new MutableLiveData<>();
+    final MutableLiveData<NearbyPlaces> data = new MutableLiveData<>();
 
     retrofitMapsApi.getNearbyPlaces(keyword, location, radius, key).enqueue(
-        new Callback<List<NearbyPlaces>>() {
+        new Callback<NearbyPlaces>() {
           @Override
-          public void onResponse(Call<List<NearbyPlaces>> call,
-              Response<List<NearbyPlaces>> response) {
+          public void onResponse(Call<NearbyPlaces> call,
+              Response<NearbyPlaces> response) {
+            Log.i(LOG_TAG, "The Retrofit Response is: " + response.toString());
+            Log.i(LOG_TAG, "The Retrofit Response is Size is: " + response.body().getResults().size());
             data.setValue(response.body());
           }
 
           @Override
-          public void onFailure(Call<List<NearbyPlaces>> call, Throwable t) {
+          public void onFailure(Call<NearbyPlaces> call, Throwable t) {
+            Log.d(LOG_TAG, "onFailure" + t.toString());
             data.setValue(null);
           }
         });

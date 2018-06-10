@@ -8,6 +8,7 @@ import retrofit2.http.Query;
 
 public interface RetrofitMaps {
 
+
   /*
    * Retrofit get annotation with our URL
    * And our method that will return us details of student.
