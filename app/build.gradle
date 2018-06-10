@@ -10,30 +10,25 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
-
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
     }
-
-
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     dataBinding {
         enabled = true
     }
-
-
+    buildToolsVersion '27.0.3'
 }
 
 dependencies {
     def lifecycle_version = "1.1.1"
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
@@ -59,18 +54,17 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-database:3.3.1'
     implementation 'com.google.firebase:firebase-auth:16.0.1'
     // Dagger
-    implementation "com.google.dagger:dagger:2.15"
-    implementation "com.google.dagger:dagger-android:2.15"
-    implementation "com.google.dagger:dagger-android-support:2.15"
-
+    implementation 'com.google.dagger:dagger:2.15'
+    implementation 'com.google.dagger:dagger-android:2.15'
+    implementation 'com.google.dagger:dagger-android-support:2.15'
     annotationProcessor "com.google.dagger:dagger-android-processor:2.15"
     annotationProcessor "com.google.dagger:dagger-compiler:2.15"
-
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-
-
+    // ButterKnife Binding
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 }
 
 

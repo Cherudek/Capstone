@@ -30,12 +30,6 @@ public class NearbyPlacesListViewModel extends AndroidViewModel {
             mApiKey);
   }
 
-  public void init(String keyword, Double latitude, Double longitude, String apiKey) {
-    this.mKeyword = keyword;
-    this.mLatitude = latitude;
-    this.mLongitude = longitude;
-    this.mApiKey = apiKey;
-  }
 
   /**
    * Expose the LiveData Projects query so the UI can observe it.

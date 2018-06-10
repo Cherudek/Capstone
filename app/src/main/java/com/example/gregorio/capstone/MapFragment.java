@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.location.Location;
 import android.net.Uri;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import com.example.gregorio.capstone.databinding.FragmentMapBinding;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,7 +26,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 import android.widget.Toast;
-import com.example.gregorio.capstone.databinding.FragmentMapBinding;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -34,7 +36,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -51,6 +52,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import googleplacesapi.GoogleMapsApi;
 import java.util.List;
+import java.util.zip.Inflater;
 import permissions.LocationPermission;
 import pojos.NearbyPlaces;
 import viewmodel.NearbyPlacesListViewModel;
@@ -60,16 +62,17 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 
   public static final String LOG_TAG = MapFragment.class.getSimpleName();
   public static final String MAP_TAG = "Current Map Tag";
+  private final int DEFAULT_ZOOM = 1500;
+  @BindView(R.id.map)MapView mapView;
+  @BindView(R.id.checkout_button)FloatingActionButton checkoutFap;
+  @BindView(R.id.menu_search)SearchView searchEditText;
+
 
   private GoogleMap mMap;
-  private MapView mapView;
   private LatLngBounds.Builder mBounds = new LatLngBounds.Builder();
   private static final int REQUEST_PLACE_PICKER = 1;
+  // A default location (Piazza Castello, Turin, Italy) and default zoom to use when location permission is
   private static final LatLng PiazzaCastello = new LatLng(45.0710394, 7.6862986);
-  // A default location (London, Uk) and default zoom to use when location permission is
-  private final LatLng mDefaultLocation = new LatLng(51.508530, -0.076132);
-  private final LatLng mNBH = new LatLng(51.5189618, -0.1450063);
-  private final LatLng PiazzaSanCarloTurin = new LatLng(45.0671652, 7.681715);
   private OnMarkerClickListener onMarkerClickListener;
   private OnInfoWindowClickListener onInfoWindowClickListener;
   private OnClickListener pickerClickListener;
@@ -92,7 +95,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 
   private NearbyPlacesListViewModel nearbyPlacesListViewModel;
 
-  private FragmentMapBinding fragmentMapBinding;
+
+  //private FragmentMapBinder fragmentMapBinding;
   private OnFragmentInteractionListener mListener;
 
   public MapFragment(){
@@ -109,16 +113,89 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     if (savedInstanceState != null) {
-      GoogleMapOptions googleMapOptions = new GoogleMapOptions();
-      cameraPosition = savedInstanceState.getParcelable(MAP_TAG);
-      googleMapOptions.camera(cameraPosition);
 
-      nearbyPlacesListViewModel = ViewModelProviders.of(this).get(NearbyPlacesListViewModel.class);
+      nearbyPlacesListViewModel = ViewModelProviders.of(getActivity()).get(NearbyPlacesListViewModel.class);
 
-      // Create the observer which updates the UI.
-      final Observer<List<NearbyPlaces>> nameObserver = new Observer<List<NearbyPlaces>>() {
-        @Override
-        public void onChanged(@Nullable List<NearbyPlaces> nearbyPlaces) {
+
+      setUpNearbyPlacesListViewModel();
+
+    }
+  }
+
+
+  @Nullable
+  @Override
+  public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+      @Nullable final Bundle savedInstanceState) {
+    final View rootView = inflater.inflate(R.layout.fragment_map, container, false);
+    ButterKnife.bind(this, rootView);
+    checkOutBtn = rootView.findViewById(R.id.checkout_button);
+    searchEditText = rootView.findViewById(R.id.menu_search);
+    apiKey = getString(com.example.gregorio.capstone.R.string.google_maps_key);
+    mapView.onCreate(savedInstanceState);
+    mapView.onResume();
+    checkOutBtn.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        checkOut(rootView);
+      }
+    });
+
+    locationPermission = new LocationPermission();
+    locationGranted = locationPermission.checkLocalPermission(mContext, getActivity());
+
+    // Check if the Google Play Services are available or not
+    GoogleMapsApi googleMapsApi = new GoogleMapsApi();
+    googleMapsApi.CheckGooglePlayServices(mContext, getActivity());
+    googleMapsApi.GoogleApiClient(mContext);
+
+    setUpMap();
+
+    // @OnMarkerClickListener added to the map
+    onMarkerClickListener = new OnMarkerClickListener() {
+      @Override
+      public boolean onMarkerClick(Marker marker) {
+        String title = marker.getTitle();
+        String markerId = marker.getId();
+        // Toast to confirm the New Fragment
+        Toast toast = Toast
+            .makeText(mContext, "You clicked on " + title, Toast.LENGTH_SHORT);
+        toast.show();
+        return false;
+      }
+    };
+
+    onInfoWindowClickListener = new OnInfoWindowClickListener() {
+      @Override
+      public void onInfoWindowClick(Marker marker) {
+        onButtonPressed(marker);
+      }
+    };
+
+    // Enable disk persistence
+    //  FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+    // Initialize Firebase components
+    mFirebaseDatabase = FirebaseDatabase.getInstance();
+    mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
+    // Build a new Retrofit Object for the Search Query
+    // buildRetrofitAndGetResponse = new BuildRetrofitGetResponse();
+    return rootView;
+  }
+
+
+
+  public void setUpNearbyPlacesListViewModel(){
+
+    NearbyPlacesListViewModel nearbyPlacesListViewModel = ViewModelProviders.of(this).get(NearbyPlacesListViewModel.class);
+    observeViewModel(nearbyPlacesListViewModel);
+  }
+
+  private void observeViewModel(final NearbyPlacesListViewModel viewModel) {
+    // Update the list when the data changes
+    viewModel.getNearbyPlacesListObservable().observe(this, new Observer<List<NearbyPlaces>>() {
+      @Override
+      public void onChanged(@Nullable List<NearbyPlaces> nearbyPlaces) {
+        if (nearbyPlaces != null) {
           try {
             Log.i(LOG_TAG, "The Retrofit Response is: " + nearbyPlaces.toString());
             // This loop will go through all the results and add marker on each location.
@@ -170,81 +247,12 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
           }
 
         }
-      };
-
-      nearbyPlacesListViewModel.getNearbyPlacesListObservable().observe(this, nameObserver);
-
-    }
-  }
-
-
-  @Nullable
-  @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-      @Nullable final Bundle savedInstanceState) {
-
-    fragmentMapBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_map, container, false);
-
-    final View rootView = inflater.inflate(R.layout.fragment_map, container, false);
-    checkOutBtn = rootView.findViewById(R.id.checkout_button);
-    //searchEditText = rootView.findViewById(R.id.menu_search);
-    apiKey = getString(com.example.gregorio.capstone.R.string.google_maps_key);
-    mapView = rootView.findViewById(R.id.map);
-    mapView.onCreate(savedInstanceState);
-//    mapView.onResume(); // needed to get the map to display immediately
-//    try {
-//      MapsInitializer.initialize(getActivity().getApplicationContext());
-//    } catch (Exception e) {
-//      e.printStackTrace();
-//    }
-
-    checkOutBtn.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        checkOut(rootView);
       }
     });
-
-    locationPermission = new LocationPermission();
-    locationGranted = locationPermission.checkLocalPermission(mContext, getActivity());
-
-    setUpMap();
-
-    // Check if the Google Play Services are available or not
-    GoogleMapsApi googleMapsApi = new GoogleMapsApi();
-    googleMapsApi.CheckGooglePlayServices(mContext, getActivity());
-    googleMapsApi.GoogleApiClient(mContext);
-
-    // @OnMarkerClickListener added to the map
-    onMarkerClickListener = new OnMarkerClickListener() {
-      @Override
-      public boolean onMarkerClick(Marker marker) {
-        String title = marker.getTitle();
-        String markerId = marker.getId();
-        // Toast to confirm the New Fragment
-        Toast toast = Toast
-            .makeText(mContext, "You clicked on " + title, Toast.LENGTH_SHORT);
-        toast.show();
-        return false;
-      }
-    };
-
-    onInfoWindowClickListener = new OnInfoWindowClickListener() {
-      @Override
-      public void onInfoWindowClick(Marker marker) {
-        onButtonPressed(marker);
-      }
-    };
-
-    // Enable disk persistence
-    //  FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-    // Initialize Firebase components
-    mFirebaseDatabase = FirebaseDatabase.getInstance();
-    mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
-    // Build a new Retrofit Object for the Search Query
-    // buildRetrofitAndGetResponse = new BuildRetrofitGetResponse();
-    return rootView;
   }
+
+
+
 
   // TODO: Rename method, update argument and hook method into UI event
   public void onButtonPressed(Marker marker) {
@@ -293,6 +301,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   }
 
 
+
+
   // Prompt the user to check out of their location. Called when the "Check Out!" button
   // is clicked.
   public void checkOut(View view) {
@@ -318,7 +328,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 //        .buildRetrofitAndGetResponse(query, latitude, longitude, apiKey, mMap);
 
     //MVVM Retrofit Call Via ViewModel
-    nearbyPlacesListViewModel.init(query, latitude, longitude, apiKey);
+
 
     return true;
   }
@@ -409,7 +419,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public void onResume() {
     super.onResume();
     setUpMap();
-    mapView.onResume();
+    //mapView.onResume();
 //    if (cameraPosition != null) {
 //      mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 //    }
