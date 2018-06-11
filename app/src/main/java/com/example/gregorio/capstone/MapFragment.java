@@ -6,7 +6,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -37,19 +36,17 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import googleplacesapi.GoogleLocationJsonParser;
 import googleplacesapi.GoogleMapsApi;
-import java.util.List;
 import permissions.LocationPermission;
 import pojos.NearbyPlaces;
 import repository.NearbyPlacesRepository;
@@ -179,53 +176,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       public void onChanged(@Nullable NearbyPlaces nearbyPlaces) {
         if (nearbyPlaces != null) {
           Log.i(LOG_TAG, "The Retrofit Response Status is: " + viewModel.getNearbyPlacesListObservable().getValue().getResults().toString());
-          try {
-            Log.i(LOG_TAG, "The Retrofit Response is Size is: " + viewModel.getNearbyPlacesListObservable().getValue().getResults().size());
-            // This loop will go through all the results and add marker on each location.
-            for (int i = 0; i < nearbyPlaces.getResults().size(); i++) {
-              Double lat = nearbyPlaces.getResults().get(i).getGeometry().getLocation()
-                  .getLat();
-              Double lng = nearbyPlaces.getResults().get(i).getGeometry().getLocation()
-                  .getLng();
-              String placeName = nearbyPlaces.getResults().get(i).getName();
-              String vicinity = nearbyPlaces.getResults().get(i).getVicinity();
-              String id = nearbyPlaces.getResults().get(i).getId();
-              String icon = nearbyPlaces.getResults().get(i).getIcon();
-              List photos = nearbyPlaces.getResults().get(i).getPhotos();
-              int photoSize = photos.size();
-              Log.i(LOG_TAG, "Photo Size Array is: " + photoSize);
 
-              Uri iconUri = Uri.parse(icon);
-              iconUri.getPath();
-              Log.i(LOG_TAG, "The Icon Id is: " + icon);
-              MarkerOptions markerOptions = new MarkerOptions();
-              LatLng latLng = new LatLng(lat, lng);
-              // Position of Marker on Map
-              markerOptions.position(latLng);
-              // Adding Title (Name of the place) and Vicinity (address) to the Marker
-              markerOptions.title(placeName);
-              markerOptions.snippet(vicinity);
-
-              // Adding Marker to the Map.
-              Marker m = mMap.addMarker(markerOptions);
-              // Adding colour to the marker
-              markerOptions
-                  .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
-              // Construct a CameraPosition focusing on the current location View and animate the camera to that position.
-              mCurrentLocation = new LatLng(latitude, longitude);
-              CameraPosition cameraPosition = new CameraPosition.Builder()
-                  .target(
-                      mCurrentLocation)      // Sets the center of the map to the current user View
-                  .zoom(15)                   // Sets the zoom
-                  .bearing(0)                // Sets the orientation of the camera to east
-                  .tilt(0)                   // Sets the tilt of the camera to 30 degrees
-                  .build();                   // Creates a CameraPosition from the builder
-              mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-            }
-          } catch (Exception e) {
-            Log.d("onResponse", "There is an error");
-            e.printStackTrace();
-          }
 
         }
       }
@@ -297,11 +248,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   @Override
   public boolean onQueryTextSubmit(String query) {
     Log.i(LOG_TAG, "The Search Query is: " + query);
-
-//    // Retrofit Call to the new Query
-//    buildRetrofitAndGetResponse
-//        .buildRetrofitAndGetResponse(query, latitude, longitude, apiKey, mMap);
-
     //MVVM Retrofit Call Via ViewModel Factory
     nearbyPlacesListViewModel.mKeyword = query;
     nearbyPlacesListViewModel.mLatitude = latitude;
@@ -322,10 +268,11 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
                    Log.i(LOG_TAG, "The Query result Status is: " + nearbyPlaces.getStatus().toString());
                    Log.i(LOG_TAG, "The Query result Size is: " + nearbyPlaces.getResults().size());
 
+                   GoogleLocationJsonParser jsonParser = new GoogleLocationJsonParser();
+                    jsonParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation);
+
                  }
                });
-
-
     return true;
   }
 
@@ -333,12 +280,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public boolean onQueryTextChange(String newText) {
     return false;
   }
-
   @Override
   public boolean onMenuItemActionExpand(MenuItem item) {
     return true;
   }
-
   @Override
   public boolean onMenuItemActionCollapse(MenuItem item) {
     return true;
