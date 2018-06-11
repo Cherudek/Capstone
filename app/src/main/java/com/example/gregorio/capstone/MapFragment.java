@@ -54,6 +54,8 @@ import permissions.LocationPermission;
 import pojos.NearbyPlaces;
 import repository.NearbyPlacesRepository;
 import viewmodel.NearbyPlacesListViewModel;
+import viewmodel.NearbyPlacesListViewModelFactory;
+import viewmodel.QueryNearbyPlacesViewModel;
 
 public class MapFragment extends Fragment implements SearchView.OnQueryTextListener,
     MenuItem.OnActionExpandListener {
@@ -176,9 +178,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       @Override
       public void onChanged(@Nullable NearbyPlaces nearbyPlaces) {
         if (nearbyPlaces != null) {
-          Log.i(LOG_TAG, "The Retrofit Response Status is: " + viewModel.nearbyPlacesListObservable.getValue().getResults().toString());
+          Log.i(LOG_TAG, "The Retrofit Response Status is: " + viewModel.getNearbyPlacesListObservable().getValue().getResults().toString());
           try {
-            Log.i(LOG_TAG, "The Retrofit Response is Size is: " + viewModel.nearbyPlacesListObservable.getValue().getResults().size());
+            Log.i(LOG_TAG, "The Retrofit Response is Size is: " + viewModel.getNearbyPlacesListObservable().getValue().getResults().size());
             // This loop will go through all the results and add marker on each location.
             for (int i = 0; i < nearbyPlaces.getResults().size(); i++) {
               Double lat = nearbyPlaces.getResults().get(i).getGeometry().getLocation()
@@ -306,7 +308,23 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     nearbyPlacesListViewModel.mLongitude = longitude;
     nearbyPlacesListViewModel.mApiKey = apiKey;
 
-    NearbyPlacesRepository.getInstance().getNearbyPlaces(query, latitude.toString() + "," + longitude.toString(), DEFAULT_ZOOM, apiKey);
+    NearbyPlacesListViewModelFactory factory = new
+        NearbyPlacesListViewModelFactory(NearbyPlacesRepository.getInstance(), query, latitude.toString() , longitude.toString(), DEFAULT_ZOOM, apiKey);
+
+        final QueryNearbyPlacesViewModel viewModel = ViewModelProviders.of(this, factory)
+            .get(QueryNearbyPlacesViewModel.class);
+               viewModel.getData().observe(this, new Observer<NearbyPlaces>() {
+                 @Override
+                 public void onChanged(@Nullable NearbyPlaces nearbyPlaces) {
+                  // viewModel.getData().removeObserver(this);
+                   nearbyPlaces.getStatus().toString();
+                   nearbyPlaces.getResults().size();
+                   Log.i(LOG_TAG, "The Query result Status is: " + nearbyPlaces.getStatus().toString());
+                   Log.i(LOG_TAG, "The Query result Size is: " + nearbyPlaces.getResults().size());
+
+                 }
+               });
+
 
     return true;
   }
