@@ -3,6 +3,7 @@ package repository;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
+import com.google.android.gms.maps.GoogleMap;
 import javax.inject.Singleton;
 import pojos.NearbyPlaces;
 import retrofit2.Call;
@@ -35,6 +36,11 @@ public class NearbyPlacesRepository {
       }
     }
     return nearbyPlacesRepository;
+  }
+
+  public LiveData<GoogleMap> getGoogleMap(GoogleMap googleMap){
+    final MutableLiveData<GoogleMap> data = new MutableLiveData<>();
+    return data;
   }
 
   public LiveData<NearbyPlaces> getNearbyPlaces(String keyword, String location, int radius,

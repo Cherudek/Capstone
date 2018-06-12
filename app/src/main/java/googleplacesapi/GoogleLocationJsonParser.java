@@ -7,7 +7,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.List;
 import pojos.NearbyPlaces;
@@ -48,15 +47,13 @@ public class GoogleLocationJsonParser {
         markerOptions.snippet(vicinity);
 
         // Adding Marker to the Map.
-        Marker m = map.addMarker(markerOptions);
+        map.addMarker(markerOptions);
         // Adding colour to the marker
-        markerOptions
-            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
         // Construct a CameraPosition focusing on the current location View and animate the camera to that position.
        // mCurrentLocation = new LatLng(latitude, longitude);
         CameraPosition cameraPosition = new CameraPosition.Builder()
-            .target(
-                mCurrentLocation)      // Sets the center of the map to the current user View
+            .target(mCurrentLocation)      // Sets the center of the map to the current user View
             .zoom(15)                   // Sets the zoom
             .bearing(0)                // Sets the orientation of the camera to east
             .tilt(0)                   // Sets the tilt of the camera to 30 degrees
@@ -67,6 +64,5 @@ public class GoogleLocationJsonParser {
       Log.d("onResponse", "There is an error");
       e.printStackTrace();
     }
-
   }
 }

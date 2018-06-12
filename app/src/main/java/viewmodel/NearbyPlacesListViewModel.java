@@ -11,11 +11,16 @@ public class NearbyPlacesListViewModel extends AndroidViewModel {
 
   private final static String LOG_TAG = NearbyPlacesListViewModel.class.getSimpleName();
   public  LiveData<NearbyPlaces> nearbyPlacesListObservable;
+ // public LiveData<GoogleMap> googleMapObservable;
+
+
   public  int DEFAULT_ZOOM = 1500;
   public String mKeyword = "";
   public Double mLatitude = 0.0;
   public Double mLongitude = 0.0;
   public String mApiKey = "";
+  public NearbyPlaces nearbyPlaces;
+
 
   public NearbyPlacesListViewModel(
       @NonNull Application application) {
@@ -23,8 +28,9 @@ public class NearbyPlacesListViewModel extends AndroidViewModel {
     nearbyPlacesListObservable = NearbyPlacesRepository.getInstance()
       .getNearbyPlaces(mKeyword, mLatitude.toString() + "," + mLongitude.toString(), DEFAULT_ZOOM,
         mApiKey);
-
+    nearbyPlaces = nearbyPlacesListObservable.getValue();
   }
+
 
   /**
    * Expose the LiveData Projects query so the UI can observe it.

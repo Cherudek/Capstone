@@ -29,7 +29,5 @@ public class NearbyPlacesListViewModelFactory extends ViewModelProvider.NewInsta
   public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
     return (T) new QueryNearbyPlacesViewModel(nearbyPlacesRepository, query, latitude, longitude, radius, apiKey);
 
-
-
   }
 }
