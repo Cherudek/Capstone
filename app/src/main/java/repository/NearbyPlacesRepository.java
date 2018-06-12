@@ -11,6 +11,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import viewmodel.GoogleMapViewModel;
 
 @Singleton
 public class NearbyPlacesRepository {
@@ -19,6 +20,7 @@ public class NearbyPlacesRepository {
   private final static String LOG_TAG = NearbyPlacesRepository.class.getSimpleName();
   private RetrofitMapsApi retrofitMapsApi;
   private static NearbyPlacesRepository nearbyPlacesRepository;
+  private GoogleMapViewModel googleMapViewModel;
 
   public NearbyPlacesRepository() {
     Retrofit retrofit = new Retrofit.Builder()
@@ -40,6 +42,11 @@ public class NearbyPlacesRepository {
 
   public LiveData<GoogleMap> getGoogleMap(GoogleMap googleMap){
     final MutableLiveData<GoogleMap> data = new MutableLiveData<>();
+    data.setValue(googleMap);
+    if(googleMap!=null){
+      Log.i(LOG_TAG, "The Google Map Repository is: " + data.getValue().getCameraPosition());
+    }
+
     return data;
   }
 

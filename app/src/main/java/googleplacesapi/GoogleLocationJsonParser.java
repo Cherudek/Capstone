@@ -58,7 +58,7 @@ public class GoogleLocationJsonParser {
             .bearing(0)                // Sets the orientation of the camera to east
             .tilt(0)                   // Sets the tilt of the camera to 30 degrees
             .build();                   // Creates a CameraPosition from the builder
-        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
       }
     } catch (Exception e) {
       Log.d("onResponse", "There is an error");
