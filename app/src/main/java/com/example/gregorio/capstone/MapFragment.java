@@ -173,8 +173,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     // Initialize Firebase components
     mFirebaseDatabase = FirebaseDatabase.getInstance();
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
-    // Build a new Retrofit Object for the Search Query
-    // buildRetrofitAndGetResponse = new BuildRetrofitGetResponse();
 
     return rootView;
   }
@@ -329,6 +327,13 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
                 mCurrentLocation = new LatLng(latitude, longitude);
                 Log.i(LOG_TAG,
                     "The Last Location is: Latitude: " + latitude + " Longitude: " + longitude);
+              } else {
+                latitude = PiazzaCastello.latitude;
+                longitude = PiazzaCastello.longitude;
+                mCurrentLocation = PiazzaCastello;
+                Log.i(LOG_TAG,
+                    "Could not fetch the GPS location, we set to the default one: " + PiazzaCastello);
+
               }
             }
           })
