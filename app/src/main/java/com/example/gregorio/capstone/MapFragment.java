@@ -40,7 +40,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -48,7 +47,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import googleplacesapi.GoogleLocationJsonParser;
 import googleplacesapi.GoogleMapsApi;
-import java.util.List;
 import permissions.LocationPermission;
 import pojos.NearbyPlaces;
 import repository.NearbyPlacesRepository;
@@ -76,8 +74,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private static final LatLng PiazzaCastello = new LatLng(45.0710394, 7.6862986);
   private OnMarkerClickListener onMarkerClickListener;
   private OnInfoWindowClickListener onInfoWindowClickListener;
-  private Double latitude;
-  private Double longitude;
+  private Double latitude = 45.0710394;
+  private Double longitude = 7.6862986;
   private LatLng mCurrentLocation;
   private String apiKey;
   private String mQuery;
@@ -110,7 +108,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       cameraPosition = savedInstanceState.getParcelable(CAMERA_POSITION_TAG);
       latitude = savedInstanceState.getDouble(CURRENT_LATITUDE_TAG);
       longitude = savedInstanceState.getDouble(CURRENT_LONGITUDE_TAG);
-      String query = savedInstanceState.getString(CURRENT_QUERY_TAG);
+      mQuery = savedInstanceState.getString(CURRENT_QUERY_TAG);
       mCurrentLocation = new LatLng(latitude, longitude);
     }
   }
@@ -132,6 +130,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         checkOut(rootView);
       }
     });
+    mQuery="";
     // Check if the user has granted permission to use Location Services
     locationPermission = new LocationPermission();
     // Check if the Google Play Services are available or not and set Up Map
@@ -142,14 +141,14 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     // Instatiate the data parsing class
     jsonParser = new GoogleLocationJsonParser();
     // Enable the NearbyPlaces ViewModel
-      nearbyPlacesListViewModel = ViewModelProviders.of(this).get(NearbyPlacesListViewModel.class);
-      nearbyPlacesListViewModel.getNearbyPlacesListObservable().observe(this,
-          new Observer<NearbyPlaces>() {
-            @Override
-            public void onChanged(@Nullable NearbyPlaces nearbyPlaces) {
-              mNearbyPlaces = nearbyPlaces;
-            }
-          });
+//      nearbyPlacesListViewModel = ViewModelProviders.of(this).get(NearbyPlacesListViewModel.class);
+//      nearbyPlacesListViewModel.getNearbyPlacesListObservable().observe(this,
+//          new Observer<NearbyPlaces>() {
+//            @Override
+//            public void onChanged(@Nullable NearbyPlaces nearbyPlaces) {
+//              mNearbyPlaces = nearbyPlaces;
+//            }
+//          });
 
     // OnMarkerClickListener added to the map
     onMarkerClickListener = new OnMarkerClickListener() {
@@ -167,6 +166,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       }
     };
 
+   // setUpQueryNearbyPlacesViewModel(mQuery);
+
     // TODO: Firebase to Add Authentication and local persistence(Add Place to favourites)
     // Enable disk persistence
     //  FirebaseDatabase.getInstance().setPersistenceEnabled(true);
@@ -175,6 +176,77 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
 
     return rootView;
+  }
+
+
+  // Map SetUp on the Map View
+  private void setUpMap() {
+    try {
+      MapsInitializer.initialize(getActivity().getApplicationContext());
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    // Sync Map to current location (if permitted) on the fragment View
+    mapView.getMapAsync(new OnMapReadyCallback() {
+      @Override
+      public void onMapReady(GoogleMap googleMap) {
+
+        //Once the Map is initialised we set Up an observer for changes to the Map
+        // Check the Location permission is given before enabling setMyLocation to true.
+        if (locationPermission.checkLocalPermission(mContext, getActivity())) {
+          // If the Location Permission id Granted Enable Location on the Map
+          googleMap.setMyLocationEnabled(true);
+          googleMap.setBuildingsEnabled(true);
+          googleMap.setOnMarkerClickListener(onMarkerClickListener);
+          googleMap.setOnInfoWindowClickListener(onInfoWindowClickListener);
+          // Construct a CameraPosition focusing on Piazza Castello, Turin Italy and animate the camera to that position.
+          CameraPosition cameraPosition = new CameraPosition.Builder()
+              .target(PiazzaCastello)      // Sets the center of the map to Piazza Castello
+              .zoom(14)                   // Sets the zoom
+              .bearing(0)                // Sets the orientation of the camera to east
+              .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+              .build();
+          // Creates a CameraPosition from the builder
+          googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+        }
+        mMap = googleMap;
+        setUpGoogleMapObserver(googleMap);
+        getLastLocation();
+      }
+    });
+  }
+
+  public void setUpGoogleMapObserver(GoogleMap googleMap){
+    GoogleMapViewModelFactory googleMapViewModelFactory = new GoogleMapViewModelFactory(NearbyPlacesRepository.getInstance(), googleMap);
+    googleMapViewModel = ViewModelProviders.of(this,googleMapViewModelFactory).get(GoogleMapViewModel.class);
+    googleMapViewModel.getGoogleMap().observe(this, new Observer<GoogleMap>() {
+      @Override
+      public void onChanged(@Nullable GoogleMap googleMap) {
+        if(googleMap!=null && queryViewModel != null){
+          Log.i(LOG_TAG, "setUpGoogleMapObserver queryViewModel " +  queryViewModel.getData().getValue().getResults().size());
+          // updateMap(googleMap);
+          jsonParser.drawLocationMap(queryViewModel.getData().getValue(), googleMap, mCurrentLocation);
+        }
+      }
+    });
+  }
+
+  public void setUpQueryNearbyPlacesViewModel(String query){
+    factory = new
+        NearbyPlacesListViewModelFactory(NearbyPlacesRepository.getInstance(),
+        query, latitude.toString() , longitude.toString(), DEFAULT_ZOOM, apiKey);
+    queryViewModel = ViewModelProviders.of(this, factory)
+        .get(QueryNearbyPlacesViewModel.class);
+    queryViewModel.getData().observe(this, new Observer<NearbyPlaces>() {
+      @Override
+      public void onChanged(@Nullable NearbyPlaces nearbyPlaces) {
+        mNearbyPlaces = nearbyPlaces;
+        Log.i(LOG_TAG, "The Query result Status is: " + nearbyPlaces.getStatus());
+        Log.i(LOG_TAG, "The Query result Size is: " + nearbyPlaces.getResults().size());
+        jsonParser.drawLocationMap(mNearbyPlaces, mMap, mCurrentLocation);
+      }
+    });
   }
 
 
@@ -242,30 +314,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public boolean onQueryTextSubmit(String query) {
     Log.i(LOG_TAG, "The Search Query is: " + query);
     // MVVM Retrofit Call Via ViewModel Factory
-    if(nearbyPlacesListViewModel.nearbyPlacesListObservable.getValue()!=null){
-      nearbyPlacesListViewModel.mLatitude = latitude;
-      nearbyPlacesListViewModel.mLongitude = longitude;
-      nearbyPlacesListViewModel.mKeyword = query;
-      nearbyPlacesListViewModel.mApiKey = apiKey;
-      nearbyPlacesListViewModel.mKeyword = mQuery;
-    }
+    setUpQueryNearbyPlacesViewModel(query);
 
 
-    factory = new
-        NearbyPlacesListViewModelFactory(NearbyPlacesRepository.getInstance(),
-        query, latitude.toString() , longitude.toString(), DEFAULT_ZOOM, apiKey);
-
-    queryViewModel = ViewModelProviders.of(this, factory)
-            .get(QueryNearbyPlacesViewModel.class);
-    queryViewModel.getData().observe(this, new Observer<NearbyPlaces>() {
-                 @Override
-                 public void onChanged(@Nullable NearbyPlaces nearbyPlaces) {
-                   Log.i(LOG_TAG, "The Query result Status is: " + nearbyPlaces.getStatus());
-                   Log.i(LOG_TAG, "The Query result Size is: " + nearbyPlaces.getResults().size());
-                   nearbyPlacesListViewModel.nearbyPlaces = nearbyPlaces;
-                   jsonParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation);
-                 }
-               });
     return true;
   }
 
@@ -315,7 +366,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public void getLastLocation() {
     // Get last known recent location using new Google Play Services SDK (v11+)
     if (locationPermission.checkLocalPermission(mContext, getActivity())) {
-      location = LocationServices.getFusedLocationProviderClient(getActivity()).getLastLocation();
+      location = LocationServices.getFusedLocationProviderClient(mContext).getLastLocation();
       location
           .addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
@@ -326,14 +377,13 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
                 longitude = location.getLongitude();
                 mCurrentLocation = new LatLng(latitude, longitude);
                 Log.i(LOG_TAG,
-                    "The Last Location is: Latitude: " + latitude + " Longitude: " + longitude);
+                    "The Last location is: Latitude: " + latitude + " Longitude: " + longitude);
               } else {
                 latitude = PiazzaCastello.latitude;
                 longitude = PiazzaCastello.longitude;
                 mCurrentLocation = PiazzaCastello;
                 Log.i(LOG_TAG,
                     "Could not fetch the GPS location, we set to the default one: " + PiazzaCastello);
-
               }
             }
           })
@@ -348,106 +398,57 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 
   }
 
-  // Map SetUp on the Map View
-  private void setUpMap() {
-    try {
-      MapsInitializer.initialize(getActivity().getApplicationContext());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    // Sync Map to current location (if permitted) on the fragment View
-    mapView.getMapAsync(new OnMapReadyCallback() {
-      @Override
-      public void onMapReady(GoogleMap googleMap) {
 
-        //Once the Map is initialised we set Up an observer for changes to the Map
-        setUpGoogleMapObserver(googleMap);
-        // Check the Location permission is given before enabling setMyLocation to true.
-        if (locationPermission.checkLocalPermission(mContext, getActivity())) {
-      // If the Location Permission id Granted Enable Location on the Map
-      googleMap.setMyLocationEnabled(true);
-      googleMap.setBuildingsEnabled(true);
-      googleMap.setOnMarkerClickListener(onMarkerClickListener);
-      googleMap.setOnInfoWindowClickListener(onInfoWindowClickListener);
-      // Construct a CameraPosition focusing on Piazza Castello, Turin Italy and animate the camera to that position.
-      CameraPosition cameraPosition = new CameraPosition.Builder()
-          .target(PiazzaCastello)      // Sets the center of the map to Piazza Castello
-          .zoom(14)                   // Sets the zoom
-          .bearing(0)                // Sets the orientation of the camera to east
-          .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-          .build();
-      // Creates a CameraPosition from the builder
-        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-          }
-        mMap = googleMap;
-        getLastLocation();
-      }
-    });
-  }
-
-  public void setUpGoogleMapObserver(GoogleMap googleMap){
-    GoogleMapViewModelFactory googleMapViewModelFactory = new GoogleMapViewModelFactory(NearbyPlacesRepository.getInstance(), googleMap);
-    googleMapViewModel = ViewModelProviders.of(this,googleMapViewModelFactory).get(GoogleMapViewModel.class);
-    googleMapViewModel.getGoogleMap().observe(this, new Observer<GoogleMap>() {
-      @Override
-      public void onChanged(@Nullable GoogleMap googleMap) {
-        if(googleMap!=null){
-          updateMap(googleMap);
-        }
-      }
-    });
-  }
-
-  private boolean updateMap(GoogleMap googleMap) {
-        if (nearbyPlacesListViewModel.nearbyPlacesListObservable.getValue() != null) {
-          int size = nearbyPlacesListViewModel.nearbyPlaces.getResults().size();
-          for (int i = 0;
-              i < nearbyPlacesListViewModel.nearbyPlaces.getResults().size();
-              i++) {
-            Double lat = nearbyPlacesListViewModel.nearbyPlaces.getResults()
-                .get(i)
-                .getGeometry().getLocation()
-                .getLat();
-            Double lng = nearbyPlacesListViewModel.nearbyPlaces.getResults()
-                .get(i)
-                .getGeometry().getLocation()
-                .getLng();
-            String placeName = nearbyPlacesListViewModel.nearbyPlaces
-                .getResults().get(i)
-                .getName();
-            String vicinity = nearbyPlacesListViewModel.nearbyPlaces
-                .getResults().get(i)
-                .getVicinity();
-            String id = nearbyPlacesListViewModel.nearbyPlaces.getResults()
-                .get(i).getId();
-            String icon = nearbyPlacesListViewModel.nearbyPlaces.getResults()
-                .get(i).getIcon();
-            List photos = nearbyPlacesListViewModel.nearbyPlaces.getResults()
-                .get(i)
-                .getPhotos();
-            int photoSize = photos.size();
-            Log.i(LOG_TAG, "Photo Size Array is: " + photoSize);
-            MarkerOptions markerOptions = new MarkerOptions();
-            LatLng latLng = new LatLng(lat, lng);
-            // Position of Marker on Map
-            markerOptions.position(latLng);
-            // Adding Title (Name of the place) and Vicinity (address) to the Marker
-            markerOptions.title(placeName);
-            markerOptions.snippet(vicinity);
-            // Adding Marker to the Map.
-            googleMap.addMarker(markerOptions);
-            Log.i(LOG_TAG, "Markers Added: " + markerOptions);
-            Log.i(LOG_TAG, "Map Update is: " + googleMap.getCameraPosition());
-
-          }
-        }return true;
-      }
+//  private boolean updateMap(GoogleMap googleMap) {
+//        if (queryViewModel != null) {
+//          int size = nearbyPlacesListViewModel.nearbyPlaces.getResults().size();
+//          Log.i(LOG_TAG, "Nearby Places Result size: " + size);
+//          for (int i = 0; i < nearbyPlacesListViewModel.nearbyPlaces.getResults().size(); i++) {
+//            Double lat = nearbyPlacesListViewModel.nearbyPlaces.getResults()
+//                .get(i)
+//                .getGeometry().getLocation()
+//                .getLat();
+//            Double lng = nearbyPlacesListViewModel.nearbyPlaces.getResults()
+//                .get(i)
+//                .getGeometry().getLocation()
+//                .getLng();
+//            String placeName = nearbyPlacesListViewModel.nearbyPlaces
+//                .getResults().get(i)
+//                .getName();
+//            String vicinity = nearbyPlacesListViewModel.nearbyPlaces
+//                .getResults().get(i)
+//                .getVicinity();
+//            String id = nearbyPlacesListViewModel.nearbyPlaces.getResults()
+//                .get(i).getId();
+//            String icon = nearbyPlacesListViewModel.nearbyPlaces.getResults()
+//                .get(i).getIcon();
+//            List photos = nearbyPlacesListViewModel.nearbyPlaces.getResults()
+//                .get(i)
+//                .getPhotos();
+//            int photoSize = photos.size();
+//            Log.i(LOG_TAG, "Photo Size Array is: " + photoSize);
+//            MarkerOptions markerOptions = new MarkerOptions();
+//            LatLng latLng = new LatLng(lat, lng);
+//            // Position of Marker on Map
+//            markerOptions.position(latLng);
+//            // Adding Title (Name of the place) and Vicinity (address) to the Marker
+//            markerOptions.title(placeName);
+//            markerOptions.snippet(vicinity);
+//            // Adding Marker to the Map.
+//            googleMap.addMarker(markerOptions);
+//            Log.i(LOG_TAG, "Markers Added: " + markerOptions);
+//            Log.i(LOG_TAG, "Map Update is: " + googleMap.getCameraPosition());
+//
+//          }
+//        }return true;
+//      }
 
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
     outState.putParcelable(CAMERA_POSITION_TAG, mMap.getCameraPosition());
     outState.putDouble(CURRENT_LATITUDE_TAG, mMap.getCameraPosition().target.longitude);
     outState.putDouble(CURRENT_LONGITUDE_TAG, mMap.getCameraPosition().target.longitude);
+    outState.putString(CURRENT_QUERY_TAG, mQuery);
     super.onSaveInstanceState(outState);
   }
   /**
