@@ -94,7 +94,7 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
   private NearbyPlaces mNearbyPlaces;
   private GoogleMapViewModel googleMapViewModel;
   private GoogleMapViewModelFactory googleMapViewModelFactory;
-  private boolean mMoveCameraToMarker;
+  private boolean mSavedInstanceisNull;
 
 
   public MapFragment() {
@@ -134,9 +134,9 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
       mQuery = savedInstanceState.getString(CURRENT_QUERY_TAG);
       mCurrentLocation = new LatLng(latitude, longitude);
       Log.i(LOG_TAG, "onCreateView savedInstanceState Current Location:  " + mCurrentLocation);
-      mMoveCameraToMarker = false;
+      mSavedInstanceisNull = false;
     } else if (savedInstanceState == null) {
-      mMoveCameraToMarker = true;
+      mSavedInstanceisNull = true;
       mQuery = "";
       longitude = 7.6862986;
       latitude = 7.6862986;
@@ -154,10 +154,8 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
     mapView.getMapAsync(this);
     // Check if the user has granted permission to use Location Services
     locationPermission = new LocationPermission();
-
     // Instatiate the data parsing class
     jsonParser = new GoogleLocationJsonParser();
-
     // TODO: Firebase to Add Authentication and local persistence(Add Place to favourites)
     // Enable disk persistence
     //  FirebaseDatabase.getInstance().setPersistenceEnabled(true);
@@ -173,7 +171,6 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
     super.onViewCreated(view, savedInstanceState);
 
     setUpGoogleMapObserver(mMap);
-
 
     checkoutFap.setOnClickListener(new OnClickListener() {
       @Override
@@ -268,13 +265,11 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
       mListener.onFragmentInteraction(marker);
     }
   }
-
   public void onPlacePickerPressedIntent(Place place) {
     if (mListener != null) {
       mListener.OnPlacePickerInteraction(place);
     }
   }
-
   @Override
   public void onAttach(Context context) {
     super.onAttach(context);
@@ -285,7 +280,6 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
           + " must implement OnFragmentInteractionListener");
     }
   }
-
   @Override
   public void onDetach() {
     super.onDetach();
@@ -415,7 +409,7 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
       googleMap.setBuildingsEnabled(true);
       googleMap.setOnMarkerClickListener(onMarkerClickListener);
       googleMap.setOnInfoWindowClickListener(onInfoWindowClickListener);
-      if (mMoveCameraToMarker) {
+      if (mSavedInstanceisNull) {
         // Construct a CameraPosition focusing on Piazza Castello, Turin Italy and animate the camera to that position.
         CameraPosition cameraPosition = new CameraPosition.Builder()
             .target(mCurrentLocation)      // Sets the center of the map to Piazza Castello
@@ -447,8 +441,8 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
   }
 
   @Override
-  public void onDestroyView() {
-    super.onDestroyView();
+  public void onDestroy() {
+    super.onDestroy();
     mapView.onDestroy();
   }
 
