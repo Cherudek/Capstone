@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -34,11 +33,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -56,99 +53,135 @@ import viewmodel.NearbyPlacesListViewModel;
 import viewmodel.NearbyPlacesListViewModelFactory;
 import viewmodel.QueryNearbyPlacesViewModel;
 
-public class MapFragment extends Fragment implements SearchView.OnQueryTextListener,
-    MenuItem.OnActionExpandListener {
+public class MapFragment extends android.support.v4.app.Fragment implements SearchView.OnQueryTextListener,
+    MenuItem.OnActionExpandListener, OnMapReadyCallback {
 
   public static final String LOG_TAG = MapFragment.class.getSimpleName();
   public static final String CAMERA_POSITION_TAG = "CURRENT MAP TAG";
   public static final String CURRENT_LATITUDE_TAG = "CURRENT LATITUDE TAG";
   public static final String CURRENT_LONGITUDE_TAG = "CURRENT LONGITUDE TAG";
   public static final String CURRENT_QUERY_TAG = "CURRENT QUERY TAG";
+  private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
+
   private final int DEFAULT_ZOOM = 1500;
   @BindView(R.id.map)MapView mapView;
   @BindView(R.id.checkout_button)FloatingActionButton checkoutFap;
   private GoogleMap mMap;
-  private LatLngBounds.Builder mBounds = new LatLngBounds.Builder();
   private static final int REQUEST_PLACE_PICKER = 1;
   // A default location (Piazza Castello, Turin, Italy) and default zoom to use when location permission is
   private static final LatLng PiazzaCastello = new LatLng(45.0710394, 7.6862986);
   private OnMarkerClickListener onMarkerClickListener;
   private OnInfoWindowClickListener onInfoWindowClickListener;
-  private Double latitude = 45.0710394;
-  private Double longitude = 7.6862986;
+  private Double latitude;
+  private Double longitude;
   private LatLng mCurrentLocation;
   private String apiKey;
   private String mQuery;
   private Task<Location> location;
+
   private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
   private static final String FIREBASE_ROOT_NODE = "checkouts";
   private DatabaseReference mPlacesDatabaseReference;
   private FirebaseDatabase mFirebaseDatabase;
-  private FloatingActionButton checkOutBtn;
   private LocationPermission locationPermission;
   private Context mContext;
   private CameraPosition cameraPosition;
-  public  NearbyPlacesListViewModel nearbyPlacesListViewModel;
+  public NearbyPlacesListViewModel nearbyPlacesListViewModel;
   private OnFragmentInteractionListener mListener;
   private NearbyPlacesListViewModelFactory factory;
   private QueryNearbyPlacesViewModel queryViewModel;
   private GoogleLocationJsonParser jsonParser;
   private NearbyPlaces mNearbyPlaces;
   private GoogleMapViewModel googleMapViewModel;
+  private GoogleMapViewModelFactory googleMapViewModelFactory;
+  private boolean mMoveCameraToMarker;
 
-  public MapFragment(){
+
+  public MapFragment() {
   }
+
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mContext = getActivity();
     setHasOptionsMenu(true);
-    if(savedInstanceState!=null){
-      cameraPosition = savedInstanceState.getParcelable(CAMERA_POSITION_TAG);
-      latitude = savedInstanceState.getDouble(CURRENT_LATITUDE_TAG);
-      longitude = savedInstanceState.getDouble(CURRENT_LONGITUDE_TAG);
-      mQuery = savedInstanceState.getString(CURRENT_QUERY_TAG);
-      mCurrentLocation = new LatLng(latitude, longitude);
-    }
   }
 
   @Nullable
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable final Bundle savedInstanceState) {
-     final View rootView = inflater.inflate(R.layout.fragment_map, container, false);
+    final View rootView = inflater.inflate(R.layout.fragment_map, container, false);
     ButterKnife.bind(this, rootView);
-    checkOutBtn = rootView.findViewById(R.id.checkout_button);
+
+    checkoutFap = rootView.findViewById(R.id.checkout_button);
+    mapView = rootView.findViewById(R.id.map);
     apiKey = getString(com.example.gregorio.capstone.R.string.google_maps_key);
-    mapView.onCreate(savedInstanceState);
-    mapView.onResume();
-    checkOutBtn.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        // launches the Place Picker Api
-        checkOut(rootView);
-      }
-    });
-    mQuery="";
-    // Check if the user has granted permission to use Location Services
-    locationPermission = new LocationPermission();
+    // *** IMPORTANT ***
+    // MapView requires that the Bundle you pass contain _ONLY_ MapView SDK
+    // objects or sub-Bundles.
+    Bundle mapViewBundle = null;
+    if (savedInstanceState != null) {
+      mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
+      Log.i(LOG_TAG, "onCreateView savedInstanceState cameraPosition:  " + mapViewBundle);
+//      cameraPosition = savedInstanceState.getParcelable(CAMERA_POSITION_TAG);
+//      Log.i(LOG_TAG, "onCreateView savedInstanceState cameraPosition:  " + cameraPosition);
+      latitude = savedInstanceState.getDouble(CURRENT_LATITUDE_TAG);
+      Log.i(LOG_TAG, "onCreateView savedInstanceState latitude:  " + latitude);
+      longitude = savedInstanceState.getDouble(CURRENT_LONGITUDE_TAG);
+      Log.i(LOG_TAG, "onCreateView savedInstanceState longitude:  " + longitude);
+      mQuery = savedInstanceState.getString(CURRENT_QUERY_TAG);
+      mCurrentLocation = new LatLng(latitude, longitude);
+      Log.i(LOG_TAG, "onCreateView savedInstanceState Current Location:  " + mCurrentLocation);
+      mMoveCameraToMarker = false;
+    } else if (savedInstanceState == null) {
+      mMoveCameraToMarker = true;
+      mQuery = "";
+      longitude = 7.6862986;
+      latitude = 7.6862986;
+      mCurrentLocation = PiazzaCastello;
+    }
+
+
     // Check if the Google Play Services are available or not and set Up Map
     GoogleMapsApi googleMapsApi = new GoogleMapsApi();
     googleMapsApi.CheckGooglePlayServices(mContext, getActivity());
     googleMapsApi.GoogleApiClient(mContext);
-    setUpMap();
+
+    mapView.onCreate(mapViewBundle);
+    mapView.onResume();
+    mapView.getMapAsync(this);
+    // Check if the user has granted permission to use Location Services
+    locationPermission = new LocationPermission();
+
     // Instatiate the data parsing class
     jsonParser = new GoogleLocationJsonParser();
-    // Enable the NearbyPlaces ViewModel
-//      nearbyPlacesListViewModel = ViewModelProviders.of(this).get(NearbyPlacesListViewModel.class);
-//      nearbyPlacesListViewModel.getNearbyPlacesListObservable().observe(this,
-//          new Observer<NearbyPlaces>() {
-//            @Override
-//            public void onChanged(@Nullable NearbyPlaces nearbyPlaces) {
-//              mNearbyPlaces = nearbyPlaces;
-//            }
-//          });
+
+    // TODO: Firebase to Add Authentication and local persistence(Add Place to favourites)
+    // Enable disk persistence
+    //  FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+    // Initialize Firebase components
+    mFirebaseDatabase = FirebaseDatabase.getInstance();
+    mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
+
+    return rootView;
+  }
+
+  @Override
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+
+    setUpGoogleMapObserver(mMap);
+
+
+    checkoutFap.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        // launches the Place Picker Api
+        checkOut();
+      }
+    });
 
     // OnMarkerClickListener added to the map
     onMarkerClickListener = new OnMarkerClickListener() {
@@ -165,77 +198,33 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         onMarkerPressedIntent(marker);
       }
     };
-
-   // setUpQueryNearbyPlacesViewModel(mQuery);
-
-    // TODO: Firebase to Add Authentication and local persistence(Add Place to favourites)
-    // Enable disk persistence
-    //  FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-    // Initialize Firebase components
-    mFirebaseDatabase = FirebaseDatabase.getInstance();
-    mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
-
-    return rootView;
   }
 
-
-  // Map SetUp on the Map View
-  private void setUpMap() {
-    try {
-      MapsInitializer.initialize(getActivity().getApplicationContext());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    // Sync Map to current location (if permitted) on the fragment View
-    mapView.getMapAsync(new OnMapReadyCallback() {
-      @Override
-      public void onMapReady(GoogleMap googleMap) {
-
-        //Once the Map is initialised we set Up an observer for changes to the Map
-        // Check the Location permission is given before enabling setMyLocation to true.
-        if (locationPermission.checkLocalPermission(mContext, getActivity())) {
-          // If the Location Permission id Granted Enable Location on the Map
-          googleMap.setMyLocationEnabled(true);
-          googleMap.setBuildingsEnabled(true);
-          googleMap.setOnMarkerClickListener(onMarkerClickListener);
-          googleMap.setOnInfoWindowClickListener(onInfoWindowClickListener);
-          // Construct a CameraPosition focusing on Piazza Castello, Turin Italy and animate the camera to that position.
-          CameraPosition cameraPosition = new CameraPosition.Builder()
-              .target(PiazzaCastello)      // Sets the center of the map to Piazza Castello
-              .zoom(14)                   // Sets the zoom
-              .bearing(0)                // Sets the orientation of the camera to east
-              .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-              .build();
-          // Creates a CameraPosition from the builder
-          googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-        }
-        mMap = googleMap;
-        setUpGoogleMapObserver(googleMap);
-        getLastLocation();
-      }
-    });
-  }
-
-  public void setUpGoogleMapObserver(GoogleMap googleMap){
-    GoogleMapViewModelFactory googleMapViewModelFactory = new GoogleMapViewModelFactory(NearbyPlacesRepository.getInstance(), googleMap);
-    googleMapViewModel = ViewModelProviders.of(this,googleMapViewModelFactory).get(GoogleMapViewModel.class);
+  public void setUpGoogleMapObserver(GoogleMap googleMap) {
+    googleMapViewModelFactory = new GoogleMapViewModelFactory(NearbyPlacesRepository.getInstance(),
+        googleMap);
+    googleMapViewModel = ViewModelProviders.of(this, googleMapViewModelFactory)
+        .get(GoogleMapViewModel.class);
     googleMapViewModel.getGoogleMap().observe(this, new Observer<GoogleMap>() {
       @Override
       public void onChanged(@Nullable GoogleMap googleMap) {
-        if(googleMap!=null && queryViewModel != null){
-          Log.i(LOG_TAG, "setUpGoogleMapObserver queryViewModel " +  queryViewModel.getData().getValue().getResults().size());
-          // updateMap(googleMap);
+        if (googleMap != null && queryViewModel != null) {
+
+       mapView.getMapAsync(new OnMapReadyCallback() {
+        @Override
+        public void onMapReady(GoogleMap googleMap) {
           jsonParser.drawLocationMap(queryViewModel.getData().getValue(), googleMap, mCurrentLocation);
+        }
+      });
         }
       }
     });
   }
 
-  public void setUpQueryNearbyPlacesViewModel(String query){
+  public void setUpQueryNearbyPlacesViewModel(String query) {
     factory = new
         NearbyPlacesListViewModelFactory(NearbyPlacesRepository.getInstance(),
-        query, latitude.toString() , longitude.toString(), DEFAULT_ZOOM, apiKey);
+        query, latitude.toString(), longitude.toString(), DEFAULT_ZOOM, apiKey);
     queryViewModel = ViewModelProviders.of(this, factory)
         .get(QueryNearbyPlacesViewModel.class);
     queryViewModel.getData().observe(this, new Observer<NearbyPlaces>() {
@@ -247,6 +236,30 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         jsonParser.drawLocationMap(mNearbyPlaces, mMap, mCurrentLocation);
       }
     });
+  }
+
+  @Override
+  public boolean onQueryTextSubmit(String query) {
+    Log.i(LOG_TAG, "The Search Query is: " + query);
+    // MVVM Retrofit Call Via ViewModel Factory
+    setUpQueryNearbyPlacesViewModel(query);
+    factory = new
+        NearbyPlacesListViewModelFactory(NearbyPlacesRepository.getInstance(),
+        query, latitude.toString(), longitude.toString(), DEFAULT_ZOOM, apiKey);
+    queryViewModel = ViewModelProviders.of(this, factory)
+        .get(QueryNearbyPlacesViewModel.class);
+    queryViewModel.getData().observe(this, new Observer<NearbyPlaces>() {
+      @Override
+      public void onChanged(@Nullable NearbyPlaces nearbyPlaces) {
+        mNearbyPlaces = nearbyPlaces;
+        Log.i(LOG_TAG, "The Query result Status is: " + nearbyPlaces.getStatus());
+        Log.i(LOG_TAG, "The Query result Size is: " + nearbyPlaces.getResults().size());
+
+        jsonParser.drawLocationMap(mNearbyPlaces, mMap, mCurrentLocation);
+
+      }
+    });
+    return true;
   }
 
 
@@ -272,6 +285,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
           + " must implement OnFragmentInteractionListener");
     }
   }
+
   @Override
   public void onDetach() {
     super.onDetach();
@@ -296,7 +310,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 
   // Prompt the user to check out of their location. Called when the "Check Out!" button
   // is clicked.
-  public void checkOut(View view) {
+  public void checkOut() {
     try {
       PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
       Intent intent = intentBuilder.build(getActivity());
@@ -311,23 +325,15 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   }
 
   @Override
-  public boolean onQueryTextSubmit(String query) {
-    Log.i(LOG_TAG, "The Search Query is: " + query);
-    // MVVM Retrofit Call Via ViewModel Factory
-    setUpQueryNearbyPlacesViewModel(query);
-
-
-    return true;
-  }
-
-  @Override
   public boolean onQueryTextChange(String newText) {
     return false;
   }
+
   @Override
   public boolean onMenuItemActionExpand(MenuItem item) {
     return true;
   }
+
   @Override
   public boolean onMenuItemActionCollapse(MenuItem item) {
     return true;
@@ -383,7 +389,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
                 longitude = PiazzaCastello.longitude;
                 mCurrentLocation = PiazzaCastello;
                 Log.i(LOG_TAG,
-                    "Could not fetch the GPS location, we set to the default one: " + PiazzaCastello);
+                    "Could not fetch the GPS location, we set to the default one: "
+                        + PiazzaCastello);
               }
             }
           })
@@ -395,62 +402,62 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
             }
           });
     }
-
   }
 
-
-//  private boolean updateMap(GoogleMap googleMap) {
-//        if (queryViewModel != null) {
-//          int size = nearbyPlacesListViewModel.nearbyPlaces.getResults().size();
-//          Log.i(LOG_TAG, "Nearby Places Result size: " + size);
-//          for (int i = 0; i < nearbyPlacesListViewModel.nearbyPlaces.getResults().size(); i++) {
-//            Double lat = nearbyPlacesListViewModel.nearbyPlaces.getResults()
-//                .get(i)
-//                .getGeometry().getLocation()
-//                .getLat();
-//            Double lng = nearbyPlacesListViewModel.nearbyPlaces.getResults()
-//                .get(i)
-//                .getGeometry().getLocation()
-//                .getLng();
-//            String placeName = nearbyPlacesListViewModel.nearbyPlaces
-//                .getResults().get(i)
-//                .getName();
-//            String vicinity = nearbyPlacesListViewModel.nearbyPlaces
-//                .getResults().get(i)
-//                .getVicinity();
-//            String id = nearbyPlacesListViewModel.nearbyPlaces.getResults()
-//                .get(i).getId();
-//            String icon = nearbyPlacesListViewModel.nearbyPlaces.getResults()
-//                .get(i).getIcon();
-//            List photos = nearbyPlacesListViewModel.nearbyPlaces.getResults()
-//                .get(i)
-//                .getPhotos();
-//            int photoSize = photos.size();
-//            Log.i(LOG_TAG, "Photo Size Array is: " + photoSize);
-//            MarkerOptions markerOptions = new MarkerOptions();
-//            LatLng latLng = new LatLng(lat, lng);
-//            // Position of Marker on Map
-//            markerOptions.position(latLng);
-//            // Adding Title (Name of the place) and Vicinity (address) to the Marker
-//            markerOptions.title(placeName);
-//            markerOptions.snippet(vicinity);
-//            // Adding Marker to the Map.
-//            googleMap.addMarker(markerOptions);
-//            Log.i(LOG_TAG, "Markers Added: " + markerOptions);
-//            Log.i(LOG_TAG, "Map Update is: " + googleMap.getCameraPosition());
-//
-//          }
-//        }return true;
-//      }
+  @Override
+  public void onMapReady(GoogleMap googleMap) {
+      Log.i(LOG_TAG, "onMapReady before cameraPosition: " + googleMap.getCameraPosition());
+    //Once the Map is initialised we set Up an observer for changes to the Map
+    // Check the Location permission is given before enabling setMyLocation to true.
+    if (locationPermission.checkLocalPermission(mContext, getActivity())) {
+      // If the Location Permission id Granted Enable Location on the Map
+      googleMap.setMyLocationEnabled(true);
+      googleMap.setBuildingsEnabled(true);
+      googleMap.setOnMarkerClickListener(onMarkerClickListener);
+      googleMap.setOnInfoWindowClickListener(onInfoWindowClickListener);
+      if (mMoveCameraToMarker) {
+        // Construct a CameraPosition focusing on Piazza Castello, Turin Italy and animate the camera to that position.
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+            .target(mCurrentLocation)      // Sets the center of the map to Piazza Castello
+            .zoom(14)                   // Sets the zoom
+            .bearing(0)                // Sets the orientation of the camera to east
+            .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+            .build();
+        // Creates a CameraPosition from the builder
+        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+      }
+    }
+    getLastLocation();
+    mMap = googleMap;
+    cameraPosition = googleMap.getCameraPosition();
+    Log.i(LOG_TAG, "onMapReady after cameraPosition: " + cameraPosition);
+  }
 
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
-    outState.putParcelable(CAMERA_POSITION_TAG, mMap.getCameraPosition());
-    outState.putDouble(CURRENT_LATITUDE_TAG, mMap.getCameraPosition().target.longitude);
-    outState.putDouble(CURRENT_LONGITUDE_TAG, mMap.getCameraPosition().target.longitude);
-    outState.putString(CURRENT_QUERY_TAG, mQuery);
-    super.onSaveInstanceState(outState);
+   outState.putDouble(CURRENT_LATITUDE_TAG, latitude);
+   outState.putDouble(CURRENT_LONGITUDE_TAG, longitude);
+   outState.putString(CURRENT_QUERY_TAG, mQuery);
+    Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+    if (mapViewBundle == null) {
+      mapViewBundle = new Bundle();
+      outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+    }
+    mapView.onSaveInstanceState(mapViewBundle);
   }
+
+  @Override
+  public void onDestroyView() {
+    super.onDestroyView();
+    mapView.onDestroy();
+  }
+
+  @Override
+  public void onLowMemory() {
+    super.onLowMemory();
+    mapView.onLowMemory();
+  }
+
   /**
    * This interface must be implemented by activities that contain this
    * fragment to allow an interaction in this fragment to be communicated
@@ -466,5 +473,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     void onFragmentInteraction(Marker marker);
     void OnPlacePickerInteraction(Place place);
   }
-
 }
+
+
