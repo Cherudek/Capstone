@@ -33,6 +33,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -95,6 +96,8 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
   private GoogleMapViewModel googleMapViewModel;
   private GoogleMapViewModelFactory googleMapViewModelFactory;
   private boolean mSavedInstanceisNull;
+  private GoogleMapViewModel googleMapViewModelMutableMap;
+  private View rootView;
 
 
   public MapFragment() {
@@ -108,11 +111,13 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
     setHasOptionsMenu(true);
   }
 
+
+
   @Nullable
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable final Bundle savedInstanceState) {
-    final View rootView = inflater.inflate(R.layout.fragment_map, container, false);
+    rootView = inflater.inflate(R.layout.fragment_map, container, false);
     ButterKnife.bind(this, rootView);
 
     checkoutFap = rootView.findViewById(R.id.checkout_button);
@@ -142,6 +147,8 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
       latitude = 7.6862986;
       mCurrentLocation = PiazzaCastello;
     }
+    mapView.onCreate(mapViewBundle);
+    mapView.getMapAsync(this);
 
 
     // Check if the Google Play Services are available or not and set Up Map
@@ -149,9 +156,7 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
     googleMapsApi.CheckGooglePlayServices(mContext, getActivity());
     googleMapsApi.GoogleApiClient(mContext);
 
-    mapView.onCreate(mapViewBundle);
-    mapView.onResume();
-    mapView.getMapAsync(this);
+
     // Check if the user has granted permission to use Location Services
     locationPermission = new LocationPermission();
     // Instatiate the data parsing class
@@ -167,10 +172,21 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
   }
 
   @Override
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+    outState.putDouble(CURRENT_LATITUDE_TAG, latitude);
+    outState.putDouble(CURRENT_LONGITUDE_TAG, longitude);
+    outState.putString(CURRENT_QUERY_TAG, mQuery);
+    Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+    if (mapViewBundle == null) {
+      mapViewBundle = new Bundle();
+      outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+    }
+    mapView.onSaveInstanceState(mapViewBundle);
+  }
+
+  @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-
-    setUpGoogleMapObserver(mMap);
 
     checkoutFap.setOnClickListener(new OnClickListener() {
       @Override
@@ -196,6 +212,7 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
       }
     };
   }
+
 
   public void setUpGoogleMapObserver(GoogleMap googleMap) {
     googleMapViewModelFactory = new GoogleMapViewModelFactory(NearbyPlacesRepository.getInstance(),
@@ -285,6 +302,8 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
     super.onDetach();
     mListener = null;
   }
+
+
 
   // App bar Search View setUp
   @Override
@@ -399,7 +418,32 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
   }
 
   @Override
+  public void onResume() {
+    super.onResume();
+    mapView.onResume();
+  }
+
+  @Override
+  public void onStart() {
+    super.onStart();
+    mapView.onStart();
+  }
+
+  @Override
+  public void onStop() {
+    super.onStop();
+    mapView.onStop();
+  }
+
+  @Override
+  public void onPause() {
+    mapView.onPause();
+    super.onPause();
+  }
+
+  @Override
   public void onMapReady(GoogleMap googleMap) {
+    MapsInitializer.initialize(mContext);
       Log.i(LOG_TAG, "onMapReady before cameraPosition: " + googleMap.getCameraPosition());
     //Once the Map is initialised we set Up an observer for changes to the Map
     // Check the Location permission is given before enabling setMyLocation to true.
@@ -420,25 +464,19 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
         // Creates a CameraPosition from the builder
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
       }
+
     }
+
+
     getLastLocation();
     mMap = googleMap;
     cameraPosition = googleMap.getCameraPosition();
+    googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     Log.i(LOG_TAG, "onMapReady after cameraPosition: " + cameraPosition);
+    setUpGoogleMapObserver(mMap);
+
   }
 
-  @Override
-  public void onSaveInstanceState(@NonNull Bundle outState) {
-   outState.putDouble(CURRENT_LATITUDE_TAG, latitude);
-   outState.putDouble(CURRENT_LONGITUDE_TAG, longitude);
-   outState.putString(CURRENT_QUERY_TAG, mQuery);
-    Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
-    if (mapViewBundle == null) {
-      mapViewBundle = new Bundle();
-      outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
-    }
-    mapView.onSaveInstanceState(mapViewBundle);
-  }
 
   @Override
   public void onDestroy() {

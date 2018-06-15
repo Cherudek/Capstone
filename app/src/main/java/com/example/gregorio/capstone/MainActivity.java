@@ -41,12 +41,18 @@ public class MainActivity extends AppCompatActivity
     detailLayout = findViewById(R.id.fragment_container_detail);
     detailLayout.setVisibility(View.INVISIBLE);
     mapLayout = findViewById(R.id.fragment_container);
-
-    mapFragment = new MapFragment();
+    if(savedInstanceState==null){
+      mapFragment = new MapFragment();
       FragmentManager fragmentManager = getSupportFragmentManager();
       fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
           .addToBackStack(MAP_FRAGMENT_TAG)
           .commit();
+    } else {
+      MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentByTag(MAP_FRAGMENT_TAG);
+
+    }
+
+
 
     FloatingActionButton fab = findViewById(R.id.fab);
     fab.setOnClickListener(new View.OnClickListener() {
