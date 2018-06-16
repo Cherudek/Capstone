@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity
       fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
           .addToBackStack(MAP_FRAGMENT_TAG)
           .commit();
+      mapFragment.setRetainInstance(true);
     } else {
       MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentByTag(MAP_FRAGMENT_TAG);
 

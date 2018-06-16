@@ -7,7 +7,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import java.util.ArrayList;
 import java.util.List;
 import pojos.NearbyPlaces;
 
@@ -17,8 +19,9 @@ public class GoogleLocationJsonParser {
   }
 
   private final static String LOG_TAG = GoogleLocationJsonParser.class.getSimpleName();
+  private List<MarkerOptions> markersOptions = new ArrayList<>();
 
-  public void drawLocationMap(NearbyPlaces nearbyPlaces, GoogleMap map, LatLng mCurrentLocation) {
+  public List<MarkerOptions> drawLocationMap(NearbyPlaces nearbyPlaces, GoogleMap map, LatLng mCurrentLocation) {
 
     try {
       // This loop will go through all the results and add marker on each location.
@@ -45,9 +48,10 @@ public class GoogleLocationJsonParser {
         // Adding Title (Name of the place) and Vicinity (address) to the Marker
         markerOptions.title(placeName);
         markerOptions.snippet(vicinity);
-
         // Adding Marker to the Map.
-        map.addMarker(markerOptions);
+        Marker m = map.addMarker(markerOptions);
+
+        markersOptions.add(markerOptions);
         // Adding colour to the marker
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
         // Construct a CameraPosition focusing on the current location View and animate the camera to that position.
@@ -64,5 +68,8 @@ public class GoogleLocationJsonParser {
       Log.d("onResponse", "There is an error");
       e.printStackTrace();
     }
+    Log.i(LOG_TAG, "Marker Options Size is: " + markersOptions.size());
+
+    return markersOptions;
   }
 }

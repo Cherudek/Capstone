@@ -38,6 +38,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -45,6 +46,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import googleplacesapi.GoogleLocationJsonParser;
 import googleplacesapi.GoogleMapsApi;
+import googleplacesapi.MarkerOptionList;
+import java.util.List;
 import permissions.LocationPermission;
 import pojos.NearbyPlaces;
 import repository.NearbyPlacesRepository;
@@ -53,6 +56,7 @@ import viewmodel.GoogleMapViewModelFactory;
 import viewmodel.NearbyPlacesListViewModel;
 import viewmodel.NearbyPlacesListViewModelFactory;
 import viewmodel.QueryNearbyPlacesViewModel;
+
 
 public class MapFragment extends android.support.v4.app.Fragment implements SearchView.OnQueryTextListener,
     MenuItem.OnActionExpandListener, OnMapReadyCallback {
@@ -63,6 +67,8 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
   public static final String CURRENT_LONGITUDE_TAG = "CURRENT LONGITUDE TAG";
   public static final String CURRENT_QUERY_TAG = "CURRENT QUERY TAG";
   private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
+  private static final String MARKERS_BUNDLE_KEY = "MarkersViewBundleKey";
+
 
   private final int DEFAULT_ZOOM = 1500;
   @BindView(R.id.map)MapView mapView;
@@ -98,7 +104,7 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
   private boolean mSavedInstanceisNull;
   private GoogleMapViewModel googleMapViewModelMutableMap;
   private View rootView;
-
+  private List<MarkerOptions> mMarkerOptions;
 
   public MapFragment() {
   }
@@ -180,6 +186,8 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
     if (mapViewBundle == null) {
       mapViewBundle = new Bundle();
       outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+      MarkerOptionList markerOptionList = new MarkerOptionList();
+      outState.putParcelable(MARKERS_BUNDLE_KEY, markerOptionList);
     }
     mapView.onSaveInstanceState(mapViewBundle);
   }
@@ -213,7 +221,6 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
     };
   }
 
-
   public void setUpGoogleMapObserver(GoogleMap googleMap) {
     googleMapViewModelFactory = new GoogleMapViewModelFactory(NearbyPlacesRepository.getInstance(),
         googleMap);
@@ -222,32 +229,16 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
     googleMapViewModel.getGoogleMap().observe(this, new Observer<GoogleMap>() {
       @Override
       public void onChanged(@Nullable GoogleMap googleMap) {
-        if (googleMap != null && queryViewModel != null) {
+        if (googleMap != null) {
 
-       mapView.getMapAsync(new OnMapReadyCallback() {
-        @Override
-        public void onMapReady(GoogleMap googleMap) {
-          jsonParser.drawLocationMap(queryViewModel.getData().getValue(), googleMap, mCurrentLocation);
-        }
-      });
-        }
-      }
-    });
-  }
+          GoogleLocationJsonParser parser = new GoogleLocationJsonParser();
+          mMarkerOptions = parser.drawLocationMap(mNearbyPlaces, mMap, mCurrentLocation);
+          for (int i = 0; i < mMarkerOptions.size(); i++){
+            MarkerOptions m = mMarkerOptions.get(i);
+            googleMap.addMarker(m);
+          }
 
-  public void setUpQueryNearbyPlacesViewModel(String query) {
-    factory = new
-        NearbyPlacesListViewModelFactory(NearbyPlacesRepository.getInstance(),
-        query, latitude.toString(), longitude.toString(), DEFAULT_ZOOM, apiKey);
-    queryViewModel = ViewModelProviders.of(this, factory)
-        .get(QueryNearbyPlacesViewModel.class);
-    queryViewModel.getData().observe(this, new Observer<NearbyPlaces>() {
-      @Override
-      public void onChanged(@Nullable NearbyPlaces nearbyPlaces) {
-        mNearbyPlaces = nearbyPlaces;
-        Log.i(LOG_TAG, "The Query result Status is: " + nearbyPlaces.getStatus());
-        Log.i(LOG_TAG, "The Query result Size is: " + nearbyPlaces.getResults().size());
-        jsonParser.drawLocationMap(mNearbyPlaces, mMap, mCurrentLocation);
+        }
       }
     });
   }
@@ -256,7 +247,6 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
   public boolean onQueryTextSubmit(String query) {
     Log.i(LOG_TAG, "The Search Query is: " + query);
     // MVVM Retrofit Call Via ViewModel Factory
-    setUpQueryNearbyPlacesViewModel(query);
     factory = new
         NearbyPlacesListViewModelFactory(NearbyPlacesRepository.getInstance(),
         query, latitude.toString(), longitude.toString(), DEFAULT_ZOOM, apiKey);
@@ -265,13 +255,13 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
     queryViewModel.getData().observe(this, new Observer<NearbyPlaces>() {
       @Override
       public void onChanged(@Nullable NearbyPlaces nearbyPlaces) {
-        mNearbyPlaces = nearbyPlaces;
-        Log.i(LOG_TAG, "The Query result Status is: " + nearbyPlaces.getStatus());
-        Log.i(LOG_TAG, "The Query result Size is: " + nearbyPlaces.getResults().size());
-
-        jsonParser.drawLocationMap(mNearbyPlaces, mMap, mCurrentLocation);
-
-      }
+        if(nearbyPlaces!=null){
+          mNearbyPlaces = nearbyPlaces;
+          Log.i(LOG_TAG, "The Query result Status is: " + nearbyPlaces.getStatus());
+          Log.i(LOG_TAG, "The Query result Size is: " + nearbyPlaces.getResults().size());
+          mMarkerOptions = jsonParser.drawLocationMap(mNearbyPlaces, mMap, mCurrentLocation);
+        }
+        }
     });
     return true;
   }
@@ -467,11 +457,10 @@ public class MapFragment extends android.support.v4.app.Fragment implements Sear
 
     }
 
-
     getLastLocation();
     mMap = googleMap;
+
     cameraPosition = googleMap.getCameraPosition();
-    googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     Log.i(LOG_TAG, "onMapReady after cameraPosition: " + cameraPosition);
     setUpGoogleMapObserver(mMap);
 
