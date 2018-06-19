@@ -20,27 +20,23 @@ public class GoogleLocationJsonParser {
 
   private final static String LOG_TAG = GoogleLocationJsonParser.class.getSimpleName();
   private List<MarkerOptions> markersOptions = new ArrayList<>();
-
   public List<MarkerOptions> drawLocationMap(NearbyPlaces nearbyPlaces, GoogleMap map, LatLng mCurrentLocation) {
-
     try {
       // This loop will go through all the results and add marker on each location.
       for (int i = 0; i < nearbyPlaces.getResults().size(); i++) {
-        Double lat = nearbyPlaces.getResults().get(i).getGeometry().getLocation()
-            .getLat();
-        Double lng = nearbyPlaces.getResults().get(i).getGeometry().getLocation()
-            .getLng();
+        if(markersOptions!=null){
+          markersOptions.clear();
+        }
+        Double lat = nearbyPlaces.getResults().get(i).getGeometry().getLocation().getLat();
+        Double lng = nearbyPlaces.getResults().get(i).getGeometry().getLocation().getLng();
         String placeName = nearbyPlaces.getResults().get(i).getName();
         String vicinity = nearbyPlaces.getResults().get(i).getVicinity();
         String id = nearbyPlaces.getResults().get(i).getId();
         String icon = nearbyPlaces.getResults().get(i).getIcon();
         List photos = nearbyPlaces.getResults().get(i).getPhotos();
         int photoSize = photos.size();
-        Log.i(LOG_TAG, "Photo Size Array is: " + photoSize);
-
         Uri iconUri = Uri.parse(icon);
         iconUri.getPath();
-        Log.i(LOG_TAG, "The Icon Id is: " + icon);
         MarkerOptions markerOptions = new MarkerOptions();
         LatLng latLng = new LatLng(lat, lng);
         // Position of Marker on Map
@@ -50,7 +46,6 @@ public class GoogleLocationJsonParser {
         markerOptions.snippet(vicinity);
         // Adding Marker to the Map.
         Marker m = map.addMarker(markerOptions);
-
         markersOptions.add(markerOptions);
         // Adding colour to the marker
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
@@ -65,7 +60,7 @@ public class GoogleLocationJsonParser {
         map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
       }
     } catch (Exception e) {
-      Log.d("onResponse", "There is an error");
+      Log.d("onResponse", "drawLocationMap There is an error");
       e.printStackTrace();
     }
     Log.i(LOG_TAG, "Marker Options Size is: " + markersOptions.size());

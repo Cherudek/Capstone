@@ -14,8 +14,8 @@ public class NearbyPlacesListViewModelFactory extends ViewModelProvider.NewInsta
   private final String apiKey;
   private final int radius;
 
-  public NearbyPlacesListViewModelFactory(NearbyPlacesRepository nearbyPlacesRepository, String query, String latitude,
-      String longitude, int radius, String apiKey) {
+  public NearbyPlacesListViewModelFactory(NearbyPlacesRepository nearbyPlacesRepository,
+      String query, String latitude, String longitude, int radius, String apiKey) {
     this.nearbyPlacesRepository = nearbyPlacesRepository;
     this.query = query;
     this.latitude = latitude;
@@ -27,7 +27,14 @@ public class NearbyPlacesListViewModelFactory extends ViewModelProvider.NewInsta
   @NonNull
   @Override
   public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-    return (T) new QueryNearbyPlacesViewModel(nearbyPlacesRepository, query, latitude, longitude, radius, apiKey);
-
+//    if (AndroidViewModel.class.isAssignableFrom(modelClass)){
+//      try {
+        return (T) new QueryNearbyPlacesViewModel(nearbyPlacesRepository, query, latitude, longitude,
+            radius, apiKey);
+//      } catch (RuntimeException e){
+//
+//      }
+//    }
+//    return super.create(modelClass);
   }
 }

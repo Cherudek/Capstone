@@ -9,6 +9,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import java.util.ArrayList;
 import java.util.List;
 import pojos.NearbyPlaces;
 import retrofit2.Call;
@@ -23,12 +24,14 @@ public class BuildRetrofitGetResponse {
   private LatLng mCurrentLocation;
   private static final String LOG_TAG = BuildRetrofitGetResponse.class.getSimpleName();
   private GoogleMap mMap;
+  private List<MarkerOptions> markersOptions = new ArrayList<>();
+
 
   public BuildRetrofitGetResponse() {
   }
 
   // Retrofit call to check the keywords of the NearbyPlaces
-  public void buildRetrofitAndGetResponse(String keywords, final Double latitude,
+  public List<MarkerOptions> buildRetrofitAndGetResponse(String keywords, final Double latitude,
       final Double longitude, String apiKey, final GoogleMap map) {
     mMap = map;
     String url = "https://maps.googleapis.com/maps/";
@@ -70,6 +73,8 @@ public class BuildRetrofitGetResponse {
             // Adding Title (Name of the place) and Vicinity (address) to the Marker
             markerOptions.title(placeName);
             markerOptions.snippet(vicinity);
+            markersOptions.add(markerOptions);
+
 
             // Adding Marker to the Map.
             Marker m = mMap.addMarker(markerOptions);
@@ -98,6 +103,7 @@ public class BuildRetrofitGetResponse {
         Log.d(LOG_TAG, "onFailure" + t.toString());
       }
     });
+    return markersOptions;
   }
 
   public CameraPosition getCameraPosition() {

@@ -1,23 +1,40 @@
 package viewmodel;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import pojos.NearbyPlaces;
 import repository.NearbyPlacesRepository;
 
 public class QueryNearbyPlacesViewModel extends ViewModel {
 
-  private LiveData<NearbyPlaces> nearbyPlaces;
+  public LiveData<NearbyPlaces> mNearbyPlaces;
+  public NearbyPlacesRepository mNearbyPlacesRepository;
+  public String mKeyword;
+  public String mLatitude;
+  public String mLongitude;
+  public int mRadius;
+  public String mApiKey;
 
 
-  public QueryNearbyPlacesViewModel(NearbyPlacesRepository nearbyPlacesRepository, String mKeyword,
+
+  public QueryNearbyPlacesViewModel(NearbyPlacesRepository nearbyPlacesRepository, String keyword,
       String latitude, String longitude, int radius, String apiKey) {
-      nearbyPlaces = nearbyPlacesRepository.getNearbyPlaces(mKeyword,
+      mNearbyPlaces = nearbyPlacesRepository.getNearbyPlaces(keyword,
           latitude + "," + longitude, radius, apiKey);
+  }
 
+  public LiveData<NearbyPlaces> getNewPlaces() {
+    if (mNearbyPlaces != null) {
+      mNearbyPlaces = new MutableLiveData<>();
+      mNearbyPlaces = mNearbyPlacesRepository.getNearbyPlaces(mKeyword, mLatitude + "," + mLongitude, mRadius, mApiKey);
+    }
+    return mNearbyPlaces;
   }
 
   public LiveData<NearbyPlaces> getData(){
-    return nearbyPlaces;
+    return mNearbyPlaces;
   }
+
+
 }
