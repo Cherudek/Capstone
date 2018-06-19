@@ -38,6 +38,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -166,29 +167,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     mFirebaseDatabase = FirebaseDatabase.getInstance();
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
 
-   // nearbyPlacesListViewModel = ViewModelProviders.of(this).get(NearbyPlacesListViewModel.class);
-   // observeViewModel(nearbyPlacesListViewModel);
 
     return rootView;
   }
-
-  private void observeViewModel(final NearbyPlacesListViewModel viewModel) {
-
-    // Update the list when the data changes
-    viewModel.getNearbyPlacesListObservable().observe(this, new Observer<NearbyPlaces>() {
-      @Override
-      public void onChanged(@Nullable NearbyPlaces nearbyPlaces) {
-        viewModel.getNearbyPlacesListObservable().removeObserver(this);
-        if (nearbyPlaces != null) {
-          Log.i(LOG_TAG, "The Retrofit Response Status is: " + viewModel.getNearbyPlacesListObservable().getValue().getResults().toString());
-
-
-        }
-      }
-    });
-  }
-
-
 
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -316,26 +297,13 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         mNearbyPlaces=nearbyPlaces;
         nearbyPlaces.getResults().size();
         mMarkerOptions = nearbyPlacesResponseParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation);
+        queryViewModel.mMarkersOptions = mMarkerOptions;
         queryViewModel.getData().removeObserver(this);
       }
     });
 
-
-
-
-
-     // queryViewModel.getData().getValue().getResults().get(1).getName();
-  //  Log.i(LOG_TAG, "The Query result getValue first name is: " + queryViewModel.getData().getValue().getResults().get(1).getName());
-
-
-//    BuildRetrofitGetResponse b = new BuildRetrofitGetResponse();
-//    mMap.clear();
-//    mMarkerOptions = b.buildRetrofitAndGetResponse(query,latitude, longitude, apiKey, mMap);
-
-
     return true;
   }
-
 
 
   @Override
@@ -445,6 +413,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   @Override
   public void onMapReady(GoogleMap googleMap) {
     MapsInitializer.initialize(mContext);
+    MapStyleOptions style = MapStyleOptions.loadRawResourceStyle(mContext, R.raw.mapstyle_retro);
+    googleMap.setMapStyle(style);
     //Once the Map is initialised we set Up an observer for changes to the Map
     // Check the Location permission is given before enabling setMyLocation to true.
     if (locationPermission.checkLocalPermission(mContext, getActivity())) {
@@ -465,10 +435,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
       }
 
-      mMarkerOptions = nearbyPlacesResponseParser.drawLocationMap(mNearbyPlaces, mMap, mCurrentLocation);
-      if(mMarkerOptions!=null){
-        for (int i = 0; i < mMarkerOptions.size(); i++) {
-          MarkerOptions m = mMarkerOptions.get(i);
+     // mMarkerOptions = nearbyPlacesResponseParser.drawLocationMap(mNearbyPlaces, mMap, mCurrentLocation);
+      if(queryViewModel!=null){
+        for (int i = 0; i < queryViewModel.mMarkersOptions.size(); i++) {
+          MarkerOptions m = queryViewModel.mMarkersOptions.get(i);
           mMap.addMarker(m);
         }
       }
@@ -477,9 +447,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     mMap = googleMap;
 
   }
-
-
-
 
   @Override
   public void onDestroy() {

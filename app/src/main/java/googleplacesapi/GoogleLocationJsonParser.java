@@ -22,6 +22,7 @@ public class GoogleLocationJsonParser {
   private List<MarkerOptions> markersOptions = new ArrayList<>();
   public List<MarkerOptions> drawLocationMap(NearbyPlaces nearbyPlaces, GoogleMap map, LatLng mCurrentLocation) {
     try {
+      map.clear();
       // This loop will go through all the results and add marker on each location.
       for (int i = 0; i < nearbyPlaces.getResults().size(); i++) {
         if(markersOptions!=null){
@@ -38,6 +39,7 @@ public class GoogleLocationJsonParser {
         Uri iconUri = Uri.parse(icon);
         iconUri.getPath();
         MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
         LatLng latLng = new LatLng(lat, lng);
         // Position of Marker on Map
         markerOptions.position(latLng);
@@ -48,12 +50,11 @@ public class GoogleLocationJsonParser {
         Marker m = map.addMarker(markerOptions);
         markersOptions.add(markerOptions);
         // Adding colour to the marker
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
         // Construct a CameraPosition focusing on the current location View and animate the camera to that position.
        // mCurrentLocation = new LatLng(latitude, longitude);
         CameraPosition cameraPosition = new CameraPosition.Builder()
             .target(mCurrentLocation)      // Sets the center of the map to the current user View
-            .zoom(15)                   // Sets the zoom
+            .zoom(14)                   // Sets the zoom
             .bearing(0)                // Sets the orientation of the camera to east
             .tilt(0)                   // Sets the tilt of the camera to 30 degrees
             .build();                   // Creates a CameraPosition from the builder
