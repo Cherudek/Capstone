@@ -5,6 +5,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 import javax.inject.Singleton;
 import pojos.NearbyPlaces;
+import pojosplaceid.PlaceId;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -33,6 +34,8 @@ public class NearbyPlacesRepository {
     return nearbyPlacesRepository;
   }
 
+  // Retrofit Call to get a list of Nearby Places
+
   public LiveData<NearbyPlaces> getNearbyPlaces(String keyword, String location, int radius,
       String key) {
     final MutableLiveData<NearbyPlaces> data = new MutableLiveData<>();
@@ -53,6 +56,28 @@ public class NearbyPlacesRepository {
           }
         });
     return data;
+  }
+
+  // Retrofit Call to get Details of a Place by its ID
+
+  public LiveData<PlaceId> getPlacesId(String placeId, String apiKey) {
+    final MutableLiveData<PlaceId> dataPlaceId = new MutableLiveData<>();
+
+    retrofitMapsApi.getPlacesId(placeId, apiKey).enqueue(new Callback<PlaceId>() {
+
+      @Override
+      public void onResponse(Call<PlaceId> call, Response<PlaceId> response) {
+        Log.i(LOG_TAG, "The Retrofit Response is: " + response.toString());
+        dataPlaceId.setValue(response.body());
+      }
+
+      @Override
+      public void onFailure(Call<PlaceId> call, Throwable t) {
+        Log.d(LOG_TAG, "onFailure" + t.toString());
+        dataPlaceId.setValue(null);
+      }
+    });
+    return dataPlaceId;
   }
 
 }

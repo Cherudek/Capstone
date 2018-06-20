@@ -1,6 +1,7 @@
 package repository;
 
 import pojos.NearbyPlaces;
+import pojosplaceid.PlaceId;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -23,7 +24,7 @@ public interface RetrofitMapsApi {
    * And our method that will return the Details of a PlaceId.
    */
   @GET("api/place/details/json?")
-  Call<NearbyPlaces> getPlacesId(@Query("placeid") String placeid,
+  Call<PlaceId> getPlacesId(@Query("placeid") String placeid,
       @Query("key") String key);
 
 
