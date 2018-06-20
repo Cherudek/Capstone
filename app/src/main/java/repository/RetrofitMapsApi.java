@@ -12,7 +12,7 @@ public interface RetrofitMapsApi {
    * Retrofit get annotation with our URL
    * And our method that will return us details of student.
    */
-  @GET("api/place/nearbysearch/json?sensor=true")
+  @GET("api/place/nearbysearch/json?")
   Call<NearbyPlaces> getNearbyPlaces(@Query("keyword") String keyword,
       @Query("location") String location,
       @Query("radius") int radius,
