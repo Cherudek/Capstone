@@ -55,7 +55,7 @@ import permissions.LocationPermission;
 import pojos.NearbyPlaces;
 import repository.NearbyPlacesRepository;
 import viewmodel.MapDetailSharedViewHolder;
-import viewmodel.NearbyPlacesListViewModel;
+//import viewmodel.NearbyPlacesListViewModel;
 import viewmodel.NearbyPlacesListViewModelFactory;
 import viewmodel.QueryNearbyPlacesViewModel;
 
@@ -103,7 +103,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private boolean mSavedInstanceisNull;
   private View rootView;
   private List<MarkerOptions> mMarkerOptions;
-  public NearbyPlacesListViewModel nearbyPlacesListViewModel;
+//  public NearbyPlacesListViewModel nearbyPlacesListViewModel;
   private MapDetailSharedViewHolder sharedModel;
 
   public MapFragment() {
@@ -200,11 +200,13 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       @Override
       public void onInfoWindowClick(Marker marker) {
         // launch the detail fragment.
-        String id = marker.getId();
-        String idNumber = id.substring(1);
-        int markerNumber = Integer.parseInt(idNumber);
-        int placeNumber  = markerNumber - 1;
-        sharedModel.select(queryViewModel.mNearbyPlaces.getValue().getResults().get(placeNumber));
+       // String id = marker.getId();
+        Integer nearbyPlaces = (Integer) marker.getTag();
+        Log.i(LOG_TAG, "Marker Id is: " + nearbyPlaces);
+        sharedModel.select(queryViewModel.mNearbyPlaces.getValue().getResults().get(nearbyPlaces));
+        Log.i(LOG_TAG, "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
+
+
         onMarkerPressedIntent(marker);
       }
     };

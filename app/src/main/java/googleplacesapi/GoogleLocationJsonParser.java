@@ -20,6 +20,8 @@ public class GoogleLocationJsonParser {
 
   private final static String LOG_TAG = GoogleLocationJsonParser.class.getSimpleName();
   private List<MarkerOptions> markersOptions = new ArrayList<>();
+  private Marker marker;
+  int markerCounter = -1;
   public List<MarkerOptions> drawLocationMap(NearbyPlaces nearbyPlaces, GoogleMap map, LatLng mCurrentLocation) {
     try {
       map.clear();
@@ -32,7 +34,7 @@ public class GoogleLocationJsonParser {
         Double lng = nearbyPlaces.getResults().get(i).getGeometry().getLocation().getLng();
         String placeName = nearbyPlaces.getResults().get(i).getName();
         String vicinity = nearbyPlaces.getResults().get(i).getVicinity();
-        String id = nearbyPlaces.getResults().get(i).getId();
+        String placeId = nearbyPlaces.getResults().get(i).getPlaceId();
         String icon = nearbyPlaces.getResults().get(i).getIcon();
         List photos = nearbyPlaces.getResults().get(i).getPhotos();
         int photoSize = photos.size();
@@ -47,7 +49,9 @@ public class GoogleLocationJsonParser {
         markerOptions.title(placeName);
         markerOptions.snippet(vicinity);
         // Adding Marker to the Map.
-        Marker m = map.addMarker(markerOptions);
+        marker = map.addMarker(markerOptions);
+        markerCounter = markerCounter + 1;
+        marker.setTag(markerCounter);
         markersOptions.add(markerOptions);
       }
       // Construct a CameraPosition focusing on the current location View and animate the camera to that position.
