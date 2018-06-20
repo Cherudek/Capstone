@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import viewmodel.MapDetailSharedViewHolder;
  */
 public class DetailFragment extends Fragment {
 
+  public static final String LOG_TAG = DetailFragment.class.getSimpleName();
   // TODO: Rename parameter arguments, choose names that match
   // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
   private static final String ARG_TITLE = "TITLE";
@@ -76,6 +78,8 @@ public class DetailFragment extends Fragment {
     MapDetailSharedViewHolder model = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
     model.getSelected().observe(this, item -> {
       // Update the UI.
+      String name = item.getName();
+      Log.i(LOG_TAG, "The Name Retrived from the MapDetailSharedViewHolder is " + name);
     });
 
 
