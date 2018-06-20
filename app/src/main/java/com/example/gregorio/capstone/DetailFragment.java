@@ -1,5 +1,6 @@
 package com.example.gregorio.capstone;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import viewmodel.MapDetailSharedViewHolder;
 
 
 /**
@@ -70,6 +72,13 @@ public class DetailFragment extends Fragment {
       mId = getArguments().getString(ARG_ID);
       mWebUrl = getArguments().getString(ARG_WEB_URL);
     }
+
+    MapDetailSharedViewHolder model = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
+    model.getSelected().observe(this, item -> {
+      // Update the UI.
+    });
+
+
   }
 
   @Override

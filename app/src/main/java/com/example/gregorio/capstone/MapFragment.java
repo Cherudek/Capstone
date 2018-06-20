@@ -50,9 +50,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import googleplacesapi.GoogleLocationJsonParser;
 import googleplacesapi.GoogleMapsApi;
 import java.util.List;
+import javax.inject.Inject;
 import permissions.LocationPermission;
 import pojos.NearbyPlaces;
 import repository.NearbyPlacesRepository;
+import viewmodel.MapDetailSharedViewHolder;
 import viewmodel.NearbyPlacesListViewModel;
 import viewmodel.NearbyPlacesListViewModelFactory;
 import viewmodel.QueryNearbyPlacesViewModel;
@@ -102,7 +104,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private View rootView;
   private List<MarkerOptions> mMarkerOptions;
   public NearbyPlacesListViewModel nearbyPlacesListViewModel;
-
+  private MapDetailSharedViewHolder sharedModel;
 
   public MapFragment() {
   }
@@ -167,6 +169,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     mFirebaseDatabase = FirebaseDatabase.getInstance();
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
 
+       // Shared View Model to send Data from this fragment to the Detail one
+      sharedModel = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
+
+
     return rootView;
   }
 
@@ -185,7 +191,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     onMarkerClickListener = new OnMarkerClickListener() {
       @Override
       public boolean onMarkerClick(Marker marker) {
-        LatLng id = marker.getPosition();
         marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         return false;
       }
@@ -195,6 +200,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       @Override
       public void onInfoWindowClick(Marker marker) {
         // launch the detail fragment.
+        String id = marker.getId();
+        String idNumber = id.substring(1);
+        int item = Integer.parseInt(idNumber);
+        sharedModel.select(queryViewModel.mNearbyPlaces.getValue().getResults().get(item));
         onMarkerPressedIntent(marker);
       }
     };
