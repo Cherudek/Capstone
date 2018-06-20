@@ -202,8 +202,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         // launch the detail fragment.
         String id = marker.getId();
         String idNumber = id.substring(1);
-        int item = Integer.parseInt(idNumber);
-        sharedModel.select(queryViewModel.mNearbyPlaces.getValue().getResults().get(item));
+        int markerNumber = Integer.parseInt(idNumber);
+        int placeNumber  = markerNumber - 1;
+        sharedModel.select(queryViewModel.mNearbyPlaces.getValue().getResults().get(placeNumber));
         onMarkerPressedIntent(marker);
       }
     };
