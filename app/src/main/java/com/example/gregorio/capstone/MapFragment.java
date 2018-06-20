@@ -36,6 +36,7 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -151,7 +152,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     }
     mapView.onCreate(mapViewBundle);
     mapView.getMapAsync(this);
-
     // Check if the Google Play Services are available or not and set Up Map
     GoogleMapsApi googleMapsApi = new GoogleMapsApi();
     googleMapsApi.CheckGooglePlayServices(mContext, getActivity());
@@ -166,7 +166,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     // Initialize Firebase components
     mFirebaseDatabase = FirebaseDatabase.getInstance();
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
-
 
     return rootView;
   }
@@ -186,6 +185,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     onMarkerClickListener = new OnMarkerClickListener() {
       @Override
       public boolean onMarkerClick(Marker marker) {
+        LatLng id = marker.getPosition();
+        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         return false;
       }
     };
@@ -294,11 +295,15 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     queryViewModel.getData().observe(this, new Observer<NearbyPlaces>() {
       @Override
       public void onChanged(@Nullable NearbyPlaces nearbyPlaces) {
-        mNearbyPlaces=nearbyPlaces;
-        nearbyPlaces.getResults().size();
-        mMarkerOptions = nearbyPlacesResponseParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation);
-        queryViewModel.mMarkersOptions = mMarkerOptions;
-        queryViewModel.getData().removeObserver(this);
+        if(nearbyPlaces!=null){
+          mNearbyPlaces=nearbyPlaces;
+          nearbyPlaces.getResults().size();
+          mMarkerOptions = nearbyPlacesResponseParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation);
+          queryViewModel.mMarkersOptions = mMarkerOptions;
+          Log.i(LOG_TAG, "queryViewModel mMarkersOptions on Rotation is" + queryViewModel.mMarkersOptions.size() );
+          queryViewModel.getData().removeObserver(this);
+        }
+
       }
     });
 
@@ -435,11 +440,11 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
       }
 
-     // mMarkerOptions = nearbyPlacesResponseParser.drawLocationMap(mNearbyPlaces, mMap, mCurrentLocation);
       if(queryViewModel!=null){
         for (int i = 0; i < queryViewModel.mMarkersOptions.size(); i++) {
+          Log.i(LOG_TAG, "On Rotation Map Marker size is " + queryViewModel.mMarkersOptions.size());
           MarkerOptions m = queryViewModel.mMarkersOptions.get(i);
-          mMap.addMarker(m);
+          googleMap.addMarker(m);
         }
       }
     }

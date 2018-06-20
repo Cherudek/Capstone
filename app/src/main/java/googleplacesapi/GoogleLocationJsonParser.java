@@ -23,11 +23,11 @@ public class GoogleLocationJsonParser {
   public List<MarkerOptions> drawLocationMap(NearbyPlaces nearbyPlaces, GoogleMap map, LatLng mCurrentLocation) {
     try {
       map.clear();
+      if(markersOptions!=null){
+        markersOptions.clear();
+      }
       // This loop will go through all the results and add marker on each location.
       for (int i = 0; i < nearbyPlaces.getResults().size(); i++) {
-        if(markersOptions!=null){
-          markersOptions.clear();
-        }
         Double lat = nearbyPlaces.getResults().get(i).getGeometry().getLocation().getLat();
         Double lng = nearbyPlaces.getResults().get(i).getGeometry().getLocation().getLng();
         String placeName = nearbyPlaces.getResults().get(i).getName();
@@ -39,7 +39,7 @@ public class GoogleLocationJsonParser {
         Uri iconUri = Uri.parse(icon);
         iconUri.getPath();
         MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
         LatLng latLng = new LatLng(lat, lng);
         // Position of Marker on Map
         markerOptions.position(latLng);
@@ -49,17 +49,15 @@ public class GoogleLocationJsonParser {
         // Adding Marker to the Map.
         Marker m = map.addMarker(markerOptions);
         markersOptions.add(markerOptions);
-        // Adding colour to the marker
-        // Construct a CameraPosition focusing on the current location View and animate the camera to that position.
-       // mCurrentLocation = new LatLng(latitude, longitude);
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-            .target(mCurrentLocation)      // Sets the center of the map to the current user View
-            .zoom(14)                   // Sets the zoom
-            .bearing(0)                // Sets the orientation of the camera to east
-            .tilt(0)                   // Sets the tilt of the camera to 30 degrees
-            .build();                   // Creates a CameraPosition from the builder
-        map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
       }
+      // Construct a CameraPosition focusing on the current location View and animate the camera to that position.
+      CameraPosition cameraPosition = new CameraPosition.Builder()
+          .target(mCurrentLocation)      // Sets the center of the map to the current user View
+          .zoom(15)                   // Sets the zoom
+          .bearing(0)                // Sets the orientation of the camera to east
+          .tilt(0)                   // Sets the tilt of the camera to 30 degrees
+          .build();                   // Creates a CameraPosition from the builder
+      map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     } catch (Exception e) {
       Log.d("onResponse", "drawLocationMap There is an error");
       e.printStackTrace();

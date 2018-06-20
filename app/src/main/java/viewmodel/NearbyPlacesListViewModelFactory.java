@@ -27,14 +27,8 @@ public class NearbyPlacesListViewModelFactory extends ViewModelProvider.NewInsta
   @NonNull
   @Override
   public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-//    if (AndroidViewModel.class.isAssignableFrom(modelClass)){
-//      try {
         return (T) new QueryNearbyPlacesViewModel(nearbyPlacesRepository, query, latitude, longitude,
             radius, apiKey);
-//      } catch (RuntimeException e){
-//
-//      }
-//    }
-//    return super.create(modelClass);
+
   }
 }
