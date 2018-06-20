@@ -27,6 +27,11 @@ public class QueryNearbyPlacesViewModel extends ViewModel {
           latitude + "," + longitude, radius, apiKey);
   }
 
+  public LiveData<NearbyPlaces> getData(){
+    return mNearbyPlaces;
+  }
+
+
   public LiveData<NearbyPlaces> getNewPlaces() {
     if (mNearbyPlaces != null) {
       mNearbyPlaces = new MutableLiveData<>();
@@ -34,10 +39,5 @@ public class QueryNearbyPlacesViewModel extends ViewModel {
     }
     return mNearbyPlaces;
   }
-
-  public LiveData<NearbyPlaces> getData(){
-    return mNearbyPlaces;
-  }
-
 
 }
