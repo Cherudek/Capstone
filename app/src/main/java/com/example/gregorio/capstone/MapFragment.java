@@ -102,6 +102,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 //  public NearbyPlacesListViewModel nearbyPlacesListViewModel;
   private MapDetailSharedViewHolder sharedModel;
   private Integer mPlaceIdTag;
+  private SearchView searchView;
 
   public MapFragment() {
   }
@@ -190,6 +191,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     onInfoWindowClickListener = new OnInfoWindowClickListener() {
       @Override
       public void onInfoWindowClick(Marker marker) {
+        searchView.isIconified();
+        searchView.onActionViewCollapsed();
         // Retrieve the Marker Id Tag so we can call the corresponding NearbyPlace clicked on the Map
         // and save it to the SharedMapDetailViewModel
         mPlaceIdTag = (Integer) marker.getTag();
@@ -251,11 +254,11 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     menu.clear();
     inflater.inflate(R.menu.main, menu);
     menuItem = menu.findItem(R.id.menu_search);
-    SearchView searchView = (SearchView) menuItem.getActionView();
+    searchView = (SearchView) menuItem.getActionView();
     searchView.setOnQueryTextListener(this);
     searchView.setQueryHint("Search Nearby Places");
     searchView.setIconified(true);
-    searchView.setSubmitButtonEnabled(true);
+    //searchView.setSubmitButtonEnabled(true);
 
   }
 
@@ -310,7 +313,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 
       }
     });
-    menuItem.collapseActionView();
 
     return true;
   }
