@@ -39,6 +39,12 @@ public class DetailFragment extends Fragment {
   private static final String ARG_ID = "ID";
   private static final String ARG_WEB_URL = "PLACE WEB URL";
 
+  private static final String PHOTO_URL_TAG = "PhotoUrlTag";
+  private static final String NAME_TAG = "NameTag";
+  private static final String ADDRESS_TAG = "AddressTag";
+  private static final String API_KEY_TAG = "ApiKeyTag";
+
+
   // TODO: Rename and change types of parameters
   private String mPlaceId;
   private String mName;
@@ -57,19 +63,16 @@ public class DetailFragment extends Fragment {
   private String apiKey;
   private String picassoPhotoUrl;
 
-
   @BindView(R.id.detail_image)ImageView ivPhotoView;
   @BindView(R.id.place_address)TextView tvAddress;
   @BindView(R.id.place_mame)TextView tvName;
   @BindView(R.id.place_url)TextView tvWebAddress;
-
 
   private OnFragmentInteractionListener mListener;
 
   public DetailFragment() {
     // Required empty public constructor
   }
-
 
   /**
    * Use this factory method to create a new instance of
@@ -99,7 +102,12 @@ public class DetailFragment extends Fragment {
 //      mWebUrl = getArguments().getString(ARG_WEB_URL);
     }
 
-
+    if(savedInstanceState!=null){
+      picassoPhotoUrl = savedInstanceState.getString(PHOTO_URL_TAG);
+      mName = savedInstanceState.getString(NAME_TAG);
+      mAddress = savedInstanceState.getString(ADDRESS_TAG);
+      apiKey = savedInstanceState.getString(API_KEY_TAG);
+    }
   }
 
   @Override
@@ -161,11 +169,12 @@ public class DetailFragment extends Fragment {
   }
 
   @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-
-
-
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putString(PHOTO_URL_TAG, picassoPhotoUrl);
+    outState.putString(NAME_TAG, mName);
+    outState.putString(ADDRESS_TAG, mAddress);
+    outState.putString(API_KEY_TAG, apiKey);
 
   }
 
