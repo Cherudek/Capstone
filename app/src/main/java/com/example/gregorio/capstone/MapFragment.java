@@ -65,12 +65,13 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public static final String CURRENT_LONGITUDE_TAG = "CURRENT LONGITUDE TAG";
   public static final String CURRENT_QUERY_TAG = "CURRENT QUERY TAG";
   private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
-  private static final String MARKERS_BUNDLE_KEY = "MarkersViewBundleKey";
+  private static final String MARKERS_TAG_KEY = "MarkerTagKey";
 
   private final int DEFAULT_ZOOM = 1500;
   @BindView(R.id.map)MapView mapView;
   @BindView(R.id.checkout_button)FloatingActionButton checkoutFap;
   private GoogleMap mMap;
+  private MenuItem menuItem;
   private static final int REQUEST_PLACE_PICKER = 1;
   // A default location (Piazza Castello, Turin, Italy) and default zoom to use when location permission is
   private static final LatLng PiazzaCastello = new LatLng(45.0710394, 7.6862986);
@@ -100,6 +101,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private List<MarkerOptions> mMarkerOptions;
 //  public NearbyPlacesListViewModel nearbyPlacesListViewModel;
   private MapDetailSharedViewHolder sharedModel;
+  private Integer mPlaceIdTag;
 
   public MapFragment() {
   }
@@ -123,6 +125,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     // objects or sub-Bundles.
     Bundle mapViewBundle = null;
     if (savedInstanceState != null) {
+      mPlaceIdTag = savedInstanceState.getInt(MARKERS_TAG_KEY);
       mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
       latitude = savedInstanceState.getDouble(CURRENT_LATITUDE_TAG);
       longitude = savedInstanceState.getDouble(CURRENT_LONGITUDE_TAG);
@@ -189,9 +192,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       public void onInfoWindowClick(Marker marker) {
         // Retrieve the Marker Id Tag so we can call the corresponding NearbyPlace clicked on the Map
         // and save it to the SharedMapDetailViewModel
-        Integer PlaceIdTag = (Integer) marker.getTag();
-        Log.i(LOG_TAG, "Marker Id Tag is: " + PlaceIdTag);
-        sharedModel.select(queryViewModel.getData().getValue().getResults().get(PlaceIdTag));
+        mPlaceIdTag = (Integer) marker.getTag();
+        Log.i(LOG_TAG, "Marker Id Tag is: " + mPlaceIdTag);
+        sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
         Log.i(LOG_TAG, "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
         // launch the detail fragment.
         onMarkerPressedIntent(marker);
@@ -204,6 +207,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     outState.putDouble(CURRENT_LATITUDE_TAG, latitude);
     outState.putDouble(CURRENT_LONGITUDE_TAG, longitude);
     outState.putString(CURRENT_QUERY_TAG, mQuery);
+    outState.putInt(MARKERS_TAG_KEY, mPlaceIdTag);
     Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
     if (mapViewBundle == null) {
       mapViewBundle = new Bundle();
@@ -246,12 +250,13 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     super.onCreateOptionsMenu(menu, inflater);
     menu.clear();
     inflater.inflate(R.menu.main, menu);
-    MenuItem menuItem = menu.findItem(R.id.menu_search);
+    menuItem = menu.findItem(R.id.menu_search);
     SearchView searchView = (SearchView) menuItem.getActionView();
     searchView.setOnQueryTextListener(this);
     searchView.setQueryHint("Search Nearby Places");
     searchView.setIconified(true);
     searchView.setSubmitButtonEnabled(true);
+
   }
 
   // Prompt the user to check out of their location. Called when the "Check Out!" button
@@ -305,6 +310,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 
       }
     });
+    menuItem.collapseActionView();
 
     return true;
   }

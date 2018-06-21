@@ -9,6 +9,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -108,6 +110,13 @@ public class DetailFragment extends Fragment {
       mAddress = savedInstanceState.getString(ADDRESS_TAG);
       apiKey = savedInstanceState.getString(API_KEY_TAG);
     }
+  }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    super.onCreateOptionsMenu(menu, inflater);
+    menu.findItem(R.menu.main).collapseActionView();
+
   }
 
   @Override
