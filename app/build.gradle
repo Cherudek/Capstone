@@ -37,7 +37,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:design:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     // Google Maps and Places Api
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
     implementation 'com.google.android.gms:play-services-location:15.0.1'
@@ -49,14 +49,14 @@ dependencies {
     // ViewModel and LiveData
     implementation "android.arch.lifecycle:extensions:$lifecycle_version"
     // Firebase dependencies
-    implementation 'com.google.firebase:firebase-core:16.0.0'
+    implementation 'com.google.firebase:firebase-core:16.0.1'
     //Real Time database dependency
     implementation 'com.google.firebase:firebase-database:16.0.1'
     // FirebaseUI for Firebase Auth
     implementation 'com.firebaseui:firebase-ui-auth:3.3.1'
     // FirebaseUI for Firebase Realtime Database
     implementation 'com.firebaseui:firebase-ui-database:3.3.1'
-    implementation 'com.google.firebase:firebase-auth:16.0.1'
+    implementation 'com.google.firebase:firebase-auth:16.0.2'
     // Dagger
     implementation 'com.google.dagger:dagger:2.15'
     implementation 'com.google.dagger:dagger-android:2.15'
@@ -69,6 +69,9 @@ dependencies {
     // ButterKnife Binding
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    // Picasso Libary
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
 }
 
 

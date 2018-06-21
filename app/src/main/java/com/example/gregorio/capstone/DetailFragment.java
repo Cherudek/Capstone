@@ -10,7 +10,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import com.squareup.picasso.Picasso;
+import java.util.List;
+import pojos.Photo;
 import viewmodel.MapDetailSharedViewHolder;
 
 
@@ -25,6 +31,7 @@ import viewmodel.MapDetailSharedViewHolder;
 public class DetailFragment extends Fragment {
 
   public static final String LOG_TAG = DetailFragment.class.getSimpleName();
+  private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
   // TODO: Rename parameter arguments, choose names that match
   // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
   private static final String ARG_TITLE = "TITLE";
@@ -32,12 +39,28 @@ public class DetailFragment extends Fragment {
   private static final String ARG_WEB_URL = "PLACE WEB URL";
 
   // TODO: Rename and change types of parameters
-  private String mTitle;
-  private String mId;
+  private String mPlaceId;
+  private String mName;
   private String mWebUrl;
-  private TextView tvTitle;
-  private TextView tvId;
-  private TextView tvWebUrl;
+  private String mAddress;
+  private String openNow = "Open Now";
+  private String closed = "Closed";
+  private String reviews;
+  private Double mRating;
+  private String mPhoneNumber;
+  private int mPriceLevel;
+  private List<Photo> photoList;
+  private int height;
+  private int width;
+  private String photoReference;
+  private String apiKey;
+  private String picassoPhotoUrl;
+
+
+  @BindView(R.id.imageView)ImageView ivPhotoView;
+  @BindView(R.id.place_address)TextView tvAddress;
+  @BindView(R.id.place_mame)TextView tvName;
+  @BindView(R.id.place_url)TextView tvWebAddress;
 
 
   private OnFragmentInteractionListener mListener;
@@ -70,17 +93,29 @@ public class DetailFragment extends Fragment {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     if (getArguments() != null) {
-      mTitle = getArguments().getString(ARG_TITLE);
-      mId = getArguments().getString(ARG_ID);
-      mWebUrl = getArguments().getString(ARG_WEB_URL);
+//      mTitle = getArguments().getString(ARG_TITLE);
+//      mId = getArguments().getString(ARG_ID);
+//      mWebUrl = getArguments().getString(ARG_WEB_URL);
     }
+
+    apiKey = getContext().getResources().getString(R.string.google_api_key);
 
     MapDetailSharedViewHolder model = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
     model.getSelected().observe(this, item -> {
       // Update the UI.
-      String name = item.getName();
-      Log.i(LOG_TAG, "The Name Retrived from the MapDetailSharedViewHolder is " + name);
+      mName = item.getName();
+      mAddress = item.getVicinity();
+      mRating = item.getRating();
+      mPlaceId = item.getPlaceId();
+      mPriceLevel = item.getPriceLevel();
+      photoList = item.getPhotos();
+      height = photoList.get(0).getHeight();
+      width = photoList.get(0).getWidth();
+      photoReference = photoList.get(0).getPhotoReference();
+
+      Log.i(LOG_TAG, "The Name Retrived from the MapDetailSharedViewHolder is " + mName);
     });
+
 
 
   }
@@ -91,9 +126,9 @@ public class DetailFragment extends Fragment {
     Bundle bundle = getArguments();
     if (bundle != null) {
       // Get the Data from the map object clicked in the map fragment
-      mTitle = getArguments().getString(ARG_TITLE);
-      mId = getArguments().getString(ARG_ID);
-      mWebUrl = getArguments().getString(ARG_WEB_URL);
+//      mTitle = getArguments().getString(ARG_TITLE);
+//      mId = getArguments().getString(ARG_ID);
+//      mWebUrl = getArguments().getString(ARG_WEB_URL);
 
     }
   }
@@ -103,13 +138,14 @@ public class DetailFragment extends Fragment {
       Bundle savedInstanceState) {
 
     View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+    ButterKnife.bind(this, rootView);
 
-    tvId = rootView.findViewById(R.id.marker_id);
-    tvId.setText(mId);
-    tvTitle = rootView.findViewById(R.id.marker_title);
-    tvTitle.setText(mTitle);
-    tvWebUrl = rootView.findViewById(R.id.web_url);
-    tvWebUrl.setText(mWebUrl);
+    tvName.setText(mName);
+    tvWebAddress.setText(mWebUrl);
+    tvAddress.setText(mAddress);
+    picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=400&photoreference=" + photoReference + "&key=" + apiKey;
+    Picasso.get().load(picassoPhotoUrl).into(ivPhotoView);
+
 
     // Inflate the layout for this fragment
     return rootView;

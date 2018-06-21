@@ -13,12 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 import pojos.NearbyPlaces;
 
-public class GoogleLocationJsonParser {
+public class GoogleNearbyPlacesParser {
 
-  public GoogleLocationJsonParser() {
+  public GoogleNearbyPlacesParser() {
   }
 
-  private final static String LOG_TAG = GoogleLocationJsonParser.class.getSimpleName();
+  private final static String LOG_TAG = GoogleNearbyPlacesParser.class.getSimpleName();
   private List<MarkerOptions> markersOptions = new ArrayList<>();
   private Marker marker;
   int markerCounter = -1;
@@ -50,6 +50,7 @@ public class GoogleLocationJsonParser {
         markerOptions.snippet(vicinity);
         // Adding Marker to the Map.
         marker = map.addMarker(markerOptions);
+        //Mark Counters to add a Tag to help retrieve the right item and pass it to the DetailViewModel
         markerCounter = markerCounter + 1;
         marker.setTag(markerCounter);
         markersOptions.add(markerOptions);

@@ -47,15 +47,13 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import googleplacesapi.GoogleLocationJsonParser;
+import googleplacesapi.GoogleNearbyPlacesParser;
 import googleplacesapi.GoogleMapsApi;
 import java.util.List;
-import javax.inject.Inject;
 import permissions.LocationPermission;
 import pojos.NearbyPlaces;
 import repository.NearbyPlacesRepository;
 import viewmodel.MapDetailSharedViewHolder;
-//import viewmodel.NearbyPlacesListViewModel;
 import viewmodel.NearbyPlacesListViewModelFactory;
 import viewmodel.QueryNearbyPlacesViewModel;
 
@@ -64,7 +62,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     MenuItem.OnActionExpandListener, OnMapReadyCallback {
 
   public static final String LOG_TAG = MapFragment.class.getSimpleName();
-  public static final String CAMERA_POSITION_TAG = "CURRENT MAP TAG";
   public static final String CURRENT_LATITUDE_TAG = "CURRENT LATITUDE TAG";
   public static final String CURRENT_LONGITUDE_TAG = "CURRENT LONGITUDE TAG";
   public static final String CURRENT_QUERY_TAG = "CURRENT QUERY TAG";
@@ -98,7 +95,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private OnFragmentInteractionListener mListener;
   private NearbyPlacesListViewModelFactory factory;
   private QueryNearbyPlacesViewModel queryViewModel;
-  private GoogleLocationJsonParser nearbyPlacesResponseParser;
+  private GoogleNearbyPlacesParser nearbyPlacesResponseParser;
   private NearbyPlaces mNearbyPlaces;
   private boolean mSavedInstanceisNull;
   private View rootView;
@@ -117,17 +114,12 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     setHasOptionsMenu(true);
   }
 
-
-
   @Nullable
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable final Bundle savedInstanceState) {
     rootView = inflater.inflate(R.layout.fragment_map, container, false);
     ButterKnife.bind(this, rootView);
-
-    checkoutFap = rootView.findViewById(R.id.checkout_button);
-    mapView = rootView.findViewById(R.id.map);
     apiKey = getString(com.example.gregorio.capstone.R.string.google_maps_key);
     // *** IMPORTANT ***
     // MapView requires that the Bundle you pass contain _ONLY_ MapView SDK
@@ -161,14 +153,13 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     // Check if the user has granted permission to use Location Services
     locationPermission = new LocationPermission();
     // Instatiate the data parsing class
-    nearbyPlacesResponseParser = new GoogleLocationJsonParser();
+    nearbyPlacesResponseParser = new GoogleNearbyPlacesParser();
     // TODO: Firebase to Add Authentication and local persistence(Add Place to favourites)
     // Enable disk persistence
     //  FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     // Initialize Firebase components
     mFirebaseDatabase = FirebaseDatabase.getInstance();
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
-
        // Shared View Model to send Data from this fragment to the Detail one
       sharedModel = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
 
@@ -199,14 +190,13 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     onInfoWindowClickListener = new OnInfoWindowClickListener() {
       @Override
       public void onInfoWindowClick(Marker marker) {
-        // launch the detail fragment.
-       // String id = marker.getId();
-        Integer nearbyPlaces = (Integer) marker.getTag();
-        Log.i(LOG_TAG, "Marker Id is: " + nearbyPlaces);
-        sharedModel.select(queryViewModel.mNearbyPlaces.getValue().getResults().get(nearbyPlaces));
+        // Retrieve the Marker Id Tag so we can call the corresponding NearbyPlace clicked on the Map
+        // and save it to the SharedMapDetailViewModel
+        Integer PlaceIdTag = (Integer) marker.getTag();
+        Log.i(LOG_TAG, "Marker Id is: " + PlaceIdTag);
+        sharedModel.select(queryViewModel.mNearbyPlaces.getValue().getResults().get(PlaceIdTag));
         Log.i(LOG_TAG, "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
-
-
+        // launch the detail fragment.
         onMarkerPressedIntent(marker);
       }
     };
