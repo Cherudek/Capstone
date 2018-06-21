@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -98,6 +99,29 @@ public class DetailFragment extends Fragment {
 //      mWebUrl = getArguments().getString(ARG_WEB_URL);
     }
 
+
+  }
+
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    Bundle bundle = getArguments();
+    if (bundle != null) {
+      // Get the Data from the map object clicked in the map fragment
+//      mTitle = getArguments().getString(ARG_TITLE);
+//      mId = getArguments().getString(ARG_ID);
+//      mWebUrl = getArguments().getString(ARG_WEB_URL);
+
+    }
+  }
+
+  @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+      Bundle savedInstanceState) {
+
+    View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+    ButterKnife.bind(this, rootView);
+
     apiKey = getContext().getResources().getString(R.string.google_api_key);
 
     MapDetailSharedViewHolder model = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
@@ -123,28 +147,14 @@ public class DetailFragment extends Fragment {
     });
 
 
+    // Inflate the layout for this fragment
+    return rootView;
 
   }
 
   @Override
-  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
-    Bundle bundle = getArguments();
-    if (bundle != null) {
-      // Get the Data from the map object clicked in the map fragment
-//      mTitle = getArguments().getString(ARG_TITLE);
-//      mId = getArguments().getString(ARG_ID);
-//      mWebUrl = getArguments().getString(ARG_WEB_URL);
-
-    }
-  }
-
-  @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container,
-      Bundle savedInstanceState) {
-
-    View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
-    ButterKnife.bind(this, rootView);
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
 
     tvName.setText(mName);
     tvWebAddress.setText(mWebUrl);
@@ -154,9 +164,6 @@ public class DetailFragment extends Fragment {
 
     Picasso.get().load(picassoPhotoUrl).into(ivPhotoView);
 
-
-    // Inflate the layout for this fragment
-    return rootView;
 
   }
 
