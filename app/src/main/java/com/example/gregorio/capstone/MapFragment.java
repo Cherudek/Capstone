@@ -57,7 +57,6 @@ import viewmodel.MapDetailSharedViewHolder;
 import viewmodel.NearbyPlacesListViewModelFactory;
 import viewmodel.QueryNearbyPlacesViewModel;
 
-
 public class MapFragment extends Fragment implements SearchView.OnQueryTextListener,
     MenuItem.OnActionExpandListener, OnMapReadyCallback {
 
@@ -67,7 +66,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public static final String CURRENT_QUERY_TAG = "CURRENT QUERY TAG";
   private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
   private static final String MARKERS_BUNDLE_KEY = "MarkersViewBundleKey";
-
 
   private final int DEFAULT_ZOOM = 1500;
   @BindView(R.id.map)MapView mapView;
@@ -105,7 +103,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 
   public MapFragment() {
   }
-
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -194,7 +191,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         // and save it to the SharedMapDetailViewModel
         Integer PlaceIdTag = (Integer) marker.getTag();
         Log.i(LOG_TAG, "Marker Id is: " + PlaceIdTag);
-        sharedModel.select(queryViewModel.mNearbyPlaces.getValue().getResults().get(PlaceIdTag));
+        sharedModel.select(queryViewModel.getData().getValue().getResults().get(PlaceIdTag));
         Log.i(LOG_TAG, "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
         // launch the detail fragment.
         onMarkerPressedIntent(marker);

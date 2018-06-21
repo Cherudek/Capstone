@@ -48,7 +48,7 @@ public class DetailFragment extends Fragment {
   private String reviews;
   private Double mRating;
   private String mPhoneNumber;
-  private int mPriceLevel;
+  private Integer mPriceLevel;
   private List<Photo> photoList;
   private int height;
   private int width;
@@ -57,7 +57,7 @@ public class DetailFragment extends Fragment {
   private String picassoPhotoUrl;
 
 
-  @BindView(R.id.imageView)ImageView ivPhotoView;
+  @BindView(R.id.detail_image)ImageView ivPhotoView;
   @BindView(R.id.place_address)TextView tvAddress;
   @BindView(R.id.place_mame)TextView tvName;
   @BindView(R.id.place_url)TextView tvWebAddress;
@@ -107,13 +107,19 @@ public class DetailFragment extends Fragment {
       mAddress = item.getVicinity();
       mRating = item.getRating();
       mPlaceId = item.getPlaceId();
-      mPriceLevel = item.getPriceLevel();
+      if(mPriceLevel!=null){
+        mPriceLevel = item.getPriceLevel();
+      }
       photoList = item.getPhotos();
       height = photoList.get(0).getHeight();
       width = photoList.get(0).getWidth();
       photoReference = photoList.get(0).getPhotoReference();
 
       Log.i(LOG_TAG, "The Name Retrived from the MapDetailSharedViewHolder is " + mName);
+      Log.i(LOG_TAG, "The address is " + mAddress);
+      Log.i(LOG_TAG, "The Photo reference is " + photoReference );
+
+
     });
 
 
@@ -144,6 +150,8 @@ public class DetailFragment extends Fragment {
     tvWebAddress.setText(mWebUrl);
     tvAddress.setText(mAddress);
     picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=400&photoreference=" + photoReference + "&key=" + apiKey;
+    Log.i(LOG_TAG, "The Picasso Photo Url is " + picassoPhotoUrl);
+
     Picasso.get().load(picassoPhotoUrl).into(ivPhotoView);
 
 
