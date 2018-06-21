@@ -27,7 +27,12 @@ public class GoogleNearbyPlacesParser {
       map.clear();
       if(markersOptions!=null){
         markersOptions.clear();
+        // Check the size of the marker is not bigget than the size of the Places returned
+        if(markerCounter > markersOptions.size()){
+          markerCounter = -1;
+        }
       }
+
       // This loop will go through all the results and add marker on each location.
       for (int i = 0; i < nearbyPlaces.getResults().size(); i++) {
         Double lat = nearbyPlaces.getResults().get(i).getGeometry().getLocation().getLat();

@@ -190,7 +190,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         // Retrieve the Marker Id Tag so we can call the corresponding NearbyPlace clicked on the Map
         // and save it to the SharedMapDetailViewModel
         Integer PlaceIdTag = (Integer) marker.getTag();
-        Log.i(LOG_TAG, "Marker Id is: " + PlaceIdTag);
+        Log.i(LOG_TAG, "Marker Id Tag is: " + PlaceIdTag);
         sharedModel.select(queryViewModel.getData().getValue().getResults().get(PlaceIdTag));
         Log.i(LOG_TAG, "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
         // launch the detail fragment.

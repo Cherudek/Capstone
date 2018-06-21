@@ -139,6 +139,14 @@ public class DetailFragment extends Fragment {
       width = photoList.get(0).getWidth();
       photoReference = photoList.get(0).getPhotoReference();
 
+      tvName.setText(mName);
+      tvWebAddress.setText(mWebUrl);
+      tvAddress.setText(mAddress);
+      picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=400&photoreference=" + photoReference + "&key=" + apiKey;
+      Log.i(LOG_TAG, "The Picasso Photo Url is " + picassoPhotoUrl);
+
+      Picasso.get().load(picassoPhotoUrl).into(ivPhotoView);
+
       Log.i(LOG_TAG, "The Name Retrived from the MapDetailSharedViewHolder is " + mName);
       Log.i(LOG_TAG, "The address is " + mAddress);
       Log.i(LOG_TAG, "The Photo reference is " + photoReference );
@@ -156,13 +164,7 @@ public class DetailFragment extends Fragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    tvName.setText(mName);
-    tvWebAddress.setText(mWebUrl);
-    tvAddress.setText(mAddress);
-    picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=400&photoreference=" + photoReference + "&key=" + apiKey;
-    Log.i(LOG_TAG, "The Picasso Photo Url is " + picassoPhotoUrl);
 
-    Picasso.get().load(picassoPhotoUrl).into(ivPhotoView);
 
 
   }
