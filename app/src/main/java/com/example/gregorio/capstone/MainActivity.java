@@ -47,8 +47,10 @@ public class MainActivity extends AppCompatActivity
 
     if(savedInstanceState!=null){
       //Restore the fragment's instance
-        mContent = getSupportFragmentManager().getFragment(savedInstanceState, FRAGMENT_SAVED_TAG);
-
+        mContent = getSupportFragmentManager().getFragment(savedInstanceState, MAP_FRAGMENT_TAG);
+        if(mContent == null){
+          mContent = getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_FRAGMENT_TAG);
+        }
 
     } else {
       mapFragment = new MapFragment();
