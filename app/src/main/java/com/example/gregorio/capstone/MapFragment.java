@@ -104,6 +104,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private MapDetailSharedViewHolder sharedModel;
   private Integer mPlaceIdTag;
   private SearchView searchView;
+  public boolean isConnected;
 
   public MapFragment() {
   }
@@ -119,6 +120,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     googleMapsApi.GoogleApiClient(mContext);
     // Check if the user has granted permission to use Location Services
     locationPermission = new LocationPermission();
+
   }
 
   @Nullable
@@ -177,11 +179,11 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       Log.i(LOG_TAG,"mPlaceIdTag savedInstanceState is " + mPlaceIdTag);
     }
 
-    MainActivity mainActivity = new MainActivity();
-    if(!mainActivity.isOnline()){
-      Snackbar snackbar = Snackbar.make(rootView, "No Internet Connection", Snackbar.LENGTH_LONG);
-      snackbar.show();
-    }
+//    MainActivity mainActivity = new MainActivity();
+//    if(!mainActivity.isOnline()){
+//      Snackbar snackbar = Snackbar.make(rootView, "No Internet Connection", Snackbar.LENGTH_LONG);
+//      snackbar.show();
+//    }
 
     checkoutFap.setOnClickListener(v -> {
       // launches the Place Picker Api
@@ -411,6 +413,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public void onResume() {
     super.onResume();
     mapView.onResume();
+    MainActivity mainActivity = new MainActivity();
+    isConnected = mainActivity.isOnline();
   }
 
   @Override
