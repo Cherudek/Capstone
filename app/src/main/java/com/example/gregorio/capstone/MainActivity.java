@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity
     // and add the transaction to the back stack so the user can navigate back
    // mapLayout.setVisibility(View.GONE);
   //  FrameLayout detailLayout = findViewById(R.id.fragment_container_detail);
-    transaction.add(R.id.fragment_container, detailFragment);
+    transaction.replace(R.id.fragment_container, detailFragment);
     transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
     // Commit the transaction
     transaction.commit();
