@@ -20,6 +20,7 @@ public class QueryNearbyPlacesViewModel extends ViewModel {
   public List<MarkerOptions> mMarkersOptions;
 
 
+
   public QueryNearbyPlacesViewModel(NearbyPlacesRepository nearbyPlacesRepository, String keyword,
       String latitude, String longitude, int radius, String apiKey) {
       mNearbyPlaces = nearbyPlacesRepository.getNearbyPlaces(keyword,

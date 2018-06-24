@@ -152,10 +152,11 @@ public class DetailFragment extends Fragment {
         mPriceLevel = item.getPriceLevel();
       }
       photoList = item.getPhotos();
-      height = photoList.get(0).getHeight();
-      width = photoList.get(0).getWidth();
-      photoReference = photoList.get(0).getPhotoReference();
-
+      if(photoList!=null){
+        height = photoList.get(0).getHeight();
+        width = photoList.get(0).getWidth();
+        photoReference = photoList.get(0).getPhotoReference();
+      }
       tvName.setText(mName);
       tvWebAddress.setText(mWebUrl);
       tvAddress.setText(mAddress);

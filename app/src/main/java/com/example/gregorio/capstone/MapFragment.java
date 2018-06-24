@@ -196,19 +196,25 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       return false;
     };
     // On InfoClickListener to launch NearPlaces object details event
-    onInfoWindowClickListener = marker -> {
-      searchView.isIconified();
-      searchView.onActionViewCollapsed();
-      // Retrieve the Marker Id Tag so we can call the corresponding NearbyPlace clicked on the Map
-      // and save it to the SharedMapDetailViewModel
-    //  if(mPlaceIdTag == null) {
-        mPlaceIdTag = (Integer) marker.getTag();
-    //  }
-      Log.i(LOG_TAG, "Marker Id Tag is: " + mPlaceIdTag);
-      sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
-      Log.i(LOG_TAG, "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
-      // launch the detail fragment.
-      onMarkerPressedIntent(marker);
+    onInfoWindowClickListener = new OnInfoWindowClickListener() {
+      @Override
+      public void onInfoWindowClick(Marker marker) {
+        searchView.isIconified();
+        searchView.onActionViewCollapsed();
+        // Retrieve the Marker Id Tag so we can call the corresponding NearbyPlace clicked on the Map
+        // and save it to the SharedMapDetailViewModel
+        if (mPlaceIdTag == null) {
+          mPlaceIdTag = (Integer) marker.getTag();
+        } else {
+        }
+        Log.i(LOG_TAG, "Marker Id Tag is: " + mPlaceIdTag);
+        Log.i(LOG_TAG, "Marker Name is: " + marker.getTitle());
+        sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
+        Log.i(LOG_TAG,
+            "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
+        // launch the detail fragment.
+        MapFragment.this.onMarkerPressedIntent(marker);
+      }
     };
   }
 
