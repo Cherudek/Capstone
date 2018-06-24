@@ -53,6 +53,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import googleplacesapi.GoogleNearbyPlacesParser;
 import googleplacesapi.GoogleMapsApi;
 import java.util.List;
+import permissions.Connectivity;
 import permissions.LocationPermission;
 import pojos.NearbyPlaces;
 import repository.NearbyPlacesRepository;
@@ -146,7 +147,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       Log.i(LOG_TAG, "onCreateView savedInstanceState Current String:  " + mQuery);
       Log.i(LOG_TAG, "onCreateView savedInstanceState Current Location:  " + mCurrentLocation);
       mSavedInstanceisNull = false;
-    } else if (savedInstanceState == null) {
+    } else {
       mSavedInstanceisNull = true;
       longitude = 7.6862986;
       latitude = 7.6862986;
@@ -179,11 +180,11 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       Log.i(LOG_TAG,"mPlaceIdTag savedInstanceState is " + mPlaceIdTag);
     }
 
-//    MainActivity mainActivity = new MainActivity();
-//    if(!mainActivity.isOnline()){
-//      Snackbar snackbar = Snackbar.make(rootView, "No Internet Connection", Snackbar.LENGTH_LONG);
-//      snackbar.show();
-//    }
+    Connectivity connectivity = new Connectivity();
+    if(!connectivity.isOnline(mContext)){
+      Snackbar snackbar = Snackbar.make(rootView, "No Internet Connection", Snackbar.LENGTH_LONG);
+      snackbar.show();
+    }
 
     checkoutFap.setOnClickListener(v -> {
       // launches the Place Picker Api
@@ -200,9 +201,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       searchView.onActionViewCollapsed();
       // Retrieve the Marker Id Tag so we can call the corresponding NearbyPlace clicked on the Map
       // and save it to the SharedMapDetailViewModel
-      if(mPlaceIdTag == null){
+    //  if(mPlaceIdTag == null) {
         mPlaceIdTag = (Integer) marker.getTag();
-      }
+    //  }
       Log.i(LOG_TAG, "Marker Id Tag is: " + mPlaceIdTag);
       sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
       Log.i(LOG_TAG, "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
@@ -320,10 +321,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
           queryViewModel.mMarkersOptions = mMarkerOptions;
           Log.i(LOG_TAG, "queryViewModel mMarkersOptions on Rotation is" + queryViewModel.mMarkersOptions.size() );
           queryViewModel.getData().removeObserver(this);
+        } else {
+          Snackbar snackbar = Snackbar.make(rootView, "Check Your Internet Connection", Snackbar.LENGTH_LONG);
+          snackbar.show();
         }
-        Snackbar snackbar = Snackbar.make(rootView, "Check Your Internet Connection", Snackbar.LENGTH_LONG);
-        snackbar.show();
-
       }
     });
 
@@ -414,7 +415,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     super.onResume();
     mapView.onResume();
     MainActivity mainActivity = new MainActivity();
-    isConnected = mainActivity.isOnline();
   }
 
   @Override
