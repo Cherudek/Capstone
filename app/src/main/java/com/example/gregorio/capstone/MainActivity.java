@@ -2,6 +2,7 @@ package com.example.gregorio.capstone;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -25,9 +26,11 @@ public class MainActivity extends AppCompatActivity
 
   private final static String MAP_FRAGMENT_TAG = "Map Fragment Tag";
   private final static String DETAIL_FRAGMENT_TAG = "Detail Fragment Tag";
+  private final static String FRAGMENT_SAVED_TAG = "Fragment Saved Tag";
   private FrameLayout mapLayout;
   private FrameLayout detailLayout;
   private MapFragment mapFragment;
+  private Fragment mContent;
 
 
   @Override
@@ -41,19 +44,21 @@ public class MainActivity extends AppCompatActivity
     detailLayout = findViewById(R.id.fragment_container_detail);
     detailLayout.setVisibility(View.INVISIBLE);
     mapLayout = findViewById(R.id.fragment_container);
-    if(savedInstanceState==null){
+
+    if(savedInstanceState!=null){
+      //Restore the fragment's instance
+        mContent = getSupportFragmentManager().getFragment(savedInstanceState, FRAGMENT_SAVED_TAG);
+
+
+    } else {
       mapFragment = new MapFragment();
       FragmentManager fragmentManager = getSupportFragmentManager();
       fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
-      .addToBackStack(MAP_FRAGMENT_TAG)
+          .addToBackStack(MAP_FRAGMENT_TAG)
           .commit();
       mapFragment.setRetainInstance(true);
-    } else {
-      MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentByTag(MAP_FRAGMENT_TAG);
 
     }
-
-
 
     FloatingActionButton fab = findViewById(R.id.fab);
     fab.setOnClickListener(new View.OnClickListener() {
@@ -72,6 +77,18 @@ public class MainActivity extends AppCompatActivity
 
     NavigationView navigationView = findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
+
+  }
+
+  @Override
+  public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+    super.onSaveInstanceState(outState, outPersistentState);
+    Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+    if(fragment instanceof MapFragment){
+      getSupportFragmentManager().putFragment(outState, MAP_FRAGMENT_TAG, mContent );
+    } else if(fragment instanceof DetailFragment) {
+      getSupportFragmentManager().putFragment(outState, DETAIL_FRAGMENT_TAG, mContent );
+    }
 
   }
 
@@ -135,22 +152,14 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   public void onFragmentInteraction(Marker marker) {
-    String id = marker.getId();
-    String title = marker.getTitle();
-    // Bundle to launch the Detail Fragment
-    Bundle bundle = new Bundle();
-    bundle.putString("TITLE", title);
-    bundle.putString("ID", id);
     // set DetailFragment Arguments
     DetailFragment detailFragment = new DetailFragment();
-    detailFragment.setArguments(bundle);
     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
     // Replace whatever is in the fragment_container view with this fragment,
     // and add the transaction to the back stack so the user can navigate back
-    mapLayout.setVisibility(View.GONE);
-    FrameLayout detailLayout = findViewById(R.id.fragment_container_detail);
-    detailLayout.setVisibility(View.VISIBLE);
-    transaction.add(R.id.fragment_container_detail, detailFragment);
+   // mapLayout.setVisibility(View.GONE);
+  //  FrameLayout detailLayout = findViewById(R.id.fragment_container_detail);
+    transaction.add(R.id.fragment_container, detailFragment);
     transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
     // Commit the transaction
     transaction.commit();
@@ -177,9 +186,9 @@ public class MainActivity extends AppCompatActivity
     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
     // Replace whatever is in the fragment_container view with this fragment,
     // and add the transaction to the back stack so the user can navigate back
-    mapLayout.setVisibility(View.INVISIBLE);
-    detailLayout.setVisibility(View.VISIBLE);
-    transaction.replace(R.id.fragment_container_detail, detailFragment);
+   // mapLayout.setVisibility(View.INVISIBLE);
+   // detailLayout.setVisibility(View.VISIBLE);
+    transaction.replace(R.id.fragment_container, detailFragment);
     transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
     // Commit the transaction
     transaction.commit();

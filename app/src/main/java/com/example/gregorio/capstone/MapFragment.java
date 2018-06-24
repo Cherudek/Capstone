@@ -83,7 +83,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private String apiKey;
   private String mQuery;
   private Task<Location> location;
-
   private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
   private static final String FIREBASE_ROOT_NODE = "checkouts";
   private DatabaseReference mPlacesDatabaseReference;
@@ -99,7 +98,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private boolean mSavedInstanceisNull;
   private View rootView;
   private List<MarkerOptions> mMarkerOptions;
-//  public NearbyPlacesListViewModel nearbyPlacesListViewModel;
   private MapDetailSharedViewHolder sharedModel;
   private Integer mPlaceIdTag;
   private SearchView searchView;
@@ -126,7 +124,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     // objects or sub-Bundles.
     Bundle mapViewBundle = null;
     if (savedInstanceState != null) {
-      mPlaceIdTag = savedInstanceState.getInt(MARKERS_TAG_KEY);
       mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
       latitude = savedInstanceState.getDouble(CURRENT_LATITUDE_TAG);
       longitude = savedInstanceState.getDouble(CURRENT_LONGITUDE_TAG);
@@ -171,37 +168,34 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
+    if(savedInstanceState!=null){
+      mPlaceIdTag = savedInstanceState.getInt(MARKERS_TAG_KEY);
+      Log.i(LOG_TAG,"mPlaceIdTag savedInstanceState is " + mPlaceIdTag);
+    }
 
-    checkoutFap.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        // launches the Place Picker Api
-        checkOut();
-      }
+    checkoutFap.setOnClickListener(v -> {
+      // launches the Place Picker Api
+      MapFragment.this.checkOut();
     });
     // OnMarkerClickListener added to the map
-    onMarkerClickListener = new OnMarkerClickListener() {
-      @Override
-      public boolean onMarkerClick(Marker marker) {
-        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        return false;
-      }
+    onMarkerClickListener = marker -> {
+      marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+      return false;
     };
     // On InfoClickListener to launch NearPlaces object details event
-    onInfoWindowClickListener = new OnInfoWindowClickListener() {
-      @Override
-      public void onInfoWindowClick(Marker marker) {
-        searchView.isIconified();
-        searchView.onActionViewCollapsed();
-        // Retrieve the Marker Id Tag so we can call the corresponding NearbyPlace clicked on the Map
-        // and save it to the SharedMapDetailViewModel
+    onInfoWindowClickListener = marker -> {
+      searchView.isIconified();
+      searchView.onActionViewCollapsed();
+      // Retrieve the Marker Id Tag so we can call the corresponding NearbyPlace clicked on the Map
+      // and save it to the SharedMapDetailViewModel
+      if(mPlaceIdTag == null){
         mPlaceIdTag = (Integer) marker.getTag();
-        Log.i(LOG_TAG, "Marker Id Tag is: " + mPlaceIdTag);
-        sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
-        Log.i(LOG_TAG, "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
-        // launch the detail fragment.
-        onMarkerPressedIntent(marker);
       }
+      Log.i(LOG_TAG, "Marker Id Tag is: " + mPlaceIdTag);
+      sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
+      Log.i(LOG_TAG, "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
+      // launch the detail fragment.
+      onMarkerPressedIntent(marker);
     };
   }
 
@@ -368,32 +362,26 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     if (locationPermission.checkLocalPermission(mContext, getActivity())) {
       location = LocationServices.getFusedLocationProviderClient(mContext).getLastLocation();
       location
-          .addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-              // GPS location can be null if GPS is switched off
-              if (location != null) {
-                latitude = location.getLatitude();
-                longitude = location.getLongitude();
-                mCurrentLocation = new LatLng(latitude, longitude);
-                Log.i(LOG_TAG,
-                    "The Last location is: Latitude: " + latitude + " Longitude: " + longitude);
-              } else {
-                latitude = PiazzaCastello.latitude;
-                longitude = PiazzaCastello.longitude;
-                mCurrentLocation = PiazzaCastello;
-                Log.i(LOG_TAG,
-                    "Could not fetch the GPS location, we set to the default one: "
-                        + PiazzaCastello);
-              }
+          .addOnSuccessListener(location -> {
+            // GPS location can be null if GPS is switched off
+            if (location != null) {
+              latitude = location.getLatitude();
+              longitude = location.getLongitude();
+              mCurrentLocation = new LatLng(latitude, longitude);
+              Log.i(LOG_TAG,
+                  "The Last location is: Latitude: " + latitude + " Longitude: " + longitude);
+            } else {
+              latitude = PiazzaCastello.latitude;
+              longitude = PiazzaCastello.longitude;
+              mCurrentLocation = PiazzaCastello;
+              Log.i(LOG_TAG,
+                  "Could not fetch the GPS location, we set to the default one: "
+                      + PiazzaCastello);
             }
           })
-          .addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-              Log.d(LOG_TAG, "Error trying to get last GPS location");
-              e.printStackTrace();
-            }
+          .addOnFailureListener(e -> {
+            Log.d(LOG_TAG, "Error trying to get last GPS location");
+            e.printStackTrace();
           });
     }
   }

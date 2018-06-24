@@ -20,8 +20,7 @@ public class GoogleNearbyPlacesParser {
 
   private final static String LOG_TAG = GoogleNearbyPlacesParser.class.getSimpleName();
   private List<MarkerOptions> markersOptions = new ArrayList<>();
-  private Marker marker;
-  int markerCounter = -1;
+  private int markerCounter = -1;
   public List<MarkerOptions> drawLocationMap(NearbyPlaces nearbyPlaces, GoogleMap map, LatLng mCurrentLocation) {
     try {
       map.clear();
@@ -39,10 +38,7 @@ public class GoogleNearbyPlacesParser {
         Double lng = nearbyPlaces.getResults().get(i).getGeometry().getLocation().getLng();
         String placeName = nearbyPlaces.getResults().get(i).getName();
         String vicinity = nearbyPlaces.getResults().get(i).getVicinity();
-        String placeId = nearbyPlaces.getResults().get(i).getPlaceId();
         String icon = nearbyPlaces.getResults().get(i).getIcon();
-        List photos = nearbyPlaces.getResults().get(i).getPhotos();
-        int photoSize = photos.size();
         Uri iconUri = Uri.parse(icon);
         iconUri.getPath();
         MarkerOptions markerOptions = new MarkerOptions();
@@ -54,7 +50,7 @@ public class GoogleNearbyPlacesParser {
         markerOptions.title(placeName);
         markerOptions.snippet(vicinity);
         // Adding Marker to the Map.
-        marker = map.addMarker(markerOptions);
+        Marker marker = map.addMarker(markerOptions);
         //Mark Counters to add a Tag to help retrieve the right item and pass it to the DetailViewModel
         markerCounter = markerCounter + 1;
         marker.setTag(markerCounter);
