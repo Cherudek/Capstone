@@ -151,11 +151,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       mCurrentLocation = PiazzaCastello;
       mQuery = "";
     }
-    MainActivity mainActivity = new MainActivity();
-    if(mainActivity.isOnline() == false){
-      Snackbar snackbar = Snackbar.make(rootView, "No Internet Connection", Snackbar.LENGTH_LONG);
-      snackbar.show();
-    }
+
     mapView.onCreate(mapViewBundle);
     mapView.getMapAsync(this);
     // Instatiate the data parsing class
@@ -179,6 +175,12 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     if(savedInstanceState!=null){
       mPlaceIdTag = savedInstanceState.getInt(MARKERS_TAG_KEY);
       Log.i(LOG_TAG,"mPlaceIdTag savedInstanceState is " + mPlaceIdTag);
+    }
+
+    MainActivity mainActivity = new MainActivity();
+    if(!mainActivity.isOnline()){
+      Snackbar snackbar = Snackbar.make(rootView, "No Internet Connection", Snackbar.LENGTH_LONG);
+      snackbar.show();
     }
 
     checkoutFap.setOnClickListener(v -> {
