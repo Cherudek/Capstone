@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity
   private MapFragment mapFragment;
   private Fragment mContent;
 
+  public MainActivity() {
+  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -77,10 +79,6 @@ public class MainActivity extends AppCompatActivity
     NavigationView navigationView = findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
 
-    if(isOnline() == false){
-      Snackbar snackbar = Snackbar.make(getCurrentFocus(), "No Internet Connection", Snackbar.LENGTH_LONG);
-      snackbar.show();
-    }
 
   }
 
@@ -105,13 +103,6 @@ public class MainActivity extends AppCompatActivity
       super.onBackPressed();
 
     }
-  }
-
-  public boolean isOnline() {
-    ConnectivityManager cm =
-        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-    NetworkInfo netInfo = cm.getActiveNetworkInfo();
-    return netInfo != null && netInfo.isConnectedOrConnecting();
   }
 
 
@@ -198,6 +189,13 @@ public class MainActivity extends AppCompatActivity
     transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
     // Commit the transaction
     transaction.commit();
+  }
+
+  public boolean isOnline() {
+    ConnectivityManager cm =
+        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+    return netInfo != null && netInfo.isConnectedOrConnecting();
   }
 
 
