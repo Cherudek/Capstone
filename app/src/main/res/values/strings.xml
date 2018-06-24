@@ -25,4 +25,5 @@
   <string name="marker_id">Marker Id</string>
   <string name="marker_title">Marker Title</string>
   <string name="web_url">Web Url</string>
+  <string name="location_photo">Location Photo</string>
 </resources>

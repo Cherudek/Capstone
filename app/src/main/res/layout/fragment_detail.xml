@@ -18,6 +18,7 @@
       android:layout_height="wrap_content">
 
       <ImageView
+        android:contentDescription="@string/location_photo"
         android:id="@+id/detail_image"
         android:layout_width="match_parent"
         android:layout_height="200dp"/>
@@ -50,9 +51,6 @@
 
 
   </ScrollView>
-
-  <!-- TODO: Update blank fragment layout -->
-
 
 </android.support.design.widget.CoordinatorLayout>
 

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -298,6 +299,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       public void onChanged(@Nullable NearbyPlaces nearbyPlaces) {
         if(nearbyPlaces!=null){
           mNearbyPlaces=nearbyPlaces;
+          String status = nearbyPlaces.getStatus();
+          Snackbar snackbar = Snackbar.make(rootView, status, Snackbar.LENGTH_LONG);
+          snackbar.show();
           nearbyPlaces.getResults().size();
           mMarkerOptions = nearbyPlacesResponseParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation);
           queryViewModel.mMarkersOptions = mMarkerOptions;
