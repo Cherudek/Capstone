@@ -1,5 +1,8 @@
 package com.example.gregorio.capstone;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -17,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.Marker;
 
@@ -26,9 +30,6 @@ public class MainActivity extends AppCompatActivity
 
   private final static String MAP_FRAGMENT_TAG = "Map Fragment Tag";
   private final static String DETAIL_FRAGMENT_TAG = "Detail Fragment Tag";
-  private final static String FRAGMENT_SAVED_TAG = "Fragment Saved Tag";
-  private FrameLayout mapLayout;
-  private FrameLayout detailLayout;
   private MapFragment mapFragment;
   private Fragment mContent;
 
@@ -40,10 +41,6 @@ public class MainActivity extends AppCompatActivity
 
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
-
-    detailLayout = findViewById(R.id.fragment_container_detail);
-    detailLayout.setVisibility(View.INVISIBLE);
-    mapLayout = findViewById(R.id.fragment_container);
 
     if(savedInstanceState!=null){
       //Restore the fragment's instance
@@ -80,6 +77,11 @@ public class MainActivity extends AppCompatActivity
     NavigationView navigationView = findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
 
+    if(isOnline() == false){
+      Snackbar snackbar = Snackbar.make(getCurrentFocus(), "No Internet Connection", Snackbar.LENGTH_LONG);
+      snackbar.show();
+    }
+
   }
 
   @Override
@@ -99,13 +101,17 @@ public class MainActivity extends AppCompatActivity
     DrawerLayout drawer = findViewById(R.id.drawer_layout);
     if (drawer.isDrawerOpen(GravityCompat.START)) {
       drawer.closeDrawer(GravityCompat.START);
-      mapLayout.setVisibility(View.VISIBLE);
-      detailLayout.setVisibility(View.INVISIBLE);
     } else {
       super.onBackPressed();
-      mapLayout.setVisibility(View.VISIBLE);
-      detailLayout.setVisibility(View.INVISIBLE);
+
     }
+  }
+
+  public boolean isOnline() {
+    ConnectivityManager cm =
+        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+    return netInfo != null && netInfo.isConnectedOrConnecting();
   }
 
 
@@ -117,8 +123,6 @@ public class MainActivity extends AppCompatActivity
     Fragment fragment = null;
     Class fragmentClass = null;
     if (id == R.id.nav_map) {
-      mapLayout.setVisibility(View.VISIBLE);
-      detailLayout.setVisibility(View.INVISIBLE);
       fragmentClass = MapFragment.class;
     } else if (id == R.id.nav_food) {
       fragmentClass = FoodFragment.class;

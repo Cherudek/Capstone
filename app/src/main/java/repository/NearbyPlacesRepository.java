@@ -3,6 +3,7 @@ package repository;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
+import android.widget.Toast;
 import javax.inject.Singleton;
 import pojos.NearbyPlaces;
 import pojosplaceid.PlaceId;

@@ -111,6 +111,12 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     super.onCreate(savedInstanceState);
     mContext = getActivity();
     setHasOptionsMenu(true);
+    // Check if the Google Play Services are available or not and set Up Map
+    GoogleMapsApi googleMapsApi = new GoogleMapsApi();
+    googleMapsApi.CheckGooglePlayServices(mContext, getActivity());
+    googleMapsApi.GoogleApiClient(mContext);
+    // Check if the user has granted permission to use Location Services
+    locationPermission = new LocationPermission();
   }
 
   @Nullable
@@ -145,12 +151,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     }
     mapView.onCreate(mapViewBundle);
     mapView.getMapAsync(this);
-    // Check if the Google Play Services are available or not and set Up Map
-    GoogleMapsApi googleMapsApi = new GoogleMapsApi();
-    googleMapsApi.CheckGooglePlayServices(mContext, getActivity());
-    googleMapsApi.GoogleApiClient(mContext);
-    // Check if the user has granted permission to use Location Services
-    locationPermission = new LocationPermission();
     // Instatiate the data parsing class
     nearbyPlacesResponseParser = new GoogleNearbyPlacesParser();
     // TODO: Firebase to Add Authentication and local persistence(Add Place to favourites)
@@ -300,14 +300,18 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         if(nearbyPlaces!=null){
           mNearbyPlaces=nearbyPlaces;
           String status = nearbyPlaces.getStatus();
-          Snackbar snackbar = Snackbar.make(rootView, status, Snackbar.LENGTH_LONG);
-          snackbar.show();
+          if(status.matches("ZERO_RESULTS")){
+            Snackbar snackbar = Snackbar.make(rootView, "No Results", Snackbar.LENGTH_LONG);
+            snackbar.show();
+          }
           nearbyPlaces.getResults().size();
           mMarkerOptions = nearbyPlacesResponseParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation);
           queryViewModel.mMarkersOptions = mMarkerOptions;
           Log.i(LOG_TAG, "queryViewModel mMarkersOptions on Rotation is" + queryViewModel.mMarkersOptions.size() );
           queryViewModel.getData().removeObserver(this);
         }
+        Snackbar snackbar = Snackbar.make(rootView, "Check Your Internet Connection", Snackbar.LENGTH_LONG);
+        snackbar.show();
 
       }
     });
@@ -381,11 +385,15 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
               Log.i(LOG_TAG,
                   "Could not fetch the GPS location, we set to the default one: "
                       + PiazzaCastello);
+              Snackbar snackbar = Snackbar.make(rootView, "Check Your Internet Connection and Location is on", Snackbar.LENGTH_LONG);
+              snackbar.show();
             }
           })
           .addOnFailureListener(e -> {
             Log.d(LOG_TAG, "Error trying to get last GPS location");
             e.printStackTrace();
+            Snackbar snackbar = Snackbar.make(rootView, "Check Your Internet Connection and Location is on", Snackbar.LENGTH_LONG);
+            snackbar.show();
           });
     }
   }
