@@ -125,9 +125,7 @@ public class DetailFragment extends Fragment {
     Bundle bundle = getArguments();
     if (bundle != null) {
       // Get the Data from the map object clicked in the map fragment
-//      mTitle = getArguments().getString(ARG_TITLE);
-//      mId = getArguments().getString(ARG_ID);
-//      mWebUrl = getArguments().getString(ARG_WEB_URL);
+
 
     }
   }
@@ -152,7 +150,7 @@ public class DetailFragment extends Fragment {
         mPriceLevel = item.getPriceLevel();
       }
       photoList = item.getPhotos();
-      if(photoList!=null){
+      if(photoList.size() >= 1){
         height = photoList.get(0).getHeight();
         width = photoList.get(0).getWidth();
         photoReference = photoList.get(0).getPhotoReference();
@@ -160,7 +158,7 @@ public class DetailFragment extends Fragment {
       tvName.setText(mName);
       tvWebAddress.setText(mWebUrl);
       tvAddress.setText(mAddress);
-      picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=400&photoreference=" + photoReference + "&key=" + apiKey;
+      picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
       Log.i(LOG_TAG, "The Picasso Photo Url is " + picassoPhotoUrl);
 
       Picasso.get().load(picassoPhotoUrl).into(ivPhotoView);

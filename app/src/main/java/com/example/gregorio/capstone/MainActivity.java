@@ -17,6 +17,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity
     implements NavigationView.OnNavigationItemSelectedListener,
     MapFragment.OnFragmentInteractionListener, DetailFragment.OnFragmentInteractionListener {
 
+  private final static String LOG_TAG = MainActivity.class.getSimpleName();
   private final static String MAP_FRAGMENT_TAG = "Map Fragment Tag";
   private final static String DETAIL_FRAGMENT_TAG = "Detail Fragment Tag";
   private MapFragment mapFragment;
@@ -152,6 +154,7 @@ public class MainActivity extends AppCompatActivity
     // set DetailFragment Arguments
     DetailFragment detailFragment = new DetailFragment();
     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+    Log.i(LOG_TAG, "Marker Tag is: " + marker.getTag());
     // Replace whatever is in the fragment_container view with this fragment,
     // and add the transaction to the back stack so the user can navigate back
    // mapLayout.setVisibility(View.GONE);

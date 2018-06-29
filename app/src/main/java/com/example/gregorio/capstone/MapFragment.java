@@ -101,7 +101,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private NearbyPlaces mNearbyPlaces;
   private boolean mSavedInstanceisNull;
   private View rootView;
-  private List<MarkerOptions> mMarkerOptions;
+  private List<MarkerOptions> mMarkerOptionsRetrieved;
   private MapDetailSharedViewHolder sharedModel;
   private Integer mPlaceIdTag;
   private SearchView searchView;
@@ -176,8 +176,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     if(savedInstanceState!=null){
-      mPlaceIdTag = savedInstanceState.getInt(MARKERS_TAG_KEY);
-      Log.i(LOG_TAG,"mPlaceIdTag savedInstanceState is " + mPlaceIdTag);
+    //  mPlaceIdTag = savedInstanceState.getInt(MARKERS_TAG_KEY);
+    //  Log.i(LOG_TAG,"mPlaceIdTag savedInstanceState is " + mPlaceIdTag);
     }
 
     Connectivity connectivity = new Connectivity();
@@ -193,6 +193,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     // OnMarkerClickListener added to the map
     onMarkerClickListener = marker -> {
       marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+      Log.i(LOG_TAG, "onMarkerClickListener Id Tag is: " + marker.getTag());
+      Log.i(LOG_TAG, "onMarkerClickListener Snippet  is: " + marker.getSnippet());
+
+
       return false;
     };
     // On InfoClickListener to launch NearPlaces object details event
@@ -205,15 +209,17 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         // and save it to the SharedMapDetailViewModel
         if (mPlaceIdTag == null) {
           mPlaceIdTag = (Integer) marker.getTag();
-        } else {
         }
-        Log.i(LOG_TAG, "Marker Id Tag is: " + mPlaceIdTag);
+        Log.i(LOG_TAG, "onInfoWindowClickListener Marker Tag is: " + marker.getTag());
         Log.i(LOG_TAG, "Marker Name is: " + marker.getTitle());
+        mPlaceIdTag = (Integer) marker.getTag();
+
         sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
         Log.i(LOG_TAG,
             "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
         // launch the detail fragment.
         MapFragment.this.onMarkerPressedIntent(marker);
+        marker.hideInfoWindow();
       }
     };
   }
@@ -309,6 +315,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       queryViewModel.mLongitude = longitude.toString();
       queryViewModel.mRadius = DEFAULT_ZOOM;
       queryViewModel.mApiKey = apiKey;
+      queryViewModel.mMarkersOptions = mMarkerOptionsRetrieved;
       queryViewModel.getNewPlaces();
     }
 
@@ -323,8 +330,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
             snackbar.show();
           }
           nearbyPlaces.getResults().size();
-          mMarkerOptions = nearbyPlacesResponseParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation);
-          queryViewModel.mMarkersOptions = mMarkerOptions;
+          mMarkerOptionsRetrieved = nearbyPlacesResponseParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation);
+          queryViewModel.mMarkersOptions = mMarkerOptionsRetrieved;
           Log.i(LOG_TAG, "queryViewModel mMarkersOptions on Rotation is" + queryViewModel.mMarkersOptions.size() );
           queryViewModel.getData().removeObserver(this);
         } else {
