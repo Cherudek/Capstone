@@ -10,8 +10,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import pojos.NearbyPlaces;
+import viewmodel.QueryNearbyPlacesViewModel;
 
 public class GoogleNearbyPlacesParser {
 
@@ -20,9 +22,13 @@ public class GoogleNearbyPlacesParser {
 
   private final static String LOG_TAG = GoogleNearbyPlacesParser.class.getSimpleName();
   private List<MarkerOptions> markersOptions = new ArrayList<>();
-  private int markerCounter = -1;
-  public List<MarkerOptions> drawLocationMap(NearbyPlaces nearbyPlaces, GoogleMap map, LatLng mCurrentLocation) {
+  private Integer markerCounter = -1;
+
+  public List<MarkerOptions> drawLocationMap(NearbyPlaces nearbyPlaces, GoogleMap map, LatLng mCurrentLocation, HashMap<Marker, Integer> eventMarkerMap) {
     try {
+      if(eventMarkerMap!=null){
+        eventMarkerMap.clear();
+      }
       map.clear();
       if(markersOptions!=null){
         markersOptions.clear();
@@ -34,11 +40,13 @@ public class GoogleNearbyPlacesParser {
 
       // This loop will go through all the results and add marker on each location.
       for (int i = 0; i < nearbyPlaces.getResults().size(); i++) {
+
         Double lat = nearbyPlaces.getResults().get(i).getGeometry().getLocation().getLat();
         Double lng = nearbyPlaces.getResults().get(i).getGeometry().getLocation().getLng();
         String placeName = nearbyPlaces.getResults().get(i).getName();
         String vicinity = nearbyPlaces.getResults().get(i).getVicinity();
         String icon = nearbyPlaces.getResults().get(i).getIcon();
+        String placeId = nearbyPlaces.getResults().get(i).getPlaceId();
         Uri iconUri = Uri.parse(icon);
         iconUri.getPath();
         MarkerOptions markerOptions = new MarkerOptions();
@@ -48,11 +56,15 @@ public class GoogleNearbyPlacesParser {
         markerOptions.position(latLng);
         // Adding Title (Name of the place) and Vicinity (address) to the Marker
         markerOptions.title(placeName);
-        markerOptions.snippet(vicinity);
+        markerCounter = markerCounter + 1;
+
+
+        markerOptions.snippet(String.valueOf(markerCounter));
         // Adding Marker to the Map.
         Marker marker = map.addMarker(markerOptions);
         //Mark Counters to add a Tag to help retrieve the right item and pass it to the DetailViewModel
-        markerCounter = markerCounter + 1;
+        //markerCounter = markerCounter + 1;
+        eventMarkerMap.put(marker, markerCounter);
         marker.setTag(markerCounter);
         markersOptions.add(markerOptions);
       }

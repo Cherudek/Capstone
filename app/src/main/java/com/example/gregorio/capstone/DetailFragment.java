@@ -163,7 +163,7 @@ public class DetailFragment extends Fragment {
 
       Picasso.get().load(picassoPhotoUrl).into(ivPhotoView);
 
-      Log.i(LOG_TAG, "The Name Retrived from the MapDetailSharedViewHolder is " + mName);
+      Log.i(LOG_TAG, "The Name Retrieved from the MapDetailSharedViewHolder is " + mName);
       Log.i(LOG_TAG, "The address is " + mAddress);
       Log.i(LOG_TAG, "The Photo reference is " + photoReference );
 
