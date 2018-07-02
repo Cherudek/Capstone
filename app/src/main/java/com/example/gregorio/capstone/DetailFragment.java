@@ -1,5 +1,6 @@
 package com.example.gregorio.capstone;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.net.Uri;
@@ -20,6 +21,10 @@ import butterknife.ButterKnife;
 import com.squareup.picasso.Picasso;
 import java.util.List;
 import pojos.Photo;
+import pojosplaceid.PlaceId;
+import repository.NearbyPlacesRepository;
+import viewmodel.DetailViewModel;
+import viewmodel.DetailViewModelFactory;
 import viewmodel.MapDetailSharedViewHolder;
 
 
@@ -45,6 +50,8 @@ public class DetailFragment extends Fragment {
   private static final String NAME_TAG = "NameTag";
   private static final String ADDRESS_TAG = "AddressTag";
   private static final String API_KEY_TAG = "ApiKeyTag";
+  private static final String PLACE_ID_TAG = "PlaceIdTag";
+
 
 
   // TODO: Rename and change types of parameters
@@ -64,6 +71,9 @@ public class DetailFragment extends Fragment {
   private String photoReference;
   private String apiKey;
   private String picassoPhotoUrl;
+  private DetailViewModelFactory detailViewModelFactory;
+  private DetailViewModel detailViewModel;
+  private MapDetailSharedViewHolder detailModel;
 
   @BindView(R.id.detail_image)ImageView ivPhotoView;
   @BindView(R.id.place_address)TextView tvAddress;
@@ -101,7 +111,9 @@ public class DetailFragment extends Fragment {
     if (getArguments() != null) {
 //      mTitle = getArguments().getString(ARG_TITLE);
 //      mId = getArguments().getString(ARG_ID);
-//      mWebUrl = getArguments().getString(ARG_WEB_URL);
+//      mWebUrl = getArguments().get//      mTitle = getArguments().getString(ARG_TITLE);
+////      mId = getArguments().getString(ARG_ID);
+////      mWebUrl = getArguments().getString(ARG_WEB_URL);String(ARG_WEB_URL);
     }
 
     if(savedInstanceState!=null){
@@ -119,16 +131,7 @@ public class DetailFragment extends Fragment {
 
   }
 
-  @Override
-  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
-    Bundle bundle = getArguments();
-    if (bundle != null) {
-      // Get the Data from the map object clicked in the map fragment
 
-
-    }
-  }
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -139,8 +142,8 @@ public class DetailFragment extends Fragment {
 
     apiKey = getContext().getResources().getString(R.string.google_api_key);
 
-    MapDetailSharedViewHolder model = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
-    model.getSelected().observe(this, item -> {
+    detailModel = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
+    detailModel.getSelected().observe(this, item -> {
       // Update the UI.
       mName = item.getName();
       mAddress = item.getVicinity();
@@ -151,6 +154,7 @@ public class DetailFragment extends Fragment {
       }
       photoList = item.getPhotos();
       if(photoList.size() >= 1){
+        Log.i(LOG_TAG, "Photo Array Size = " + photoList.size());
         height = photoList.get(0).getHeight();
         width = photoList.get(0).getWidth();
         photoReference = photoList.get(0).getPhotoReference();
@@ -165,15 +169,58 @@ public class DetailFragment extends Fragment {
 
       Log.i(LOG_TAG, "The Name Retrieved from the MapDetailSharedViewHolder is " + mName);
       Log.i(LOG_TAG, "The address is " + mAddress);
-      Log.i(LOG_TAG, "The Photo reference is " + photoReference );
-
+      Log.i(LOG_TAG, "The Photo reference is " + photoReference);
+      Log.i(LOG_TAG, "The Photo PlaceId is " + mPlaceId);
 
     });
 
-
     // Inflate the layout for this fragment
     return rootView;
+  }
 
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    Bundle bundle = getArguments();
+    if (bundle != null) {
+      // Get the Data from the map object clicked in the map fragment
+    }
+
+  }
+
+
+
+  @Override
+  public void onResume() {
+    super.onResume();
+
+    detailViewModelFactory = new DetailViewModelFactory(NearbyPlacesRepository.getInstance(), mPlaceId, apiKey);
+    detailViewModel = ViewModelProviders.of(this, detailViewModelFactory).get(DetailViewModel.class);
+
+    detailViewModel.getPlaceDetails().observe(this, new Observer<PlaceId>() {
+      @Override
+      public void onChanged(@Nullable PlaceId placeId) {
+        String website = placeId.getResult().getWebsite();
+        String phoneNo = placeId.getResult().getInternationalPhoneNumber();
+        Boolean openingHours = placeId.getResult().getOpeningHours().getOpenNow();
+        List<String> openingWeekDays = placeId.getResult().getOpeningHours().getWeekdayText();
+        int photoSize = placeId.getResult().getPhotos().size();
+        int reviewSize = placeId.getResult().getReviews().size();
+
+        Log.i(LOG_TAG, "Website is " + website);
+        Log.i(LOG_TAG, "Phone Number is " + phoneNo);
+        Log.i(LOG_TAG, "Open Now " + openingHours);
+        Log.i(LOG_TAG, "Week Days opening " + openingWeekDays);
+        Log.i(LOG_TAG, "Photo Size " + photoSize);
+        Log.i(LOG_TAG, "Review Size " + reviewSize);
+
+
+
+
+
+
+      }
+    });
   }
 
   @Override
@@ -183,6 +230,7 @@ public class DetailFragment extends Fragment {
     outState.putString(NAME_TAG, mName);
     outState.putString(ADDRESS_TAG, mAddress);
     outState.putString(API_KEY_TAG, apiKey);
+    outState.putString(PLACE_ID_TAG, mPlaceId);
 
   }
 

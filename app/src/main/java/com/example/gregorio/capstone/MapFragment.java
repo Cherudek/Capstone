@@ -93,11 +93,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private Task<Location> location;
   private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
   private static final String FIREBASE_ROOT_NODE = "checkouts";
-  private DatabaseReference mPlacesDatabaseReference;
   private FirebaseDatabase mFirebaseDatabase;
   private LocationPermission locationPermission;
   private Context mContext;
-  private CameraPosition cameraPosition;
   private OnFragmentInteractionListener mListener;
   private NearbyPlacesListViewModelFactory factory;
   private QueryNearbyPlacesViewModel queryViewModel;
@@ -110,7 +108,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private DetailViewModel detailViewModel;
   private int mPlaceIdTag;
   private SearchView searchView;
-  public boolean isConnected;
   private int placeIdInt;
   private HashMap<Marker, Integer> eventMarkerMap;
 
@@ -173,7 +170,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     //  FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     // Initialize Firebase components
     mFirebaseDatabase = FirebaseDatabase.getInstance();
-    mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
+    DatabaseReference mPlacesDatabaseReference = mFirebaseDatabase.getReference()
+        .child("checkouts");
        // Shared View Model to send Data from this fragment to the Detail one
       sharedModel = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
      // detailViewModel = ViewModelProviders.of(getActivity()).get(DetailViewModel.class);
