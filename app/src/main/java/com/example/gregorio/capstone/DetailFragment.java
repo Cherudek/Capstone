@@ -1,6 +1,6 @@
 package com.example.gregorio.capstone;
 
-import android.arch.lifecycle.Observer;
+import adapters.PhotoAdapter;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.net.Uri;
@@ -9,12 +9,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,7 +24,6 @@ import butterknife.ButterKnife;
 import com.squareup.picasso.Picasso;
 import java.util.List;
 import pojos.Photo;
-import pojosplaceid.PlaceId;
 import repository.NearbyPlacesRepository;
 import viewmodel.DetailViewModel;
 import viewmodel.DetailViewModelFactory;
@@ -65,7 +65,8 @@ public class DetailFragment extends Fragment {
   private List<String> mOpeningWeekDays;
   private String mTelephone;
   private Integer mPriceLevel;
-  private List<Photo> photoList;
+  private List<Photo> photoHeader;
+  private List<pojosplaceid.Photo> photoList;
   private int height;
   private int width;
   private String photoReference;
@@ -74,6 +75,11 @@ public class DetailFragment extends Fragment {
   private DetailViewModelFactory detailViewModelFactory;
   private DetailViewModel detailViewModel;
   private MapDetailSharedViewHolder detailModel;
+  private PhotoAdapter mPhotoAdapter;
+  private LinearLayoutManager reviewsLayoutManager;
+  private LinearLayoutManager photosLayoutManager;
+  private int numberOfReviews;
+  private int numberOfPhotos;
 
   @BindView(R.id.detail_image)ImageView ivPhotoView;
   @BindView(R.id.place_address)TextView tvAddress;
@@ -83,6 +89,8 @@ public class DetailFragment extends Fragment {
   @BindView(R.id.weekday_opening_hours)TextView tvOpeningHours;
   @BindView(R.id.open_now)TextView tvOpenNow;
   @BindView(R.id.telephone_no)TextView tvTelephone;
+  @BindView(R.id.photo_gallery)RecyclerView rvPhotoGallery;
+  @BindView(R.id.reviews)RecyclerView rvReviews;
 
 
   private OnFragmentInteractionListener mListener;
@@ -146,25 +154,28 @@ public class DetailFragment extends Fragment {
       if(mPriceLevel!=null){
         mPriceLevel = item.getPriceLevel();
       }
-      photoList = item.getPhotos();
-      if(photoList.size() >= 1){
-        Log.i(LOG_TAG, "Photo Array Size = " + photoList.size());
-        height = photoList.get(0).getHeight();
-        width = photoList.get(0).getWidth();
-        photoReference = photoList.get(0).getPhotoReference();
+      photoHeader = item.getPhotos();
+      if(photoHeader.size() >= 1){
+        Log.i(LOG_TAG, "Photo Array Size = " + photoHeader.size());
+        height = photoHeader.get(0).getHeight();
+        width = photoHeader.get(0).getWidth();
+        photoReference = photoHeader.get(0).getPhotoReference();
       }
       tvName.setText(mName);
       tvWebAddress.setText(mWebUrl);
       tvAddress.setText(mAddress);
       picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
       Log.i(LOG_TAG, "The Picasso Photo Url is " + picassoPhotoUrl);
-
-      Picasso.get().load(picassoPhotoUrl).into(ivPhotoView);
-
+      Picasso.get().load(picassoPhotoUrl).error(R.drawable.coming_soon).into(ivPhotoView);
       Log.i(LOG_TAG, "The Name Retrieved from the MapDetailSharedViewHolder is " + mName);
       Log.i(LOG_TAG, "The address is " + mAddress);
       Log.i(LOG_TAG, "The Photo reference is " + photoReference);
       Log.i(LOG_TAG, "The Photo PlaceId is " + mPlaceId);
+
+      photosLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true);
+      rvPhotoGallery.setLayoutManager(photosLayoutManager);
+      rvPhotoGallery.setHasFixedSize(true);
+
 
     });
 
@@ -197,40 +208,42 @@ public class DetailFragment extends Fragment {
     detailViewModelFactory = new DetailViewModelFactory(NearbyPlacesRepository.getInstance(), mPlaceId, apiKey);
     detailViewModel = ViewModelProviders.of(this, detailViewModelFactory).get(DetailViewModel.class);
 
-    detailViewModel.getPlaceDetails().observe(this, new Observer<PlaceId>() {
-      @Override
-      public void onChanged(@Nullable PlaceId placeId) {
-        String website = placeId.getResult().getWebsite();
-        tvWebAddress.setText(website);
-        String phoneNo = placeId.getResult().getInternationalPhoneNumber();
-        tvTelephone.setText(phoneNo);
-        if(placeId.getResult().getOpeningHours().getOpenNow()!=null){
-          Boolean openingHours = placeId.getResult().getOpeningHours().getOpenNow();
-          if(openingHours){
-            tvOpenNow.setText(R.string.open);
-          } else {
-            tvOpenNow.setText(R.string.closed);
-          }
-          Log.i(LOG_TAG, "Open Now " + openingHours);
+    detailViewModel.getPlaceDetails().observe(this, placeId -> {
+      String website = placeId.getResult().getWebsite();
+      tvWebAddress.setText(website);
+      String phoneNo = placeId.getResult().getInternationalPhoneNumber();
+      tvTelephone.setText(phoneNo);
+      if(placeId.getResult().getOpeningHours()!=null){
+        Boolean openingHours = placeId.getResult().getOpeningHours().getOpenNow();
+        if(openingHours){
+          tvOpenNow.setText(R.string.open);
+        } else {
+          tvOpenNow.setText(R.string.closed);
         }
-        mOpeningWeekDays = placeId.getResult().getOpeningHours().getWeekdayText();
-        StringBuilder weeklyHours = new StringBuilder();
-        weeklyHours.append("Opening Hours:"+"\n");
-        Log.i(LOG_TAG, "Week Days opening " + mOpeningWeekDays);
-        for(int i = 0; i < mOpeningWeekDays.size(); i++){
-          weeklyHours.append(mOpeningWeekDays.get(i)+"\n");
-          tvOpeningHours.setText(weeklyHours);
-        }
-
-        int photoSize = placeId.getResult().getPhotos().size();
-        int reviewSize = placeId.getResult().getReviews().size();
-
-        Log.i(LOG_TAG, "Website is " + website);
-        Log.i(LOG_TAG, "Phone Number is " + phoneNo);
-        Log.i(LOG_TAG, "Photo Size " + photoSize);
-        Log.i(LOG_TAG, "Review Size " + reviewSize);
-
+        Log.i(LOG_TAG, "Open Now " + openingHours);
       }
+      mOpeningWeekDays = placeId.getResult().getOpeningHours().getWeekdayText();
+      StringBuilder weeklyHours = new StringBuilder();
+      weeklyHours.append("Opening Hours:"+"\n");
+      Log.i(LOG_TAG, "Week Days opening " + mOpeningWeekDays);
+      for(int i = 0; i < mOpeningWeekDays.size(); i++){
+        weeklyHours.append(mOpeningWeekDays.get(i)+"\n");
+        tvOpeningHours.setText(weeklyHours);
+      }
+
+      numberOfPhotos = placeId.getResult().getPhotos().size();
+      photoList = placeId.getResult().getPhotos();
+      mPhotoAdapter = new PhotoAdapter(numberOfPhotos, apiKey);
+      mPhotoAdapter.addAll(photoList);
+      rvPhotoGallery.setAdapter(mPhotoAdapter);
+
+      int reviewSize = placeId.getResult().getReviews().size();
+
+      Log.i(LOG_TAG, "Website is " + website);
+      Log.i(LOG_TAG, "Phone Number is " + phoneNo);
+      Log.i(LOG_TAG, "Photo Size " + numberOfPhotos);
+      Log.i(LOG_TAG, "Review Size " + reviewSize);
+
     });
   }
 
