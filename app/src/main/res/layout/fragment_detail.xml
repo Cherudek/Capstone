@@ -28,7 +28,7 @@
         android:paddingTop="@dimen/margin_2x"
         android:id="@+id/place_mame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:text="@string/marker_title"/>
 
@@ -36,7 +36,7 @@
         android:paddingTop="@dimen/margin_2x"
         android:id="@+id/place_address"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/marker_id"/>
 
@@ -44,7 +44,7 @@
         android:paddingTop="@dimen/margin_2x"
         android:id="@+id/place_url"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="bottom|center"
         android:text="@string/web_url"/>
 
@@ -52,7 +52,7 @@
         android:paddingTop="@dimen/margin_2x"
         android:id="@+id/telephone_no"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="bottom|center"
         android:text="@string/telephone_number"/>
 
@@ -60,7 +60,7 @@
         android:paddingTop="@dimen/margin_2x"
         android:id="@+id/open_now"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="bottom|center"
         android:text="@string/open_now"/>
 
@@ -68,7 +68,7 @@
         android:paddingTop="@dimen/margin_2x"
         android:id="@+id/weekday_opening_hours"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="bottom|center"
         android:text="@string/opening_hours"/>
 

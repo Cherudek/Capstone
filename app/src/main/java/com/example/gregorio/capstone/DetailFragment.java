@@ -7,12 +7,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,21 +42,16 @@ public class DetailFragment extends Fragment {
 
   public static final String LOG_TAG = DetailFragment.class.getSimpleName();
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
-  // TODO: Rename parameter arguments, choose names that match
   // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
   private static final String ARG_TITLE = "TITLE";
   private static final String ARG_ID = "ID";
   private static final String ARG_WEB_URL = "PLACE WEB URL";
-
   private static final String PHOTO_URL_TAG = "PhotoUrlTag";
   private static final String NAME_TAG = "NameTag";
   private static final String ADDRESS_TAG = "AddressTag";
   private static final String API_KEY_TAG = "ApiKeyTag";
   private static final String PLACE_ID_TAG = "PlaceIdTag";
 
-
-
-  // TODO: Rename and change types of parameters
   private String mPlaceId;
   private String mName;
   private String mWebUrl;
@@ -64,6 +61,9 @@ public class DetailFragment extends Fragment {
   private String reviews;
   private Double mRating;
   private String mPhoneNumber;
+  private String mOpeningHours;
+  private List<String> mOpeningWeekDays;
+  private String mTelephone;
   private Integer mPriceLevel;
   private List<Photo> photoList;
   private int height;
@@ -79,6 +79,11 @@ public class DetailFragment extends Fragment {
   @BindView(R.id.place_address)TextView tvAddress;
   @BindView(R.id.place_mame)TextView tvName;
   @BindView(R.id.place_url)TextView tvWebAddress;
+  @BindView(R.id.add_to_favourites_button)FloatingActionButton addFavourites;
+  @BindView(R.id.weekday_opening_hours)TextView tvOpeningHours;
+  @BindView(R.id.open_now)TextView tvOpenNow;
+  @BindView(R.id.telephone_no)TextView tvTelephone;
+
 
   private OnFragmentInteractionListener mListener;
 
@@ -124,16 +129,13 @@ public class DetailFragment extends Fragment {
   }
 
 
-
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
 
     View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
     ButterKnife.bind(this, rootView);
-
     apiKey = getContext().getResources().getString(R.string.google_api_key);
-
     detailModel = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
     detailModel.getSelected().observe(this, item -> {
       // Update the UI.
@@ -176,9 +178,16 @@ public class DetailFragment extends Fragment {
     Bundle bundle = getArguments();
     if (bundle != null) {
       // Get the Data from the map object clicked in the map fragment
+
     }
 
+    // Add Place to favourites (Room Database)
+    addFavourites.setOnClickListener(v -> {
+
+    });
+
   }
+
 
 
   @Override
@@ -192,25 +201,34 @@ public class DetailFragment extends Fragment {
       @Override
       public void onChanged(@Nullable PlaceId placeId) {
         String website = placeId.getResult().getWebsite();
+        tvWebAddress.setText(website);
         String phoneNo = placeId.getResult().getInternationalPhoneNumber();
+        tvTelephone.setText(phoneNo);
         if(placeId.getResult().getOpeningHours().getOpenNow()!=null){
           Boolean openingHours = placeId.getResult().getOpeningHours().getOpenNow();
+          if(openingHours){
+            tvOpenNow.setText(R.string.open);
+          } else {
+            tvOpenNow.setText(R.string.closed);
+          }
           Log.i(LOG_TAG, "Open Now " + openingHours);
         }
-        List<String> openingWeekDays = placeId.getResult().getOpeningHours().getWeekdayText();
+        mOpeningWeekDays = placeId.getResult().getOpeningHours().getWeekdayText();
+        StringBuilder weeklyHours = new StringBuilder();
+        weeklyHours.append("Opening Hours:"+"\n");
+        Log.i(LOG_TAG, "Week Days opening " + mOpeningWeekDays);
+        for(int i = 0; i < mOpeningWeekDays.size(); i++){
+          weeklyHours.append(mOpeningWeekDays.get(i)+"\n");
+          tvOpeningHours.setText(weeklyHours);
+        }
+
         int photoSize = placeId.getResult().getPhotos().size();
         int reviewSize = placeId.getResult().getReviews().size();
 
         Log.i(LOG_TAG, "Website is " + website);
         Log.i(LOG_TAG, "Phone Number is " + phoneNo);
-        Log.i(LOG_TAG, "Week Days opening " + openingWeekDays);
         Log.i(LOG_TAG, "Photo Size " + photoSize);
         Log.i(LOG_TAG, "Review Size " + reviewSize);
-
-
-
-
-
 
       }
     });
@@ -225,7 +243,10 @@ public class DetailFragment extends Fragment {
     outState.putString(API_KEY_TAG, apiKey);
     outState.putString(PLACE_ID_TAG, mPlaceId);
 
+
   }
+
+
 
   // TODO: Rename method, update argument and hook method into UI event
   public void onButtonPressed(Uri uri) {

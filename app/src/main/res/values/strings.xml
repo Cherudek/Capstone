@@ -29,4 +29,6 @@
   <string name="telephone_number">Telephone Number</string>
   <string name="open_now">Open Now</string>
   <string name="opening_hours">Opening Hours</string>
+  <string name="open">Open for Business</string>
+  <string name="closed">Sorry we are closed</string>
 </resources>
