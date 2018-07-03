@@ -108,14 +108,6 @@ public class DetailFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    if (getArguments() != null) {
-//      mTitle = getArguments().getString(ARG_TITLE);
-//      mId = getArguments().getString(ARG_ID);
-//      mWebUrl = getArguments().get//      mTitle = getArguments().getString(ARG_TITLE);
-////      mId = getArguments().getString(ARG_ID);
-////      mWebUrl = getArguments().getString(ARG_WEB_URL);String(ARG_WEB_URL);
-    }
-
     if(savedInstanceState!=null){
       picassoPhotoUrl = savedInstanceState.getString(PHOTO_URL_TAG);
       mName = savedInstanceState.getString(NAME_TAG);
@@ -189,7 +181,6 @@ public class DetailFragment extends Fragment {
   }
 
 
-
   @Override
   public void onResume() {
     super.onResume();
@@ -202,14 +193,16 @@ public class DetailFragment extends Fragment {
       public void onChanged(@Nullable PlaceId placeId) {
         String website = placeId.getResult().getWebsite();
         String phoneNo = placeId.getResult().getInternationalPhoneNumber();
-        Boolean openingHours = placeId.getResult().getOpeningHours().getOpenNow();
+        if(placeId.getResult().getOpeningHours().getOpenNow()!=null){
+          Boolean openingHours = placeId.getResult().getOpeningHours().getOpenNow();
+          Log.i(LOG_TAG, "Open Now " + openingHours);
+        }
         List<String> openingWeekDays = placeId.getResult().getOpeningHours().getWeekdayText();
         int photoSize = placeId.getResult().getPhotos().size();
         int reviewSize = placeId.getResult().getReviews().size();
 
         Log.i(LOG_TAG, "Website is " + website);
         Log.i(LOG_TAG, "Phone Number is " + phoneNo);
-        Log.i(LOG_TAG, "Open Now " + openingHours);
         Log.i(LOG_TAG, "Week Days opening " + openingWeekDays);
         Log.i(LOG_TAG, "Photo Size " + photoSize);
         Log.i(LOG_TAG, "Review Size " + reviewSize);

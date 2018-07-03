@@ -18,6 +18,7 @@
       android:layout_height="wrap_content">
 
       <ImageView
+        android:scaleType="centerCrop"
         android:contentDescription="@string/location_photo"
         android:id="@+id/detail_image"
         android:layout_width="match_parent"
@@ -47,10 +48,57 @@
         android:gravity="bottom|center"
         android:text="@string/web_url"/>
 
+      <TextView
+        android:paddingTop="@dimen/margin_2x"
+        android:id="@+id/telephone_no"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom|center"
+        android:text="@string/telephone_number"/>
+
+      <TextView
+        android:paddingTop="@dimen/margin_2x"
+        android:id="@+id/open_now"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom|center"
+        android:text="@string/open_now"/>
+
+      <TextView
+        android:paddingTop="@dimen/margin_2x"
+        android:id="@+id/weekday_opening_hours"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom|center"
+        android:text="@string/opening_hours"/>
+
+      <android.support.v7.widget.RecyclerView
+        android:id="@+id/photo_gallery"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+      </android.support.v7.widget.RecyclerView>
+
+      <android.support.v7.widget.RecyclerView
+        android:id="@+id/reviews"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+      </android.support.v7.widget.RecyclerView>
+
     </LinearLayout>
 
 
   </ScrollView>
+
+  <android.support.design.widget.FloatingActionButton
+    android:id="@+id/add_to_favourites_button"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/margin_2x"
+    android:layout_marginEnd="@dimen/margin_2x"
+    android:layout_gravity="bottom|end"
+    android:src="@drawable/ic_favorite_border_white_24dp"/>
 
 </android.support.design.widget.CoordinatorLayout>
 
