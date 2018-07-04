@@ -14,4 +14,5 @@
   <dimen name="cv_corner_radius">3dp</dimen>
   <dimen name="card_view_photo">200dp</dimen>
   <dimen name="cv_elevation">3dp</dimen>
+  <dimen name="margin_half">4dp</dimen>
 </resources>

@@ -3,19 +3,18 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="wrap_content"
   android:layout_height="wrap_content"
-  android:layout_margin="@dimen/margin_1x"
+  android:layout_margin="@dimen/margin_half"
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <android.support.v7.widget.CardView
     android:id="@+id/card_view"
-    android:layout_margin="@dimen/margin_1x"
     android:layout_width="@dimen/card_view_photo"
     android:layout_height="@dimen/card_view_photo"
     android:layout_gravity="center"
     app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="@dimen/cv_corner_radius"
     app:cardElevation="@dimen/cv_elevation"
     app:contentPadding="@dimen/margin_1x"
+    app:contentPaddingBottom="@dimen/margin_4x"
     app:layout_constraintTop_toTopOf="parent">
 
     <ImageView

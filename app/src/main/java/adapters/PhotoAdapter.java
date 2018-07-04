@@ -45,7 +45,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
       Photo currentPhoto = mPhotoId.get(position);
       String photoReference = currentPhoto.getPhotoReference();
       String photoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + mApiKey;
-      Picasso.get().load(photoUrl).placeholder(R.drawable.coming_soon).into(holder.mImageView);
+      Picasso.get().load(photoUrl)
+          .placeholder(R.color.gray)
+          .error(R.drawable.coming_soon)
+          .into(holder.mImageView);
       Log.i(LOG_TAG, "Photo Adapter GalleryUrl " + photoUrl);
     //}
 
