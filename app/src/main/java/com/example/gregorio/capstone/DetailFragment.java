@@ -241,12 +241,17 @@ public class DetailFragment extends Fragment {
           tvOpeningHours.setText(weeklyHours);
         }
       }
-
-      numberOfPhotos = placeId.getResult().getPhotos().size();
-      photoList = placeId.getResult().getPhotos();
-      mPhotoAdapter = new PhotoAdapter(numberOfPhotos, apiKey);
+      if(placeId.getResult().getPhotos() != null){
+        numberOfPhotos = placeId.getResult().getPhotos().size();
+        photoList = placeId.getResult().getPhotos();
+        mPhotoAdapter = new PhotoAdapter(numberOfPhotos, apiKey);
+      } else {
+        mPhotoAdapter = new PhotoAdapter(2, apiKey);
+      }
       mPhotoAdapter.addAll(photoList);
       rvPhotoGallery.setAdapter(mPhotoAdapter);
+
+
 
       int reviewSize = placeId.getResult().getReviews().size();
       reviewsList = placeId.getResult().getReviews();
