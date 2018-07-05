@@ -31,4 +31,5 @@
   <string name="opening_hours">Opening Hours</string>
   <string name="open">Open for Business</string>
   <string name="closed">Sorry we are closed</string>
+  <string name="address">Address</string>
 </resources>

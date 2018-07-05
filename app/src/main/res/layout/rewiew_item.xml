@@ -15,7 +15,7 @@
     app:cardBackgroundColor="@color/white"
     app:cardElevation="@dimen/cv_elevation"
     app:contentPadding="@dimen/margin_1x"
-    app:contentPaddingBottom="@dimen/margin_4x"
+    app:contentPaddingBottom="@dimen/margin_2x"
     app:layout_constraintTop_toTopOf="parent">
 
     <LinearLayout
@@ -52,6 +52,7 @@
         android:id="@+id/review_place_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="@dimen/margin_1x"
         tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."/>
 
     </LinearLayout>

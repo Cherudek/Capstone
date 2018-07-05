@@ -12,6 +12,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.google.android.gms.flags.impl.DataUtils.StringUtils;
 import com.squareup.picasso.Picasso;
 import java.util.List;
 import pojos.Photo;
@@ -57,11 +59,7 @@ public class DetailFragment extends Fragment {
 
   private String mPlaceId;
   private String mName;
-  private String mWebUrl;
   private String mAddress;
-  private String openNow = "Open Now";
-  private String closed = "Closed";
-  private String reviews;
   private Double mRating;
   private String mPhoneNumber;
   private String mOpeningHours;
@@ -168,7 +166,6 @@ public class DetailFragment extends Fragment {
         photoReference = photoHeader.get(0).getPhotoReference();
       }
       tvName.setText(mName);
-      tvWebAddress.setText(mWebUrl);
       tvAddress.setText(mAddress);
       picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
       Log.i(LOG_TAG, "The Picasso Photo Url is " + picassoPhotoUrl);
@@ -219,6 +216,12 @@ public class DetailFragment extends Fragment {
       tvWebAddress.setText(website);
       String phoneNo = placeId.getResult().getInternationalPhoneNumber();
       tvTelephone.setText(phoneNo);
+      if(TextUtils.isEmpty(website)){
+        tvWebAddress.setVisibility(View.GONE);
+      } else {
+        tvWebAddress.setVisibility(View.VISIBLE);
+        tvWebAddress.setText(website);
+      }
       if(placeId.getResult().getOpeningHours()!=null){
         Boolean openingHours = placeId.getResult().getOpeningHours().getOpenNow();
         if(openingHours){

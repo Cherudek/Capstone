@@ -17,58 +17,91 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
 
-      <ImageView
-        android:scaleType="centerCrop"
-        android:contentDescription="@string/location_photo"
-        android:id="@+id/detail_image"
+      <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="250dp"/>
+        android:layout_height="250dp">
+        <ImageView
+          android:scaleType="centerCrop"
+          android:contentDescription="@string/location_photo"
+          android:id="@+id/detail_image"
+          android:layout_width="match_parent"
+          android:layout_height="250dp"/>
+        <View
+          android:layout_width="match_parent"
+          android:layout_height="250dp"
+          android:layout_gravity="bottom"
+          android:background="@drawable/main_header_selector"
+          android:visibility="visible"/>
+        <TextView
+          android:id="@+id/place_mame"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_gravity="bottom"
+          android:paddingTop="@dimen/margin_2x"
+          android:fontFamily="@font/yeseva_one"
+          android:gravity="center_horizontal"
+          android:text="@string/marker_title"
+          android:textColor="@color/white"
+          android:textSize="36sp"
+          android:layout_marginBottom="@dimen/margin_4x"/>
+
+
+        <TextView
+          android:id="@+id/place_address"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_gravity="bottom"
+          android:paddingTop="@dimen/margin_2x"
+          android:fontFamily="@font/quicksand_medium"
+          android:gravity="center"
+          android:text="@string/address"
+          android:textColor="@color/white"
+          android:layout_margin="@dimen/margin_1x"/>
+
+      </FrameLayout>
+
+
+
+
 
       <TextView
-        android:paddingTop="@dimen/margin_2x"
-        android:id="@+id/place_mame"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:text="@string/marker_title"/>
-
-      <TextView
-        android:paddingTop="@dimen/margin_2x"
-        android:id="@+id/place_address"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/marker_id"/>
-
-      <TextView
-        android:paddingTop="@dimen/margin_2x"
-        android:id="@+id/place_url"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="bottom|center"
-        android:text="@string/web_url"/>
-
-      <TextView
-        android:paddingTop="@dimen/margin_2x"
         android:id="@+id/telephone_no"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="@dimen/margin_2x"
+        android:autoLink="phone"
+        android:fontFamily="@font/quicksand_medium"
         android:gravity="bottom|center"
-        android:text="@string/telephone_number"/>
+        android:text="@string/telephone_number"
+        android:textColor="@color/primaryTextColor"/>
 
       <TextView
+        android:id="@+id/place_url"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:paddingTop="@dimen/margin_2x"
+        android:autoLink="web"
+        android:fontFamily="@font/quicksand_medium"
+        android:gravity="bottom|center"
+        android:text="@string/web_url"
+        android:textColor="@color/primaryTextColor"/>
+
+      <TextView
         android:id="@+id/open_now"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="@dimen/margin_2x"
+        android:fontFamily="@font/quicksand_medium"
         android:gravity="bottom|center"
-        android:text="@string/open_now"/>
+        android:text="@string/open_now"
+        android:textSize="18sp"/>
 
       <TextView
-        android:paddingTop="@dimen/margin_2x"
         android:id="@+id/weekday_opening_hours"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="@dimen/margin_2x"
+        android:fontFamily="@font/quicksand_medium"
         android:gravity="bottom|center"
         android:text="@string/opening_hours"/>
 

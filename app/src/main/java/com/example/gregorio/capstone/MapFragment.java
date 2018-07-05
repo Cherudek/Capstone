@@ -344,7 +344,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
             Snackbar snackbar = Snackbar.make(rootView, "No Results", Snackbar.LENGTH_LONG);
             snackbar.show();
           }
-          nearbyPlaces.getResults().size();
           mMarkerOptionsRetrieved = nearbyPlacesResponseParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation, eventMarkerMap);
           queryViewModel.mMarkersOptions = mMarkerOptionsRetrieved;
           Log.i(LOG_TAG, "queryViewModel mMarkersOptions on Rotation is" + queryViewModel.mMarkersOptions.size() );
