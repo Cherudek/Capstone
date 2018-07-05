@@ -23,11 +23,7 @@
       android:layout_height="match_parent"
       android:backgroundTint="@color/gray"
       android:scaleType="centerCrop"
-      app:layout_constraintTop_toTopOf="parent"
-      />
+      app:layout_constraintTop_toTopOf="parent"/>
 
   </android.support.v7.widget.CardView>
-
-
-
 </android.support.constraint.ConstraintLayout>

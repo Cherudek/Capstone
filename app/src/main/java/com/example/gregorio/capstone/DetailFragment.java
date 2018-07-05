@@ -1,6 +1,7 @@
 package com.example.gregorio.capstone;
 
 import adapters.PhotoAdapter;
+import adapters.ReviewAdapter;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.net.Uri;
@@ -24,6 +25,8 @@ import butterknife.ButterKnife;
 import com.squareup.picasso.Picasso;
 import java.util.List;
 import pojos.Photo;
+import pojosplaceid.PlaceId;
+import pojosplaceid.Review;
 import repository.NearbyPlacesRepository;
 import viewmodel.DetailViewModel;
 import viewmodel.DetailViewModelFactory;
@@ -67,6 +70,7 @@ public class DetailFragment extends Fragment {
   private Integer mPriceLevel;
   private List<Photo> photoHeader;
   private List<pojosplaceid.Photo> photoList;
+  private List<Review> reviewsList;
   private int height;
   private int width;
   private String photoReference;
@@ -76,10 +80,12 @@ public class DetailFragment extends Fragment {
   private DetailViewModel detailViewModel;
   private MapDetailSharedViewHolder detailModel;
   private PhotoAdapter mPhotoAdapter;
+  private ReviewAdapter mReviewsAdapter;
   private LinearLayoutManager reviewsLayoutManager;
   private LinearLayoutManager photosLayoutManager;
   private int numberOfReviews;
   private int numberOfPhotos;
+  private double numberOfStars;
 
   @BindView(R.id.detail_image)ImageView ivPhotoView;
   @BindView(R.id.place_address)TextView tvAddress;
@@ -176,6 +182,9 @@ public class DetailFragment extends Fragment {
       rvPhotoGallery.setLayoutManager(photosLayoutManager);
       rvPhotoGallery.setHasFixedSize(true);
 
+      reviewsLayoutManager = new LinearLayoutManager(getContext());
+      rvReviews.setLayoutManager(reviewsLayoutManager);
+      rvReviews.setHasFixedSize(true);
 
     });
 
@@ -196,10 +205,7 @@ public class DetailFragment extends Fragment {
     addFavourites.setOnClickListener(v -> {
 
     });
-
   }
-
-
 
   @Override
   public void onResume() {
@@ -208,7 +214,7 @@ public class DetailFragment extends Fragment {
     detailViewModelFactory = new DetailViewModelFactory(NearbyPlacesRepository.getInstance(), mPlaceId, apiKey);
     detailViewModel = ViewModelProviders.of(this, detailViewModelFactory).get(DetailViewModel.class);
 
-    detailViewModel.getPlaceDetails().observe(this, placeId -> {
+    detailViewModel.getPlaceDetails().observe(this, (PlaceId placeId) -> {
       String website = placeId.getResult().getWebsite();
       tvWebAddress.setText(website);
       String phoneNo = placeId.getResult().getInternationalPhoneNumber();
@@ -222,13 +228,15 @@ public class DetailFragment extends Fragment {
         }
         Log.i(LOG_TAG, "Open Now " + openingHours);
       }
-      mOpeningWeekDays = placeId.getResult().getOpeningHours().getWeekdayText();
-      StringBuilder weeklyHours = new StringBuilder();
-      weeklyHours.append("Opening Hours:"+"\n");
-      Log.i(LOG_TAG, "Week Days opening " + mOpeningWeekDays);
-      for(int i = 0; i < mOpeningWeekDays.size(); i++){
-        weeklyHours.append(mOpeningWeekDays.get(i)+"\n");
-        tvOpeningHours.setText(weeklyHours);
+      if(placeId.getResult().getOpeningHours()!=null){
+        mOpeningWeekDays = placeId.getResult().getOpeningHours().getWeekdayText();
+        StringBuilder weeklyHours = new StringBuilder();
+        weeklyHours.append("Opening Hours:"+"\n");
+        Log.i(LOG_TAG, "Week Days opening " + mOpeningWeekDays);
+        for(int i = 0; i < mOpeningWeekDays.size(); i++) {
+          weeklyHours.append(mOpeningWeekDays.get(i) + "\n");
+          tvOpeningHours.setText(weeklyHours);
+        }
       }
 
       numberOfPhotos = placeId.getResult().getPhotos().size();
@@ -238,6 +246,11 @@ public class DetailFragment extends Fragment {
       rvPhotoGallery.setAdapter(mPhotoAdapter);
 
       int reviewSize = placeId.getResult().getReviews().size();
+      reviewsList = placeId.getResult().getReviews();
+      mReviewsAdapter = new ReviewAdapter(reviewSize);
+      mReviewsAdapter.addAll(reviewsList);
+      rvReviews.setAdapter(mReviewsAdapter);
+
 
       Log.i(LOG_TAG, "Website is " + website);
       Log.i(LOG_TAG, "Phone Number is " + phoneNo);

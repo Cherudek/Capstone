@@ -20,18 +20,16 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
   private List<Photo> mPhotoId = new ArrayList<>();
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
   private String mApiKey;
-  private Context context;
-  private int mNumberOfItems;
 
   public PhotoAdapter(int numberOfItems, String apiKey){
-    mNumberOfItems = numberOfItems;
+    int mNumberOfItems = numberOfItems;
     mApiKey = apiKey;
   }
 
   @NonNull
   @Override
   public PhotoAdapter.PhotoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    context = parent.getContext();
+    Context context = parent.getContext();
     int layoutIdForListItem = R.layout.photo_item;
     LayoutInflater inflater = LayoutInflater.from(context);
     boolean shouldAttachToParentImmediately = false;
@@ -41,7 +39,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
   @Override
   public void onBindViewHolder(@NonNull PhotoAdapter.PhotoViewHolder holder, int position) {
-   // for(position = 0; position < mPhotoId.size(); position++){
       Photo currentPhoto = mPhotoId.get(position);
       String photoReference = currentPhoto.getPhotoReference();
       String photoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + mApiKey;
@@ -50,7 +47,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
           .error(R.drawable.coming_soon)
           .into(holder.mImageView);
       Log.i(LOG_TAG, "Photo Adapter GalleryUrl " + photoUrl);
-    //}
 
   }
 
