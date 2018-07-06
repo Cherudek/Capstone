@@ -6,8 +6,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -29,7 +26,6 @@ import butterknife.ButterKnife;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.flags.impl.DataUtils.StringUtils;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
@@ -46,14 +42,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import googleplacesapi.GoogleNearbyPlacesParser;
 import googleplacesapi.GoogleMapsApi;
-import java.util.Collection;
+import googleplacesapi.GoogleNearbyPlacesParser;
 import java.util.HashMap;
 import java.util.List;
 import permissions.Connectivity;
@@ -91,9 +82,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private String apiKey;
   private String mQuery;
   private Task<Location> location;
-  private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
-  private static final String FIREBASE_ROOT_NODE = "checkouts";
-  private FirebaseDatabase mFirebaseDatabase;
   private LocationPermission locationPermission;
   private Context mContext;
   private OnFragmentInteractionListener mListener;
@@ -163,18 +151,11 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     eventMarkerMap = new HashMap<>();
     mapView.onCreate(mapViewBundle);
     mapView.getMapAsync(this);
-    // Instatiate the data parsing class
+    // Instantiate the data parsing class
     nearbyPlacesResponseParser = new GoogleNearbyPlacesParser();
-    // TODO: Firebase to Add Authentication and local persistence(Add Place to favourites)
-    // Enable disk persistence
-    //  FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-    // Initialize Firebase components
-    mFirebaseDatabase = FirebaseDatabase.getInstance();
-    DatabaseReference mPlacesDatabaseReference = mFirebaseDatabase.getReference()
-        .child("checkouts");
-       // Shared View Model to send Data from this fragment to the Detail one
-      sharedModel = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
-     // detailViewModel = ViewModelProviders.of(getActivity()).get(DetailViewModel.class);
+
+    // Shared View Model to send Data from this fragment to the Detail one
+    sharedModel = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
 
     return rootView;
   }
@@ -184,8 +165,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     if(savedInstanceState!=null){
-    //  mPlaceIdTag = savedInstanceState.getInt(MARKERS_TAG_KEY);
-    //  Log.i(LOG_TAG,"mPlaceIdTag savedInstanceState is " + mPlaceIdTag);
+      //  mPlaceIdTag = savedInstanceState.getInt(MARKERS_TAG_KEY);
+      //  Log.i(LOG_TAG,"mPlaceIdTag savedInstanceState is " + mPlaceIdTag);
     }
 
     Connectivity connectivity = new Connectivity();
@@ -194,10 +175,12 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       snackbar.show();
     }
 
+    // Launches the Google Place Picker API
     checkoutFap.setOnClickListener(v -> {
       // launches the Place Picker Api
       MapFragment.this.checkOut();
     });
+
     // OnMarkerClickListener added to the map
     onMarkerClickListener = marker -> {
       marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
@@ -216,11 +199,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       public void onInfoWindowClick(Marker marker) {
         searchView.isIconified();
         searchView.onActionViewCollapsed();
-        // Retrieve the Marker Id Tag so we can call the corresponding NearbyPlace clicked on the Map
-        // and save it to the SharedMapDetailViewModel
 
-         // eventMarkerMap = (HashMap<Marker, Integer>) marker.getTag();
-          //queryViewModel.mEventMarkerMap = eventMarkerMap;
+       //TODO: FIX THE HASHMAP, MAP MARKERS CHANGE ID ON ROTATION AND BACK NAVIGATION.
+        // eventMarkerMap = (HashMap<Marker, Integer>) marker.getTag();
+        //queryViewModel.mEventMarkerMap = eventMarkerMap;
 
 //          String id = marker.getId();
 //          Log.i(LOG_TAG, "MarkerId  is: " + id);
@@ -241,13 +223,16 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 //          Log.i(LOG_TAG, "Place Id is " + placeIdInt);
 //          Log.i(LOG_TAG, "Marker Id is " + idInteger);
 
-          mPlaceIdTag = Integer.valueOf(marker.getSnippet());
-          //   detailViewModel.getPlaceDetails().getValue().getResult();
-          sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
-          Log.i(LOG_TAG, "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
-          // launch the detail fragment.
-          MapFragment.this.onMarkerPressedIntent(marker);
-          marker.hideInfoWindow();
+        // Retrieve the Marker Id Tag so we can call the corresponding NearbyPlace clicked on the Map
+        // and save it to the SharedMapDetailViewModel
+
+        mPlaceIdTag = Integer.valueOf(marker.getSnippet());
+        //   detailViewModel.getPlaceDetails().getValue().getResult();
+        sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
+        Log.i(LOG_TAG, "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
+        // launch the detail fragment.
+        MapFragment.this.onMarkerPressedIntent(marker);
+        marker.hideInfoWindow();
 
       }
     };
@@ -318,7 +303,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public boolean onQueryTextSubmit(final String query) {
     mQuery = query;
     Log.i(LOG_TAG, "The Search Query is: " + query);
-      // MVVM Retrofit Call Via ViewModel Factory
+    // MVVM Retrofit Call Via ViewModel Factory
     if(mNearbyPlaces==null){
       factory = new NearbyPlacesListViewModelFactory(NearbyPlacesRepository.getInstance(),
           mQuery, latitude.toString(), longitude.toString(), DEFAULT_ZOOM, apiKey);
@@ -383,15 +368,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         Place place = PlacePicker.getPlace(mContext, data);
         onPlacePickerPressedIntent(place);
 
-        // TODO: MOVE THIS IN THE ADD TO FAVOURITE FRAGMENT
-//        // Object to be passed to the firebase db reference.
-//        Favourite favouriteObject = new Favourite(mPlaceId, mPlaceName, mPlaceWebUrl,
-//            mPlaceAttributions);
-//        String favourite = getString(R.string.nv_favourites);
-//        mPlacesDatabaseReference.child(favourite).push().setValue(favouriteObject);
-//        Snackbar snackbar = Snackbar
-//            .make(getView(), "Location stored on Firebase!", Snackbar.LENGTH_SHORT);
-//        snackbar.show();
+        // TODO: INTENT TO START PLACE PICKER DETAIL ACTIVITY
+
+
 
       } else if (resultCode == PlacePicker.RESULT_ERROR) {
         Toast.makeText(mContext,
@@ -490,10 +469,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         for (int i = 0; i < queryViewModel.mMarkersOptions.size(); i++) {
           Log.i(LOG_TAG, "On Rotation Map Marker size is " + queryViewModel.mMarkersOptions.size());
           MarkerOptions m = queryViewModel.mMarkersOptions.get(i);
-       //   Log.i(LOG_TAG, "On Rotation Map Marker HashMap Id size is " + queryViewModel.mEventMarkerMap.size());
-         // queryViewModel.mEventMarkerMap = eventMarkerMap;
-         // Collection<Integer> values = eventMarkerMap.values();
-         // Log.i(LOG_TAG, "On Rotation Map Marker HashMap Collection  size is " + values);
+          //   Log.i(LOG_TAG, "On Rotation Map Marker HashMap Id size is " + queryViewModel.mEventMarkerMap.size());
+          // queryViewModel.mEventMarkerMap = eventMarkerMap;
+          // Collection<Integer> values = eventMarkerMap.values();
+          // Log.i(LOG_TAG, "On Rotation Map Marker HashMap Collection  size is " + values);
 
           googleMap.addMarker(m);
         }

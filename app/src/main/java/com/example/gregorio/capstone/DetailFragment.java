@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,8 +25,11 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gms.flags.impl.DataUtils.StringUtils;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 import java.util.List;
+import pojos.Favourite;
 import pojos.Photo;
 import pojosplaceid.PlaceId;
 import pojosplaceid.Review;
@@ -85,6 +89,11 @@ public class DetailFragment extends Fragment {
   private int numberOfPhotos;
   private double numberOfStars;
 
+  private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
+  private static final String FIREBASE_ROOT_NODE = "checkouts";
+  private FirebaseDatabase mFirebaseDatabase;
+  private DatabaseReference mPlacesDatabaseReference;
+
   @BindView(R.id.detail_image)ImageView ivPhotoView;
   @BindView(R.id.place_address)TextView tvAddress;
   @BindView(R.id.place_mame)TextView tvName;
@@ -131,6 +140,12 @@ public class DetailFragment extends Fragment {
       mAddress = savedInstanceState.getString(ADDRESS_TAG);
       apiKey = savedInstanceState.getString(API_KEY_TAG);
     }
+
+    // Enable disk persistence
+     FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+    // Initialize Firebase components
+    mFirebaseDatabase = FirebaseDatabase.getInstance();
+    mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
   }
 
   @Override
@@ -165,6 +180,7 @@ public class DetailFragment extends Fragment {
         width = photoHeader.get(0).getWidth();
         photoReference = photoHeader.get(0).getPhotoReference();
       }
+
       tvName.setText(mName);
       tvAddress.setText(mAddress);
       picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
@@ -200,6 +216,14 @@ public class DetailFragment extends Fragment {
 
     // Add Place to favourites (Room Database)
     addFavourites.setOnClickListener(v -> {
+
+      // Object to be passed to the firebase db reference.
+      Favourite favouriteObject = new Favourite(mPlaceId, mName, mPlaceId);
+      String favourite = getString(R.string.nv_favourites);
+      mPlacesDatabaseReference.child(favourite).push().setValue(favouriteObject);
+      Snackbar snackbar = Snackbar
+          .make(getView(), "Location stored on Firebase!", Snackbar.LENGTH_SHORT);
+      snackbar.show();
 
     });
   }
@@ -251,19 +275,11 @@ public class DetailFragment extends Fragment {
       mPhotoAdapter.addAll(photoList);
       rvPhotoGallery.setAdapter(mPhotoAdapter);
 
-
-
       int reviewSize = placeId.getResult().getReviews().size();
       reviewsList = placeId.getResult().getReviews();
       mReviewsAdapter = new ReviewAdapter(reviewSize);
       mReviewsAdapter.addAll(reviewsList);
       rvReviews.setAdapter(mReviewsAdapter);
-
-
-      Log.i(LOG_TAG, "Website is " + website);
-      Log.i(LOG_TAG, "Phone Number is " + phoneNo);
-      Log.i(LOG_TAG, "Photo Size " + numberOfPhotos);
-      Log.i(LOG_TAG, "Review Size " + reviewSize);
 
     });
   }

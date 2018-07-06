@@ -41,9 +41,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     String authorName = currentReview.getAuthorName();
     String relativeTimeDescription = currentReview.getRelativeTimeDescription();
     Integer authorRating = currentReview.getRating();
-    Integer time = currentReview.getTime();
-    SimpleDateFormat newFormat = new SimpleDateFormat("yyyyMMdd");
-    String formattedDate = newFormat.format(time);
     String reviewText = currentReview.getText();
     holder.tvReviewAuthor.setText(authorName);
     holder.tvReviewTime.setText(String.valueOf(relativeTimeDescription));

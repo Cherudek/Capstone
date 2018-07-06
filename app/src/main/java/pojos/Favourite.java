@@ -5,7 +5,6 @@ public class Favourite {
   private String placeId;
   private String name;
   private String websiteUrl;
-  private String attributions;
 
   public Favourite() {
   }
@@ -14,7 +13,6 @@ public class Favourite {
     this.placeId = placeId;
     this.name = name;
     this.websiteUrl = websiteUrl;
-    this.attributions = attributions;
   }
 
   public String getPlaceId() {

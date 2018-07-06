@@ -172,6 +172,7 @@ public class MainActivity extends AppCompatActivity
     String placeId = place.getId();
     String placeName = place.getName().toString();
 
+
     if (place.getWebsiteUri() == null || place.getWebsiteUri().toString().isEmpty()) {
       String placeWebUrl = "";
       bundle.putString("PLACE WEB URL", placeWebUrl);
