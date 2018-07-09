@@ -28,10 +28,15 @@ import com.google.android.gms.flags.impl.DataUtils.StringUtils;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import pojos.Favourite;
 import pojos.Photo;
 import pojosplaceid.PlaceId;
+import pojosplaceid.Result;
 import pojosplaceid.Review;
 import repository.NearbyPlacesRepository;
 import viewmodel.DetailViewModel;
@@ -88,6 +93,7 @@ public class DetailFragment extends Fragment {
   private int numberOfReviews;
   private int numberOfPhotos;
   private double numberOfStars;
+  private Result favouriteResult;
 
   private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
   private static final String FIREBASE_ROOT_NODE = "checkouts";
@@ -141,8 +147,6 @@ public class DetailFragment extends Fragment {
       apiKey = savedInstanceState.getString(API_KEY_TAG);
     }
 
-    // Enable disk persistence
-     FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     // Initialize Firebase components
     mFirebaseDatabase = FirebaseDatabase.getInstance();
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
@@ -220,7 +224,8 @@ public class DetailFragment extends Fragment {
       // Object to be passed to the firebase db reference.
       Favourite favouriteObject = new Favourite(mPlaceId, mName, mPlaceId);
       String favourite = getString(R.string.nv_favourites);
-      mPlacesDatabaseReference.child(favourite).push().setValue(favouriteObject);
+
+      mPlacesDatabaseReference.child(favourite).push().setValue(favouriteResult);
       Snackbar snackbar = Snackbar
           .make(getView(), "Location stored on Firebase!", Snackbar.LENGTH_SHORT);
       snackbar.show();
@@ -258,7 +263,7 @@ public class DetailFragment extends Fragment {
       if(placeId.getResult().getOpeningHours()!=null){
         mOpeningWeekDays = placeId.getResult().getOpeningHours().getWeekdayText();
         StringBuilder weeklyHours = new StringBuilder();
-        weeklyHours.append("Opening Hours:"+"\n");
+        weeklyHours.append("Opening Hours:"+"\n\n");
         Log.i(LOG_TAG, "Week Days opening " + mOpeningWeekDays);
         for(int i = 0; i < mOpeningWeekDays.size(); i++) {
           weeklyHours.append(mOpeningWeekDays.get(i) + "\n");
@@ -269,10 +274,10 @@ public class DetailFragment extends Fragment {
         numberOfPhotos = placeId.getResult().getPhotos().size();
         photoList = placeId.getResult().getPhotos();
         mPhotoAdapter = new PhotoAdapter(numberOfPhotos, apiKey);
+        mPhotoAdapter.addAll(photoList);
       } else {
         mPhotoAdapter = new PhotoAdapter(2, apiKey);
       }
-      mPhotoAdapter.addAll(photoList);
       rvPhotoGallery.setAdapter(mPhotoAdapter);
 
       int reviewSize = placeId.getResult().getReviews().size();
@@ -280,6 +285,8 @@ public class DetailFragment extends Fragment {
       mReviewsAdapter = new ReviewAdapter(reviewSize);
       mReviewsAdapter.addAll(reviewsList);
       rvReviews.setAdapter(mReviewsAdapter);
+
+      favouriteResult = placeId.getResult();
 
     });
   }

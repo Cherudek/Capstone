@@ -2,8 +2,10 @@ package repository;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
+import intentservices.IntentServiceSearchPlaces;
 import javax.inject.Singleton;
 import pojos.NearbyPlaces;
 import pojosplaceid.PlaceId;
@@ -14,11 +16,12 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 @Singleton
-public class NearbyPlacesRepository {
+public class NearbyPlacesRepository extends IntentServiceSearchPlaces {
 
   private final static String LOG_TAG = NearbyPlacesRepository.class.getSimpleName();
   private RetrofitMapsApi retrofitMapsApi;
   private static NearbyPlacesRepository nearbyPlacesRepository;
+  private MutableLiveData<NearbyPlaces> data;
 
   public NearbyPlacesRepository() {
     Retrofit retrofit = new Retrofit.Builder()
@@ -36,10 +39,8 @@ public class NearbyPlacesRepository {
   }
 
   // Retrofit Call to get a list of Nearby Places
-
   public LiveData<NearbyPlaces> getNearbyPlaces(String keyword, String location, int radius,
       String key) {
-    final MutableLiveData<NearbyPlaces> data = new MutableLiveData<>();
 
     retrofitMapsApi.getNearbyPlaces(keyword, location, radius, key).enqueue(
         new Callback<NearbyPlaces>() {
@@ -56,6 +57,9 @@ public class NearbyPlacesRepository {
             data.setValue(null);
           }
         });
+
+    data = new MutableLiveData<>();
+
     return data;
   }
 
@@ -81,4 +85,12 @@ public class NearbyPlacesRepository {
     return dataPlaceId;
   }
 
+  @Override
+  protected void onHandleIntent(@Nullable Intent intent) {
+    super.onHandleIntent(intent);
+
+
+
+
+  }
 }

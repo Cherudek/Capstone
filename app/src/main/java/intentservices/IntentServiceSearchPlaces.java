@@ -1,4 +1,4 @@
-package com.example.gregorio.capstone;
+package intentservices;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -7,6 +7,8 @@ import android.util.Log;
 
 public class IntentServiceSearchPlaces extends IntentService {
 
+
+
   /**
    * Creates an IntentService.  Invoked by your subclass's constructor.
    *
@@ -14,12 +16,19 @@ public class IntentServiceSearchPlaces extends IntentService {
    */
 
   private static final String LOG_TAG = IntentServiceSearchPlaces.class.getSimpleName();
+
   public IntentServiceSearchPlaces(String name) {
     super(name);
   }
 
+  public IntentServiceSearchPlaces() {
+    super("IntentServiceSearchPlaces");
+  }
+
   @Override
   protected void onHandleIntent(@Nullable Intent intent) {
+
+
 
     Log.i(LOG_TAG, "onHandleIntent Thread = " + Thread.currentThread().getName());
 

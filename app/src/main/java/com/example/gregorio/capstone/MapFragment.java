@@ -45,6 +45,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
 import googleplacesapi.GoogleMapsApi;
 import googleplacesapi.GoogleNearbyPlacesParser;
+import intentservices.IntentServiceSearchPlaces;
 import java.util.HashMap;
 import java.util.List;
 import permissions.Connectivity;
@@ -65,6 +66,12 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public static final String CURRENT_QUERY_TAG = "CURRENT QUERY TAG";
   private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
   private static final String MARKERS_TAG_KEY = "MarkerTagKey";
+  private static final String LOCATION_TAG_KEY = "LocationTagKey";
+  private static final String RADIUS_TAG_KEY = "RadiusTagKey";
+  private static final String KEY_TAG = "KeyTag";
+
+
+
 
   private final int DEFAULT_ZOOM = 1500;
   @BindView(R.id.map)MapView mapView;
@@ -294,7 +301,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       GoogleApiAvailability.getInstance().getErrorDialog(getActivity(), e.getConnectionStatusCode(),
           REQUEST_PLACE_PICKER);
     } catch (GooglePlayServicesNotAvailableException e) {
-      Toast.makeText(mContext, "Please install Google Play Services!", Toast.LENGTH_LONG)
+      Toast.makeText(mContext, R.string.install_google_play_services, Toast.LENGTH_LONG)
           .show();
     }
   }
@@ -308,6 +315,11 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       factory = new NearbyPlacesListViewModelFactory(NearbyPlacesRepository.getInstance(),
           mQuery, latitude.toString(), longitude.toString(), DEFAULT_ZOOM, apiKey);
       queryViewModel = ViewModelProviders.of(this, factory).get(QueryNearbyPlacesViewModel.class);
+
+      SearchInentService();
+
+
+
     } else {
       queryViewModel.mNearbyPlacesRepository = NearbyPlacesRepository.getInstance();
       queryViewModel.mKeyword = mQuery;
@@ -326,7 +338,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
           mNearbyPlaces=nearbyPlaces;
           String status = nearbyPlaces.getStatus();
           if(status.matches("ZERO_RESULTS")){
-            Snackbar snackbar = Snackbar.make(rootView, "No Results", Snackbar.LENGTH_LONG);
+            Snackbar snackbar = Snackbar.make(rootView, R.string.no_results, Snackbar.LENGTH_LONG);
             snackbar.show();
           }
           mMarkerOptionsRetrieved = nearbyPlacesResponseParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation, eventMarkerMap);
@@ -334,13 +346,26 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
           Log.i(LOG_TAG, "queryViewModel mMarkersOptions on Rotation is" + queryViewModel.mMarkersOptions.size() );
           queryViewModel.getData().removeObserver(this);
         } else {
-          Snackbar snackbar = Snackbar.make(rootView, "Check Your Internet Connection", Snackbar.LENGTH_LONG);
+          Snackbar snackbar = Snackbar.make(rootView, R.string.check_internet_connection, Snackbar.LENGTH_LONG);
           snackbar.show();
         }
       }
     });
 
     return true;
+  }
+
+  public void SearchInentService(){
+//    // Triggers the IntentService to search for places in a background thread
+//    Intent searchPlacesIntent = new Intent(getContext(), IntentServiceSearchPlaces.class);
+//    searchPlacesIntent.putExtra(CURRENT_QUERY_TAG, mQuery );
+//    searchPlacesIntent.putExtra(LOCATION_TAG_KEY, location);
+//    searchPlacesIntent.putExtra(RADIUS_TAG_KEY, DEFAULT_ZOOM);
+//    searchPlacesIntent.putExtra(KEY_TAG, apiKey);
+//    searchPlacesIntent.setAction("FETCH PLACES");
+//    startService(searchPlacesIntent);
+
+
   }
 
 

@@ -32,4 +32,7 @@
   <string name="open">Open for Business</string>
   <string name="closed">Sorry we are closed</string>
   <string name="address">Address</string>
+  <string name="no_results">No Results</string>
+  <string name="check_internet_connection">Check Your Internet Connection</string>
+  <string name="install_google_play_services">Please install Google Play Services!</string>
 </resources>

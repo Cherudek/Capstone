@@ -50,10 +50,11 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
   }
 
   public void addAll(List<Review> reviews) {
-    if (mReviewId != null)
+    if (mReviewId != null){
       mReviewId.clear();
-    mReviewId.addAll(reviews);
-    notifyDataSetChanged();
+      mReviewId.addAll(reviews);
+      notifyDataSetChanged();
+    }
   }
 
   @Override
