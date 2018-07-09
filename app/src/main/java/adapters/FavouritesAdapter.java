@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,12 +24,15 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
   private String mApiKey;
   private int mFavouriteSize;
+  private  final FavouriteAdapterOnClickHandler mClickHandler;
 
-  public FavouritesAdapter( int size, String apiKey){
+  public FavouritesAdapter(FavouriteAdapterOnClickHandler clickHandler, int size, String apiKey){
     mApiKey = apiKey;
     mFavouriteSize = size;
-
+    this.mClickHandler = clickHandler;
   }
+
+
   @NonNull
   @Override
   public FavouriteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -76,17 +80,35 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
     return favouritesPlaceId.size();
   }
 
-  static class FavouriteViewHolder extends RecyclerView.ViewHolder{
+  /**
+   * The interface that receives onClick messages.
+   */
+  public interface FavouriteAdapterOnClickHandler {
+    void onClick(String placeID);
+  }
+
+  class FavouriteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
     public final ImageView mFavouriteImage;
     public final TextView mFavouriteName;
     public final TextView mFavouriteAddress;
 
-    public FavouriteViewHolder(View view){
-      super(view);
-      mFavouriteImage = view.findViewById(R.id.favourite_photo_place_id);
-      mFavouriteName = view.findViewById(R.id.favourite_place_name);
-      mFavouriteAddress = view.findViewById(R.id.favourite_place_address);
+    public FavouriteViewHolder(View itemView){
+      super(itemView);
+      mFavouriteImage = itemView.findViewById(R.id.favourite_photo_place_id);
+      mFavouriteName = itemView.findViewById(R.id.favourite_place_name);
+      mFavouriteAddress = itemView.findViewById(R.id.favourite_place_address);
+      itemView.setOnClickListener(this);
+
+    }
+
+    @Override
+    public void onClick(View v) {
+      int adapterPosition = getAdapterPosition();
+      Result result = favouritesPlaceId.get(adapterPosition);
+      String placeId = result.getPlaceId();
+      Log.i(LOG_TAG,"The Place id clicked is" + placeId);
+      mClickHandler.onClick(placeId);
 
     }
   }

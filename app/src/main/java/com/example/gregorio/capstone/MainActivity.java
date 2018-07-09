@@ -27,7 +27,7 @@ import com.google.android.gms.maps.model.Marker;
 
 public class MainActivity extends AppCompatActivity
     implements NavigationView.OnNavigationItemSelectedListener,
-    MapFragment.OnFragmentInteractionListener, DetailFragment.OnFragmentInteractionListener {
+    MapFragment.OnFragmentInteractionListener, DetailFragment.OnFragmentInteractionListener, FavouritesFragment.OnFavouritesFragmentInteractionListener {
 
   private final static String LOG_TAG = MainActivity.class.getSimpleName();
   private final static String MAP_FRAGMENT_TAG = "Map Fragment Tag";
@@ -199,6 +199,11 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   public void onFragmentInteraction(Uri uri) {
+
+  }
+
+  @Override
+  public void onFavouritesFragmentInteraction(String placeId) {
 
   }
 }

@@ -1,7 +1,7 @@
 package com.example.gregorio.capstone;
 
 import adapters.FavouritesAdapter;
-import android.net.Uri;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.firebase.database.DataSnapshot;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import pojosplaceid.Result;
 
-public class FavouritesFragment extends Fragment {
+public class FavouritesFragment extends Fragment implements FavouritesAdapter.FavouriteAdapterOnClickHandler {
 
   private static final String LOG_TAG = FavouritesFragment.class.getSimpleName();
 
@@ -34,8 +35,8 @@ public class FavouritesFragment extends Fragment {
   private String apiKey;
   private DatabaseReference scoresRef;
   private List<Result> mResultList;
+  private OnFavouritesFragmentInteractionListener mListener;
 
-  private OnFragmentInteractionListener mListener;
 
   public FavouritesFragment() {
 
@@ -45,13 +46,15 @@ public class FavouritesFragment extends Fragment {
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
-
     View rootView = inflater.inflate(R.layout.fragment_favourites, container, false);
     apiKey = getContext().getResources().getString(R.string.google_api_key);
     ButterKnife.bind(this, rootView);
     String favourite = getString(R.string.nv_favourites);
     scoresRef = FirebaseDatabase.getInstance().getReference(favourite);
+    int dbSize = scoresRef.getRoot().child("checkouts").child("Favourites").getKey().length();
+    favouritesAdapter = new FavouritesAdapter(this, dbSize, apiKey);
     return rootView;
+
   }
 
   @Override
@@ -64,9 +67,6 @@ public class FavouritesFragment extends Fragment {
     scoresRef.getRoot().child("checkouts").child("Favourites").addValueEventListener(new ValueEventListener() {
       @Override
       public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-        int dbSize = scoresRef.getRoot().child("checkouts").child("Favourites").getKey().length();
-        Log.i(LOG_TAG, "dbSize size = " + dbSize);
-        favouritesAdapter = new FavouritesAdapter(dbSize, apiKey);
         mResultList = new ArrayList<>();
         Log.i(LOG_TAG, "DataSnapshot = " + dataSnapshot.getValue(Result.class));
         for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {
@@ -84,17 +84,36 @@ public class FavouritesFragment extends Fragment {
       }
     });
 
-
-
     Log.i(LOG_TAG, "OffLine Db = " + scoresRef.getRoot().child("checkouts").child("Favourites").getKey().length());
     Log.i(LOG_TAG, "OffLine Db = " + scoresRef.getRoot().child("checkouts").child("Favourites").getKey());
 
+  }
+
+  @Override
+  public void onAttach(Context context) {
+    super.onAttach(context);
+    // This makes sure that the host activity has implemented the callback interface
+    // If not, it throws an exception
+    try {
+      mListener = (OnFavouritesFragmentInteractionListener) context;
+    } catch (ClassCastException e) {
+      throw new ClassCastException(context.toString()
+          + " must implement OnFavouritesFragmentInteractionListener");
+    }
+  }
+
+  @Override
+  public void onClick(String placeID) {
+    mListener.onFavouritesFragmentInteraction(placeID);
+    Toast.makeText(getContext(),"The Place Id Clicked is: " + placeID,
+        Toast.LENGTH_SHORT).show();
 
 
   }
 
-  public interface OnFragmentInteractionListener {
+
+  public interface OnFavouritesFragmentInteractionListener {
     // TODO: Update argument type and name
-    void onFragmentInteraction(Uri uri);
+    void onFavouritesFragmentInteraction(String placeId);
   }
 }
