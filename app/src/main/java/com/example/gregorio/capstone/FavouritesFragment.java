@@ -81,8 +81,10 @@ public class FavouritesFragment extends Fragment implements FavouritesAdapter.Fa
         mResultList = new ArrayList<>();
         Log.i(LOG_TAG, "DataSnapshot = " + dataSnapshot.getValue(Result.class));
         for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {
+          String key = locationSnapshot.getKey();
           Result result = locationSnapshot.getValue(Result.class);
-          Log.d(LOG_TAG, "location: " + result);
+          result.setFavourite_node_key(key);
+          Log.d(LOG_TAG, "Firebase Location key: " + key);
           mResultList.add(result);
         }
         favouritesAdapter.addAll(mResultList);

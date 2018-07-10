@@ -21,6 +21,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
@@ -35,7 +38,7 @@ import viewmodel.MapDetailSharedViewHolder;
 
 public class FavouriteDetailFragment extends Fragment {
 
-  public static final String LOG_TAG = DetailFragment.class.getSimpleName();
+  public static final String LOG_TAG = FavouriteDetailFragment.class.getSimpleName();
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
   // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
   private static final String ARG_TITLE = "TITLE";
@@ -82,6 +85,7 @@ public class FavouriteDetailFragment extends Fragment {
 
   private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
   private static final String FIREBASE_ROOT_NODE = "checkouts";
+  private static final String FIREBASE_FAVOURITES_NODE = "Favourites";
   private FirebaseDatabase mFirebaseDatabase;
   private DatabaseReference mPlacesDatabaseReference;
 
@@ -114,7 +118,7 @@ public class FavouriteDetailFragment extends Fragment {
 
     // Initialize FireBase components
     mFirebaseDatabase = FirebaseDatabase.getInstance();
-    mPlacesDatabaseReference = mFirebaseDatabase.getReference().child("checkouts");
+    mPlacesDatabaseReference = mFirebaseDatabase.getReference().child(FIREBASE_ROOT_NODE);
 
 
   }
@@ -146,13 +150,15 @@ public class FavouriteDetailFragment extends Fragment {
     super.onActivityCreated(savedInstanceState);
 
     removeFavourite.setOnClickListener(v -> {
-      String favourite = getString(R.string.nv_favourites);
-
       // TODO: REMOVE FROM FAVOURITE FIREBASE LOGIC
 
-      mPlacesDatabaseReference.child(favourite).push().setValue(favouriteResult);
+
+      String childKey = resultFromFavourites.getFavourite_node_key();
+      Log.i(LOG_TAG, "childKey: " + childKey);
+      mPlacesDatabaseReference.child(FIREBASE_FAVOURITES_NODE).child(childKey).removeValue();
+
       Snackbar snackbar = Snackbar
-          .make(getView(), "Removed form Your Favourites!", Snackbar.LENGTH_SHORT);
+          .make(getView(), "Removed form Your Favourites! ", Snackbar.LENGTH_SHORT);
       snackbar.show();
 
     });
@@ -210,4 +216,6 @@ public class FavouriteDetailFragment extends Fragment {
     mReviewsAdapter.addAll(reviewsList);
     rvReviews.setAdapter(mReviewsAdapter);
   }
+
+
 }

@@ -70,6 +70,9 @@ public class Result {
     @SerializedName("website")
     @Expose
     private String website;
+    @SerializedName("favourite_node_key")
+    @Expose
+    private String favourite_node_key;
 
     public List<AddressComponent> getAddressComponents() {
         return addressComponents;
@@ -239,4 +242,11 @@ public class Result {
         this.website = website;
     }
 
+    public String getFavourite_node_key() {
+        return favourite_node_key;
+    }
+
+    public void setFavourite_node_key(String favourite_node_key) {
+        this.favourite_node_key = favourite_node_key;
+    }
 }
