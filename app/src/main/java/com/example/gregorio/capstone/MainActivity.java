@@ -24,10 +24,12 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.Marker;
+import pojosplaceid.Result;
 
-public class MainActivity extends AppCompatActivity
-    implements NavigationView.OnNavigationItemSelectedListener,
-    MapFragment.OnFragmentInteractionListener, DetailFragment.OnFragmentInteractionListener, FavouritesFragment.OnFavouritesFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+    MapFragment.OnFragmentInteractionListener,
+    DetailFragment.OnFragmentInteractionListener,
+    FavouritesFragment.OnFavouritesFragmentInteractionListener {
 
   private final static String LOG_TAG = MainActivity.class.getSimpleName();
   private final static String MAP_FRAGMENT_TAG = "Map Fragment Tag";
@@ -203,7 +205,15 @@ public class MainActivity extends AppCompatActivity
   }
 
   @Override
-  public void onFavouritesFragmentInteraction(String placeId) {
-
+  public void onFavouritesFragmentInteraction(Result result) {
+    // set DetailFragment Arguments
+    DetailFragment detailFragment = new DetailFragment();
+    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+    Log.i(LOG_TAG, "The Favourite Place is: " + result.getName());
+    // Replace whatever is in the fragment_container view with this fragment,
+    transaction.replace(R.id.fragment_container, detailFragment);
+    transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
+    // Commit the transaction
+    transaction.commit();
   }
 }

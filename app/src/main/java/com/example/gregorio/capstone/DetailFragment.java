@@ -24,15 +24,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.google.android.gms.flags.impl.DataUtils.StringUtils;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import pojos.Favourite;
 import pojos.Photo;
 import pojosplaceid.PlaceId;
@@ -41,6 +36,7 @@ import pojosplaceid.Review;
 import repository.NearbyPlacesRepository;
 import viewmodel.DetailViewModel;
 import viewmodel.DetailViewModelFactory;
+import viewmodel.FavouriteDetailSharedViewModel;
 import viewmodel.MapDetailSharedViewHolder;
 
 
@@ -94,6 +90,10 @@ public class DetailFragment extends Fragment {
   private int numberOfPhotos;
   private double numberOfStars;
   private Result favouriteResult;
+  private Result mapResult;
+  private Result resultFromFavourites;
+  private Result result;
+  private FavouriteDetailSharedViewModel favouriteDetailSharedViewModel;
 
   private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
   private static final String FIREBASE_ROOT_NODE = "checkouts";
@@ -146,6 +146,15 @@ public class DetailFragment extends Fragment {
       mAddress = savedInstanceState.getString(ADDRESS_TAG);
       apiKey = savedInstanceState.getString(API_KEY_TAG);
     }
+    favouriteDetailSharedViewModel = ViewModelProviders.of(getActivity()).get(FavouriteDetailSharedViewModel.class);
+    favouriteDetailSharedViewModel.getSelected().observe(this, result -> {
+      //Update UI
+      String name = result.getName();
+      resultFromFavourites = result;
+      Log.i(LOG_TAG, "Name: " + name);
+    });
+
+
 
     // Initialize Firebase components
     mFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -159,11 +168,9 @@ public class DetailFragment extends Fragment {
 
   }
 
-
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
-
     View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
     ButterKnife.bind(this, rootView);
     apiKey = getContext().getResources().getString(R.string.google_api_key);
@@ -179,31 +186,21 @@ public class DetailFragment extends Fragment {
       }
       photoHeader = item.getPhotos();
       if(photoHeader.size() >= 1){
-        Log.i(LOG_TAG, "Photo Array Size = " + photoHeader.size());
-        height = photoHeader.get(0).getHeight();
-        width = photoHeader.get(0).getWidth();
         photoReference = photoHeader.get(0).getPhotoReference();
       }
-
-      tvName.setText(mName);
-      tvAddress.setText(mAddress);
-      picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
-      Log.i(LOG_TAG, "The Picasso Photo Url is " + picassoPhotoUrl);
-      Picasso.get().load(picassoPhotoUrl).error(R.drawable.coming_soon).into(ivPhotoView);
-      Log.i(LOG_TAG, "The Name Retrieved from the MapDetailSharedViewHolder is " + mName);
-      Log.i(LOG_TAG, "The address is " + mAddress);
-      Log.i(LOG_TAG, "The Photo reference is " + photoReference);
-      Log.i(LOG_TAG, "The Photo PlaceId is " + mPlaceId);
-
-      photosLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true);
-      rvPhotoGallery.setLayoutManager(photosLayoutManager);
-      rvPhotoGallery.setHasFixedSize(true);
-
-      reviewsLayoutManager = new LinearLayoutManager(getContext());
-      rvReviews.setLayoutManager(reviewsLayoutManager);
-      rvReviews.setHasFixedSize(true);
-
+        tvName.setText(mName);
+        tvAddress.setText(mAddress);
+        picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
+        Picasso.get().load(picassoPhotoUrl).error(R.drawable.coming_soon).into(ivPhotoView);
     });
+
+    photosLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true);
+    rvPhotoGallery.setLayoutManager(photosLayoutManager);
+    rvPhotoGallery.setHasFixedSize(true);
+
+    reviewsLayoutManager = new LinearLayoutManager(getContext());
+    rvReviews.setLayoutManager(reviewsLayoutManager);
+    rvReviews.setHasFixedSize(true);
 
     // Inflate the layout for this fragment
     return rootView;
@@ -227,7 +224,7 @@ public class DetailFragment extends Fragment {
 
       mPlacesDatabaseReference.child(favourite).push().setValue(favouriteResult);
       Snackbar snackbar = Snackbar
-          .make(getView(), "Location stored on Firebase!", Snackbar.LENGTH_SHORT);
+          .make(getView(), "Location Saved to Your Favourites!", Snackbar.LENGTH_SHORT);
       snackbar.show();
 
     });
@@ -237,13 +234,21 @@ public class DetailFragment extends Fragment {
   public void onResume() {
     super.onResume();
 
+
     detailViewModelFactory = new DetailViewModelFactory(NearbyPlacesRepository.getInstance(), mPlaceId, apiKey);
     detailViewModel = ViewModelProviders.of(this, detailViewModelFactory).get(DetailViewModel.class);
+    detailViewModel.getPlaceDetails().observe(this, (PlaceId placeIdMap) -> {
 
-    detailViewModel.getPlaceDetails().observe(this, (PlaceId placeId) -> {
-      String website = placeId.getResult().getWebsite();
+      if(resultFromFavourites!=null){
+        result = resultFromFavourites;
+      } else {
+        result = placeIdMap.getResult();
+      }
+      tvName.setText(resultFromFavourites.getName());
+      tvWebAddress.setText(resultFromFavourites.getVicinity());
+      String website = result.getWebsite();
       tvWebAddress.setText(website);
-      String phoneNo = placeId.getResult().getInternationalPhoneNumber();
+      String phoneNo = result.getInternationalPhoneNumber();
       tvTelephone.setText(phoneNo);
       if(TextUtils.isEmpty(website)){
         tvWebAddress.setVisibility(View.GONE);
@@ -251,8 +256,8 @@ public class DetailFragment extends Fragment {
         tvWebAddress.setVisibility(View.VISIBLE);
         tvWebAddress.setText(website);
       }
-      if(placeId.getResult().getOpeningHours()!=null){
-        Boolean openingHours = placeId.getResult().getOpeningHours().getOpenNow();
+      if(result.getOpeningHours()!=null){
+        Boolean openingHours = result.getOpeningHours().getOpenNow();
         if(openingHours){
           tvOpenNow.setText(R.string.open);
         } else {
@@ -260,8 +265,8 @@ public class DetailFragment extends Fragment {
         }
         Log.i(LOG_TAG, "Open Now " + openingHours);
       }
-      if(placeId.getResult().getOpeningHours()!=null){
-        mOpeningWeekDays = placeId.getResult().getOpeningHours().getWeekdayText();
+      if(result.getOpeningHours()!=null){
+        mOpeningWeekDays = result.getOpeningHours().getWeekdayText();
         StringBuilder weeklyHours = new StringBuilder();
         weeklyHours.append("Opening Hours:"+"\n\n");
         Log.i(LOG_TAG, "Week Days opening " + mOpeningWeekDays);
@@ -270,9 +275,9 @@ public class DetailFragment extends Fragment {
           tvOpeningHours.setText(weeklyHours);
         }
       }
-      if(placeId.getResult().getPhotos() != null){
-        numberOfPhotos = placeId.getResult().getPhotos().size();
-        photoList = placeId.getResult().getPhotos();
+      if(result.getPhotos() != null){
+        numberOfPhotos = result.getPhotos().size();
+        photoList = result.getPhotos();
         mPhotoAdapter = new PhotoAdapter(numberOfPhotos, apiKey);
         mPhotoAdapter.addAll(photoList);
       } else {
@@ -280,13 +285,12 @@ public class DetailFragment extends Fragment {
       }
       rvPhotoGallery.setAdapter(mPhotoAdapter);
 
-      int reviewSize = placeId.getResult().getReviews().size();
-      reviewsList = placeId.getResult().getReviews();
+      int reviewSize = result.getReviews().size();
+      reviewsList = result.getReviews();
       mReviewsAdapter = new ReviewAdapter(reviewSize);
       mReviewsAdapter.addAll(reviewsList);
       rvReviews.setAdapter(mReviewsAdapter);
-
-      favouriteResult = placeId.getResult();
+      favouriteResult = result;
 
     });
   }

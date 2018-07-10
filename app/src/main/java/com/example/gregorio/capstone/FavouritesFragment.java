@@ -1,6 +1,7 @@
 package com.example.gregorio.capstone;
 
 import adapters.FavouritesAdapter;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,10 +25,12 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 import pojosplaceid.Result;
+import viewmodel.FavouriteDetailSharedViewModel;
 
 public class FavouritesFragment extends Fragment implements FavouritesAdapter.FavouriteAdapterOnClickHandler {
 
   private static final String LOG_TAG = FavouritesFragment.class.getSimpleName();
+  private FavouriteDetailSharedViewModel model;
 
   @BindView(R.id.favourites_rv)RecyclerView rvFavourites;
   private LinearLayoutManager favouritesLayoutManager;
@@ -39,6 +43,13 @@ public class FavouritesFragment extends Fragment implements FavouritesAdapter.Fa
 
 
   public FavouritesFragment() {
+
+  }
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    model = ViewModelProviders.of(getActivity()).get(FavouriteDetailSharedViewModel.class);
 
   }
 
@@ -83,10 +94,6 @@ public class FavouritesFragment extends Fragment implements FavouritesAdapter.Fa
 
       }
     });
-
-    Log.i(LOG_TAG, "OffLine Db = " + scoresRef.getRoot().child("checkouts").child("Favourites").getKey().length());
-    Log.i(LOG_TAG, "OffLine Db = " + scoresRef.getRoot().child("checkouts").child("Favourites").getKey());
-
   }
 
   @Override
@@ -102,18 +109,29 @@ public class FavouritesFragment extends Fragment implements FavouritesAdapter.Fa
     }
   }
 
+  public void onFavouritePressedIntent(Result result) {
+    if (mListener != null) {
+      mListener.onFavouritesFragmentInteraction(result);
+    }
+  }
+
   @Override
-  public void onClick(String placeID) {
-    mListener.onFavouritesFragmentInteraction(placeID);
-    Toast.makeText(getContext(),"The Place Id Clicked is: " + placeID,
+  public void onClick(Result result) {
+    Toast.makeText(getContext(),"The ResultId Name Clicked is: " + result.getName(),
         Toast.LENGTH_SHORT).show();
-
-
+    model.select(result);
+    FavouritesFragment.this.onFavouritePressedIntent(result);
   }
 
 
   public interface OnFavouritesFragmentInteractionListener {
     // TODO: Update argument type and name
-    void onFavouritesFragmentInteraction(String placeId);
+    void onFavouritesFragmentInteraction(Result result);
+  }
+
+  @Override
+  public void onDetach() {
+    super.onDetach();
+    mListener = null;
   }
 }

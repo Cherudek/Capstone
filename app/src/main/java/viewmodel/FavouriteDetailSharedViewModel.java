@@ -3,17 +3,17 @@ package viewmodel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import pojos.Results;
+import pojosplaceid.Result;
 
 public class FavouriteDetailSharedViewModel extends ViewModel {
 
-    private final MutableLiveData<Results> selected = new MutableLiveData<Results>();
+    private final MutableLiveData<Result> selected = new MutableLiveData<>();
 
-    public void select(Results item) {
+    public void select(Result item) {
       selected.setValue(item);
     }
 
-    public LiveData<Results> getSelected() {
+    public LiveData<Result> getSelected() {
       return selected;
     }
   }

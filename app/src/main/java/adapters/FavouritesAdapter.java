@@ -70,8 +70,6 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
       favouritesPlaceId.addAll(result);
       Log.i(LOG_TAG, "addAll PlaceId = " + favouritesPlaceId);
       notifyDataSetChanged();
-
-
   }
 
   @Override
@@ -79,12 +77,11 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
     Log.i(LOG_TAG, "getItemCount PlaceId Size = " + favouritesPlaceId.size());
     return favouritesPlaceId.size();
   }
-
   /**
    * The interface that receives onClick messages.
    */
   public interface FavouriteAdapterOnClickHandler {
-    void onClick(String placeID);
+    void onClick(Result result);
   }
 
   class FavouriteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -108,7 +105,7 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
       Result result = favouritesPlaceId.get(adapterPosition);
       String placeId = result.getPlaceId();
       Log.i(LOG_TAG,"The Place id clicked is" + placeId);
-      mClickHandler.onClick(placeId);
+      mClickHandler.onClick(result);
 
     }
   }

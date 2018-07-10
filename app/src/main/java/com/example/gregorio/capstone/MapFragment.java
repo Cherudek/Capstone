@@ -121,8 +121,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     googleMapsApi.GoogleApiClient(mContext);
     // Check if the user has granted permission to use Location Services
     locationPermission = new LocationPermission();
-
-
   }
 
   @Nullable
@@ -160,13 +158,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     mapView.getMapAsync(this);
     // Instantiate the data parsing class
     nearbyPlacesResponseParser = new GoogleNearbyPlacesParser();
-
     // Shared View Model to send Data from this fragment to the Detail one
     sharedModel = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
-
     return rootView;
   }
-
 
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -201,15 +196,13 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       return false;
     };
     // On InfoClickListener to launch NearPlaces object details event
-    onInfoWindowClickListener = new OnInfoWindowClickListener() {
-      @Override
-      public void onInfoWindowClick(Marker marker) {
-        searchView.isIconified();
-        searchView.onActionViewCollapsed();
+    onInfoWindowClickListener = marker -> {
+      searchView.isIconified();
+      searchView.onActionViewCollapsed();
 
-       //TODO: FIX THE HASHMAP, MAP MARKERS CHANGE ID ON ROTATION AND BACK NAVIGATION.
-        // eventMarkerMap = (HashMap<Marker, Integer>) marker.getTag();
-        //queryViewModel.mEventMarkerMap = eventMarkerMap;
+     //TODO: FIX THE HASHMAP, MAP MARKERS CHANGE ID ON ROTATION AND BACK NAVIGATION.
+      // eventMarkerMap = (HashMap<Marker, Integer>) marker.getTag();
+      //queryViewModel.mEventMarkerMap = eventMarkerMap;
 
 //          String id = marker.getId();
 //          Log.i(LOG_TAG, "MarkerId  is: " + id);
@@ -230,18 +223,17 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 //          Log.i(LOG_TAG, "Place Id is " + placeIdInt);
 //          Log.i(LOG_TAG, "Marker Id is " + idInteger);
 
-        // Retrieve the Marker Id Tag so we can call the corresponding NearbyPlace clicked on the Map
-        // and save it to the SharedMapDetailViewModel
+      // Retrieve the Marker Id Tag so we can call the corresponding NearbyPlace clicked on the Map
+      // and save it to the SharedMapDetailViewModel
 
-        mPlaceIdTag = Integer.valueOf(marker.getSnippet());
-        //   detailViewModel.getPlaceDetails().getValue().getResult();
-        sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
-        Log.i(LOG_TAG, "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
-        // launch the detail fragment.
-        MapFragment.this.onMarkerPressedIntent(marker);
-        marker.hideInfoWindow();
+      mPlaceIdTag = Integer.valueOf(marker.getSnippet());
+      //   detailViewModel.getPlaceDetails().getValue().getResult();
+      sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
+      Log.i(LOG_TAG, "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
+      // launch the detail fragment.
+      MapFragment.this.onMarkerPressedIntent(marker);
+      marker.hideInfoWindow();
 
-      }
     };
   }
 
@@ -286,8 +278,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     searchView.setOnQueryTextListener(this);
     searchView.setQueryHint("Search Nearby Places");
     searchView.setIconified(true);
-    //searchView.setSubmitButtonEnabled(true);
-
   }
 
   // Prompt the user to check out of their location. Called when the "Check Out!" button
@@ -315,10 +305,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       factory = new NearbyPlacesListViewModelFactory(NearbyPlacesRepository.getInstance(),
           mQuery, latitude.toString(), longitude.toString(), DEFAULT_ZOOM, apiKey);
       queryViewModel = ViewModelProviders.of(this, factory).get(QueryNearbyPlacesViewModel.class);
-
-      SearchInentService();
-
-
 
     } else {
       queryViewModel.mNearbyPlacesRepository = NearbyPlacesRepository.getInstance();
@@ -354,20 +340,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 
     return true;
   }
-
-  public void SearchInentService(){
-//    // Triggers the IntentService to search for places in a background thread
-//    Intent searchPlacesIntent = new Intent(getContext(), IntentServiceSearchPlaces.class);
-//    searchPlacesIntent.putExtra(CURRENT_QUERY_TAG, mQuery );
-//    searchPlacesIntent.putExtra(LOCATION_TAG_KEY, location);
-//    searchPlacesIntent.putExtra(RADIUS_TAG_KEY, DEFAULT_ZOOM);
-//    searchPlacesIntent.putExtra(KEY_TAG, apiKey);
-//    searchPlacesIntent.setAction("FETCH PLACES");
-//    startService(searchPlacesIntent);
-
-
-  }
-
 
   @Override
   public boolean onQueryTextChange(String newText) {

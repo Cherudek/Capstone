@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.design.widget.CoordinatorLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  tools:context=".DetailFragment">
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+      android:orientation="vertical"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+
+      <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="250dp">
+        <ImageView
+          android:scaleType="centerCrop"
+          android:contentDescription="@string/location_photo"
+          android:id="@+id/favourite_detail_image"
+          android:layout_width="match_parent"
+          android:layout_height="250dp"/>
+        <View
+          android:layout_width="match_parent"
+          android:layout_height="250dp"
+          android:layout_gravity="bottom"
+          android:background="@drawable/main_header_selector"
+          android:visibility="visible"/>
+
+        <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:layout_gravity="bottom">
+          <TextView
+            android:id="@+id/favourite_place_mame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/fui_button_inset_top"
+            android:padding="@dimen/fui_button_inset_top"
+            android:paddingStart="@dimen/margin_1x"
+            android:fontFamily="@font/yeseva_one"
+            android:gravity="start"
+            android:text="@string/marker_title"
+            android:textColor="@color/white"
+            android:textSize="36sp"/>
+
+          <TextView
+            android:id="@+id/favourite_place_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/margin_1x"
+            android:paddingStart="@dimen/margin_1x"
+            android:fontFamily="@font/quicksand_medium"
+            android:gravity="start"
+            android:text="@string/address"
+            android:textColor="@color/white"
+            android:textColorLink="@color/white"
+            android:textSize="18sp"/>
+        </LinearLayout>
+
+
+      </FrameLayout>
+
+      <LinearLayout
+        android:background="@drawable/colourlovers_strip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+          android:id="@+id/favourite_telephone_no"
+          android:textStyle="bold"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:padding="@dimen/margin_half"
+          android:autoLink="phone"
+          android:fontFamily="@font/quicksand_medium"
+          android:gravity="bottom|center"
+          android:text="@string/telephone_number"
+          android:textColor="@color/white"
+          android:textColorLink="@color/white"
+          android:textSize="18sp"/>
+
+        <TextView
+          android:id="@+id/favourite_place_url"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:padding="@dimen/margin_half"
+          android:autoLink="web"
+          android:fontFamily="@font/quicksand_medium"
+          android:gravity="bottom|center"
+          android:text="@string/web_url"
+          android:textColor="@color/white"
+          android:textColorLink="@color/white"
+          android:textSize="18sp"/>
+
+
+      </LinearLayout>
+
+
+
+      <TextView
+        android:id="@+id/favourite_open_now"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/margin_2x"
+        android:fontFamily="@font/quicksand_medium"
+        android:gravity="bottom|center"
+        android:text="@string/open_now"
+        android:textColor="@color/white"
+        android:textSize="18sp"/>
+
+      <TextView
+        android:id="@+id/favourite_weekday_opening_hours"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/margin_2x"
+        android:fontFamily="@font/quicksand_medium"
+        android:gravity="bottom|center"
+        android:text="@string/opening_hours"
+        android:textColor="@color/white"
+        android:textSize="18sp"/>
+
+      <android.support.v7.widget.RecyclerView
+        android:id="@+id/favourite_photo_gallery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+      </android.support.v7.widget.RecyclerView>
+
+      <android.support.v7.widget.RecyclerView
+        android:id="@+id/favourite_reviews"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+      </android.support.v7.widget.RecyclerView>
+
+    </LinearLayout>
+
+
+  </ScrollView>
+
+  <android.support.design.widget.FloatingActionButton
+    android:id="@+id/remove_from_favourites_button"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/margin_2x"
+    android:layout_marginEnd="@dimen/margin_2x"
+    android:layout_gravity="bottom|end"
+    android:src="@drawable/ic_favorite_border_white_24dp"/>
+
+</android.support.design.widget.CoordinatorLayout>
+
