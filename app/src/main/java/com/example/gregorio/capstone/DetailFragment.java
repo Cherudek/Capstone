@@ -74,8 +74,7 @@ public class DetailFragment extends Fragment {
   private List<Photo> photoHeader;
   private List<pojosplaceid.Photo> photoList;
   private List<Review> reviewsList;
-  private int height;
-  private int width;
+
   private String photoReference;
   private String apiKey;
   private String picassoPhotoUrl;
@@ -86,12 +85,9 @@ public class DetailFragment extends Fragment {
   private ReviewAdapter mReviewsAdapter;
   private LinearLayoutManager reviewsLayoutManager;
   private LinearLayoutManager photosLayoutManager;
-  private int numberOfReviews;
   private int numberOfPhotos;
-  private double numberOfStars;
   private Result favouriteResult;
-  private Result mapResult;
-  private Result resultFromFavourites;
+
   private Result result;
   private FavouriteDetailSharedViewModel favouriteDetailSharedViewModel;
 
@@ -146,15 +142,6 @@ public class DetailFragment extends Fragment {
       mAddress = savedInstanceState.getString(ADDRESS_TAG);
       apiKey = savedInstanceState.getString(API_KEY_TAG);
     }
-    favouriteDetailSharedViewModel = ViewModelProviders.of(getActivity()).get(FavouriteDetailSharedViewModel.class);
-    favouriteDetailSharedViewModel.getSelected().observe(this, result -> {
-      //Update UI
-      String name = result.getName();
-      resultFromFavourites = result;
-      Log.i(LOG_TAG, "Name: " + name);
-    });
-
-
 
     // Initialize Firebase components
     mFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -239,13 +226,9 @@ public class DetailFragment extends Fragment {
     detailViewModel = ViewModelProviders.of(this, detailViewModelFactory).get(DetailViewModel.class);
     detailViewModel.getPlaceDetails().observe(this, (PlaceId placeIdMap) -> {
 
-      if(resultFromFavourites!=null){
-        result = resultFromFavourites;
-      } else {
-        result = placeIdMap.getResult();
-      }
-      tvName.setText(resultFromFavourites.getName());
-      tvWebAddress.setText(resultFromFavourites.getVicinity());
+      result = placeIdMap.getResult();
+      tvName.setText(result.getName());
+      tvWebAddress.setText(result.getVicinity());
       String website = result.getWebsite();
       tvWebAddress.setText(website);
       String phoneNo = result.getInternationalPhoneNumber();
@@ -303,7 +286,6 @@ public class DetailFragment extends Fragment {
     outState.putString(ADDRESS_TAG, mAddress);
     outState.putString(API_KEY_TAG, apiKey);
     outState.putString(PLACE_ID_TAG, mPlaceId);
-
 
   }
 

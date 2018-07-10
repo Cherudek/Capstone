@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private final static String LOG_TAG = MainActivity.class.getSimpleName();
   private final static String MAP_FRAGMENT_TAG = "Map Fragment Tag";
   private final static String DETAIL_FRAGMENT_TAG = "Detail Fragment Tag";
+  private final static String FAVOURITE_DETAIL_FRAGMENT_TAG = "Favourite Detail Fragment Tag";
   private MapFragment mapFragment;
   private Fragment mContent;
 
@@ -207,12 +208,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   @Override
   public void onFavouritesFragmentInteraction(Result result) {
     // set DetailFragment Arguments
-    DetailFragment detailFragment = new DetailFragment();
+    FavouriteDetailFragment favouritedetailFragment = new FavouriteDetailFragment();
     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
     Log.i(LOG_TAG, "The Favourite Place is: " + result.getName());
     // Replace whatever is in the fragment_container view with this fragment,
-    transaction.replace(R.id.fragment_container, detailFragment);
-    transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
+    transaction.replace(R.id.fragment_container, favouritedetailFragment);
+    transaction.addToBackStack(FAVOURITE_DETAIL_FRAGMENT_TAG);
     // Commit the transaction
     transaction.commit();
   }

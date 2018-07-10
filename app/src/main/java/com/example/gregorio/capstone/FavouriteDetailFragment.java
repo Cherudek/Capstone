@@ -1,5 +1,7 @@
 package com.example.gregorio.capstone;
 
+import adapters.FavouritePhotoAdapter;
+import adapters.FavouriteReviewAdapter;
 import adapters.PhotoAdapter;
 import adapters.ReviewAdapter;
 import android.arch.lifecycle.ViewModelProviders;
@@ -14,7 +16,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -66,8 +67,8 @@ public class FavouriteDetailFragment extends Fragment {
   private DetailViewModelFactory detailViewModelFactory;
   private DetailViewModel detailViewModel;
   private MapDetailSharedViewHolder detailModel;
-  private PhotoAdapter mPhotoAdapter;
-  private ReviewAdapter mReviewsAdapter;
+  private FavouritePhotoAdapter mPhotoAdapter;
+  private FavouriteReviewAdapter mReviewsAdapter;
   private LinearLayoutManager reviewsLayoutManager;
   private LinearLayoutManager photosLayoutManager;
   private int numberOfReviews;
@@ -156,19 +157,24 @@ public class FavouriteDetailFragment extends Fragment {
 
     });
 
-    photoReference = resultFromFavourites.getPhotos().get(0).getPhotoReference();
+
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    photoReference = resultFromFavourites.getPhotos().get(1).getPhotoReference();
     picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
     Picasso.get().load(picassoPhotoUrl).error(R.drawable.coming_soon).into(ivPhotoView);
-
     mRating = resultFromFavourites.getRating();
-
     tvName.setText(resultFromFavourites.getName());
     tvAddress.setText(resultFromFavourites.getVicinity());
+    tvWebAddress.setText(resultFromFavourites.getWebsite());
     if(mPriceLevel!=null){
       mPriceLevel = resultFromFavourites.getRating();
     }
     tvTelephone.setText(resultFromFavourites.getInternationalPhoneNumber());
-    if (result.getOpeningHours() != null) {
+    if (resultFromFavourites.getOpeningHours() != null) {
       Boolean openingHours = resultFromFavourites.getOpeningHours().getOpenNow();
       if (openingHours) {
         tvOpenNow.setText(R.string.open);
@@ -192,19 +198,16 @@ public class FavouriteDetailFragment extends Fragment {
     if(resultFromFavourites.getPhotos() != null){
       numberOfPhotos = resultFromFavourites.getPhotos().size();
       photoList = resultFromFavourites.getPhotos();
-      mPhotoAdapter = new PhotoAdapter(numberOfPhotos, apiKey);
+      mPhotoAdapter = new FavouritePhotoAdapter(numberOfPhotos, apiKey);
       mPhotoAdapter.addAll(photoList);
     } else {
-      mPhotoAdapter = new PhotoAdapter(2, apiKey);
+      mPhotoAdapter = new FavouritePhotoAdapter(2, apiKey);
     }
     rvPhotoGallery.setAdapter(mPhotoAdapter);
 
-    int reviewSize = resultFromFavourites.getReviews().size();
     reviewsList = resultFromFavourites.getReviews();
-    mReviewsAdapter = new ReviewAdapter(reviewSize);
+    mReviewsAdapter = new FavouriteReviewAdapter();
     mReviewsAdapter.addAll(reviewsList);
     rvReviews.setAdapter(mReviewsAdapter);
   }
-
-
 }
