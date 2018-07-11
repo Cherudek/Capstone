@@ -42,7 +42,6 @@ import viewmodel.DetailViewModelFactory;
 import viewmodel.FavouriteDetailSharedViewModel;
 import viewmodel.MapDetailSharedViewHolder;
 
-
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -96,6 +95,8 @@ public class DetailFragment extends Fragment {
 
   private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
   private static final String FIREBASE_ROOT_NODE = "checkouts";
+  private static final String FIREBASE_FAVOURITE_CHILD_NODE = "Favourites";
+
   private FirebaseDatabase mFirebaseDatabase;
   private DatabaseReference mPlacesDatabaseReference;
 
@@ -164,25 +165,7 @@ public class DetailFragment extends Fragment {
     View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
     ButterKnife.bind(this, rootView);
     apiKey = getContext().getResources().getString(R.string.google_api_key);
-    detailModel = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
-    detailModel.getSelected().observe(this, item -> {
-      // Update the UI.
-      mName = item.getName();
-      mAddress = item.getVicinity();
-      mRating = item.getRating();
-      mPlaceId = item.getPlaceId();
-      if(mPriceLevel!=null){
-        mPriceLevel = item.getPriceLevel();
-      }
-      photoHeader = item.getPhotos();
-      if(photoHeader.size() >= 1){
-        photoReference = photoHeader.get(0).getPhotoReference();
-      }
-        tvName.setText(mName);
-        tvAddress.setText(mAddress);
-        picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
-        Picasso.get().load(picassoPhotoUrl).error(R.drawable.coming_soon).into(ivPhotoView);
-    });
+
 
     photosLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true);
     rvPhotoGallery.setLayoutManager(photosLayoutManager);
@@ -201,20 +184,25 @@ public class DetailFragment extends Fragment {
     super.onActivityCreated(savedInstanceState);
     Bundle bundle = getArguments();
     if (bundle != null) {
-      // Get the Data from the map object clicked in the map fragment
+      // Get the Data from the map object clicked in the Place Picker API
       mPlaceId = bundle.getString(PLACE_PICKER_PLACE_ID_TAG);
       String placePickerPlaceName = bundle.getString(PLACE_PICKER_NAME_TAG);
       Log.i(LOG_TAG, "The Place Picker Place ID is " + mPlaceId);
       Log.i(LOG_TAG, "The Place Picker Place Name is " + placePickerPlaceName);
 
+    } else {
+      // Get the Data from the map object clicked in the Map API
+      detailModel = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
+      detailModel.getSelected().observe(this, item -> {
+        // Extract the Pace ID
+        mPlaceId = item.getPlaceId();
+      });
     }
-
     // Add Place to favourites (Room Database)
     addFavourites.setOnClickListener(v -> {
 
       // Object to be passed to the firebase db reference.
       String favourite = getString(R.string.nv_favourites);
-
       // Generate a reference to a new location and add some data using push()
       DatabaseReference pushedPostRef = mPlacesDatabaseReference.child(favourite).push();
       pushedPostRef.setValue(favouriteResult);
@@ -230,12 +218,10 @@ public class DetailFragment extends Fragment {
   @Override
   public void onResume() {
     super.onResume();
-
-
+    // DetailViewModel Factory picks Api Key and Place Id to fetch data for a single Place
     detailViewModelFactory = new DetailViewModelFactory(NearbyPlacesRepository.getInstance(), mPlaceId, apiKey);
     detailViewModel = ViewModelProviders.of(this, detailViewModelFactory).get(DetailViewModel.class);
     detailViewModel.getPlaceDetails().observe(this, (PlaceId placeIdMap) -> {
-
       result = placeIdMap.getResult();
       tvName.setText(result.getName());
       tvAddress.setText(result.getVicinity());
@@ -300,7 +286,6 @@ public class DetailFragment extends Fragment {
     outState.putString(ADDRESS_TAG, mAddress);
     outState.putString(API_KEY_TAG, apiKey);
     outState.putString(PLACE_ID_TAG, mPlaceId);
-
   }
 
 
