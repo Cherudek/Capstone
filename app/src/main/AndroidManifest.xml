@@ -22,7 +22,6 @@
     <activity
       android:label=""
       android:name=".MainActivity"
-      android:configChanges="orientation|keyboardHidden"
       android:theme="@style/AppTheme.NoActionBar">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>

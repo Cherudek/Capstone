@@ -35,7 +35,6 @@ public class FavouritesFragment extends Fragment implements FavouritesAdapter.Fa
   @BindView(R.id.favourites_rv)RecyclerView rvFavourites;
   private LinearLayoutManager favouritesLayoutManager;
   private FavouritesAdapter favouritesAdapter;
-  private int favouriteSize;
   private String apiKey;
   private DatabaseReference scoresRef;
   private List<Result> mResultList;
