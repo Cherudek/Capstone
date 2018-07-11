@@ -1,8 +1,5 @@
 package com.example.gregorio.capstone;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -20,8 +17,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.Toast;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.Marker;
 import pojosplaceid.Result;
@@ -35,8 +30,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private final static String MAP_FRAGMENT_TAG = "Map Fragment Tag";
   private final static String DETAIL_FRAGMENT_TAG = "Detail Fragment Tag";
   private final static String FAVOURITE_DETAIL_FRAGMENT_TAG = "Favourite Detail Fragment Tag";
+  private final static String FAVOURITE_FRAGMENT_TAG = "Favourite Fragment Tag";
+
   private MapFragment mapFragment;
-  private Fragment mContent;
+  private Fragment mFragment;
+  private DetailFragment detailFragment;
+  private FavouriteDetailFragment favouriteDetailFragment;
+  private FavouritesFragment favouritesFragment;
 
   public MainActivity() {
   }
@@ -51,30 +51,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     setSupportActionBar(toolbar);
 
     if(savedInstanceState!=null){
-      //Restore the fragment's instance
-        mContent = getSupportFragmentManager().getFragment(savedInstanceState, MAP_FRAGMENT_TAG);
-        if(mContent == null){
-          mContent = getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_FRAGMENT_TAG);
-        }
-
+      // If the fragment is not null retain the fragment state
+      if(mFragment instanceof MapFragment){
+        mFragment = getSupportFragmentManager().getFragment(savedInstanceState, MAP_FRAGMENT_TAG);
+      } else if (mFragment instanceof DetailFragment){
+        mFragment = getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_FRAGMENT_TAG);
+      } else if (mFragment instanceof FavouritesFragment){
+        mFragment = getSupportFragmentManager().getFragment(savedInstanceState, FAVOURITE_FRAGMENT_TAG);
+      } else if (mFragment instanceof FavouriteDetailFragment){
+        mFragment = getSupportFragmentManager().getFragment(savedInstanceState, FAVOURITE_DETAIL_FRAGMENT_TAG);
+      }
+//      //Restore the fragment's instance
+//        if(mFragment == null){
+//          mFragment = getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_FRAGMENT_TAG);
+//        }
     } else {
+      // If the fragment is not null retain the fragment state
       mapFragment = new MapFragment();
       FragmentManager fragmentManager = getSupportFragmentManager();
       fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
           .addToBackStack(MAP_FRAGMENT_TAG)
           .commit();
       mapFragment.setRetainInstance(true);
-
     }
 
-    FloatingActionButton fab = findViewById(R.id.fab);
-    fab.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-            .setAction("Action", null).show();
-      }
-    });
 
     DrawerLayout drawer = findViewById(R.id.drawer_layout);
     ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -93,11 +93,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     super.onSaveInstanceState(outState, outPersistentState);
     Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
     if(fragment instanceof MapFragment){
-      getSupportFragmentManager().putFragment(outState, MAP_FRAGMENT_TAG, mContent );
+      getSupportFragmentManager().putFragment(outState, MAP_FRAGMENT_TAG, mFragment);
     } else if(fragment instanceof DetailFragment) {
-      getSupportFragmentManager().putFragment(outState, DETAIL_FRAGMENT_TAG, mContent );
+      getSupportFragmentManager().putFragment(outState, DETAIL_FRAGMENT_TAG, mFragment);
+    } else if (fragment instanceof FavouritesFragment){
+      getSupportFragmentManager().putFragment(outState, FAVOURITE_FRAGMENT_TAG, mFragment);
+    } else if (fragment instanceof FavouriteDetailFragment){
+      getSupportFragmentManager().putFragment(outState, FAVOURITE_DETAIL_FRAGMENT_TAG, mFragment);
     }
-
   }
 
   @Override
@@ -161,8 +164,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Log.i(LOG_TAG, "Marker Tag is: " + marker.getTag());
     // Replace whatever is in the fragment_container view with this fragment,
     // and add the transaction to the back stack so the user can navigate back
-   // mapLayout.setVisibility(View.GONE);
-  //  FrameLayout detailLayout = findViewById(R.id.fragment_container_detail);
     transaction.replace(R.id.fragment_container, detailFragment);
     transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
     // Commit the transaction
@@ -174,7 +175,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Bundle bundle = new Bundle();
     String placeId = place.getId();
     String placeName = place.getName().toString();
-
 
     if (place.getWebsiteUri() == null || place.getWebsiteUri().toString().isEmpty()) {
       String placeWebUrl = "";
@@ -191,8 +191,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
     // Replace whatever is in the fragment_container view with this fragment,
     // and add the transaction to the back stack so the user can navigate back
-   // mapLayout.setVisibility(View.INVISIBLE);
-   // detailLayout.setVisibility(View.VISIBLE);
     transaction.replace(R.id.fragment_container, detailFragment);
     transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
     // Commit the transaction
