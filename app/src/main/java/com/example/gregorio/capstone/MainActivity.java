@@ -32,6 +32,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private final static String FAVOURITE_DETAIL_FRAGMENT_TAG = "Favourite Detail Fragment Tag";
   private final static String FAVOURITE_FRAGMENT_TAG = "Favourite Fragment Tag";
 
+  public final static String PLACE_PICKER_WEBSITE_TAG = "PLACE PICKER WEB URL";
+  public final static String PLACE_PICKER_NAME_TAG = "PLACE PICKER NAME";
+  public final static String PLACE_PICKER_ADDRESS_TAG = "PLACE PICKER ADDRESS";
+  public final static String PLACE_PICKER_TELEPHONE_TAG = "PLACE PICKER TELEPHONE";
+  public final static String PLACE_PICKER_OPEN_NOW_TAG = "PLACE PICKER OPEN NOW";
+  public final static String PLACE_PICKER_OPENING_HOURS_TAG = "PLACE PICKER OPENING HOURS";
+  public final static String PLACE_PICKER_PHOTO_REFERENCE_TAG = "PLACE PICKER PHOTO REFERENCE";
+  public final static String PLACE_PICKER_REVIEWS_TAG = "PLACE PICKER REVIEWS";
+  public final static String PLACE_PICKER_PHOTO_GALLERY_TAG = "PLACE PICKER PHOTO GALLERY";
+  public final static String PLACE_PICKER_PLACE_ID_TAG = "PLACE PICKER PLACE ID";
+
+
   private MapFragment mapFragment;
   private Fragment mFragment;
   private DetailFragment detailFragment;
@@ -178,13 +190,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     if (place.getWebsiteUri() == null || place.getWebsiteUri().toString().isEmpty()) {
       String placeWebUrl = "";
-      bundle.putString("PLACE WEB URL", placeWebUrl);
+      bundle.putString(PLACE_PICKER_WEBSITE_TAG, placeWebUrl);
     } else {
       String placeWebUrl = place.getWebsiteUri().toString();
-      bundle.putString("PLACE WEB URL", placeWebUrl);
+      bundle.putString(PLACE_PICKER_WEBSITE_TAG, placeWebUrl);
     }
-    bundle.putString("ID", placeId);
-    bundle.putString("TITLE", placeName);
+    bundle.putString(PLACE_PICKER_PLACE_ID_TAG, placeId);
+    bundle.putString(PLACE_PICKER_NAME_TAG, placeName);
     // set DetailFragment Arguments
     DetailFragment detailFragment = new DetailFragment();
     detailFragment.setArguments(bundle);

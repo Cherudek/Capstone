@@ -1,5 +1,8 @@
 package com.example.gregorio.capstone;
 
+import static com.example.gregorio.capstone.MainActivity.PLACE_PICKER_NAME_TAG;
+import static com.example.gregorio.capstone.MainActivity.PLACE_PICKER_PLACE_ID_TAG;
+
 import adapters.PhotoAdapter;
 import adapters.ReviewAdapter;
 import android.arch.lifecycle.ViewModelProviders;
@@ -199,6 +202,10 @@ public class DetailFragment extends Fragment {
     Bundle bundle = getArguments();
     if (bundle != null) {
       // Get the Data from the map object clicked in the map fragment
+      mPlaceId = bundle.getString(PLACE_PICKER_PLACE_ID_TAG);
+      String placePickerPlaceName = bundle.getString(PLACE_PICKER_NAME_TAG);
+      Log.i(LOG_TAG, "The Place Picker Place ID is " + mPlaceId);
+      Log.i(LOG_TAG, "The Place Picker Place Name is " + placePickerPlaceName);
 
     }
 
@@ -231,6 +238,10 @@ public class DetailFragment extends Fragment {
 
       result = placeIdMap.getResult();
       tvName.setText(result.getName());
+      tvAddress.setText(result.getVicinity());
+      photoReference = result.getPhotos().get(0).getPhotoReference();
+      picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
+      Picasso.get().load(picassoPhotoUrl).error(R.drawable.coming_soon).into(ivPhotoView);
       tvWebAddress.setText(result.getVicinity());
       String website = result.getWebsite();
       tvWebAddress.setText(website);
