@@ -36,4 +36,7 @@
   <string name="no_results">No Results</string>
   <string name="check_internet_connection">Check Your Internet Connection</string>
   <string name="install_google_play_services">Please install Google Play Services!</string>
+  <string name="appwidget_text">EXAMPLE</string>
+  <string name="configure">Configure</string>
+  <string name="add_widget">Add widget</string>
 </resources>
