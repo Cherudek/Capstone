@@ -15,4 +15,5 @@
   <dimen name="card_view_photo">200dp</dimen>
   <dimen name="cv_elevation">8dp</dimen>
   <dimen name="margin_half">4dp</dimen>
+  <dimen name="progress_bar">50dp</dimen>
 </resources>

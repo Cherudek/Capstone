@@ -2,8 +2,6 @@ package com.example.gregorio.capstone;
 
 import adapters.FavouritePhotoAdapter;
 import adapters.FavouriteReviewAdapter;
-import adapters.PhotoAdapter;
-import adapters.ReviewAdapter;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,9 +19,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
@@ -150,15 +145,11 @@ public class FavouriteDetailFragment extends Fragment {
     super.onActivityCreated(savedInstanceState);
 
     removeFavourite.setOnClickListener(v -> {
-      // TODO: REMOVE FROM FAVOURITE FIREBASE LOGIC
-
-
       String childKey = resultFromFavourites.getFavourite_node_key();
-      Log.i(LOG_TAG, "childKey: " + childKey);
+      String name = resultFromFavourites.getName();
       mPlacesDatabaseReference.child(FIREBASE_FAVOURITES_NODE).child(childKey).removeValue();
-
       Snackbar snackbar = Snackbar
-          .make(getView(), "Removed form Your Favourites! ", Snackbar.LENGTH_SHORT);
+          .make(getView(), name + " Removed form Your Favourites!", Snackbar.LENGTH_SHORT);
       snackbar.show();
 
     });

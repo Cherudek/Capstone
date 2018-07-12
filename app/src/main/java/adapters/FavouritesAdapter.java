@@ -2,20 +2,20 @@ package adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.example.gregorio.capstone.R;
 import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 import pojosplaceid.Result;
-import pojosplaceid.Review;
 
 public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.FavouriteViewHolder> {
 
@@ -72,6 +72,20 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
       notifyDataSetChanged();
   }
 
+  public void removeItem(int position) {
+    favouritesPlaceId.remove(position);
+    // notify the item removed by position
+    // to perform recycler view delete animations
+    // NOTE: don't call notifyDataSetChanged()
+    notifyItemRemoved(position);
+  }
+
+  public void restoreItem(Result item, int position) {
+    favouritesPlaceId.add(position, item);
+    // notify item added by position
+    notifyItemInserted(position);
+  }
+
   @Override
   public int getItemCount() {
     Log.i(LOG_TAG, "getItemCount PlaceId Size = " + favouritesPlaceId.size());
@@ -84,17 +98,21 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
     void onClick(Result result);
   }
 
-  class FavouriteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+  public class FavouriteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public final ImageView mFavouriteImage;
     public final TextView mFavouriteName;
     public final TextView mFavouriteAddress;
+    public final CardView viewForeground;
+    public final RelativeLayout viewBackground;
 
     public FavouriteViewHolder(View itemView){
       super(itemView);
       mFavouriteImage = itemView.findViewById(R.id.favourite_photo_place_id);
       mFavouriteName = itemView.findViewById(R.id.favourite_place_name);
       mFavouriteAddress = itemView.findViewById(R.id.favourite_place_address);
+      viewBackground = itemView.findViewById(R.id.view_background);
+      viewForeground = itemView.findViewById(R.id.favourite_card_view);
       itemView.setOnClickListener(this);
 
     }

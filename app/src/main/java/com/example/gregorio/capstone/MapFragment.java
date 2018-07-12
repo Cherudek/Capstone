@@ -19,6 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
 import butterknife.BindView;
@@ -45,7 +46,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
 import googleplacesapi.GoogleMapsApi;
 import googleplacesapi.GoogleNearbyPlacesParser;
-import intentservices.IntentServiceSearchPlaces;
 import java.util.HashMap;
 import java.util.List;
 import permissions.Connectivity;
@@ -76,6 +76,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private final int DEFAULT_ZOOM = 1500;
   @BindView(R.id.map)MapView mapView;
   @BindView(R.id.checkout_button)FloatingActionButton checkoutFap;
+  @BindView(R.id.progress_bar)
+  ProgressBar progressBar;
   private GoogleMap mMap;
   private MenuItem menuItem;
   private static final int REQUEST_PLACE_PICKER = 1;
@@ -180,6 +182,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     // Launches the Google Place Picker API
     checkoutFap.setOnClickListener(v -> {
       // launches the Place Picker Api
+      progressBar.setVisibility(View.VISIBLE);
       MapFragment.this.checkOut();
     });
 
@@ -199,7 +202,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     onInfoWindowClickListener = marker -> {
       searchView.isIconified();
       searchView.onActionViewCollapsed();
-
      //TODO: FIX THE HASHMAP, MAP MARKERS CHANGE ID ON ROTATION AND BACK NAVIGATION.
       // eventMarkerMap = (HashMap<Marker, Integer>) marker.getTag();
       //queryViewModel.mEventMarkerMap = eventMarkerMap;
@@ -229,7 +231,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       mPlaceIdTag = Integer.valueOf(marker.getSnippet());
       //   detailViewModel.getPlaceDetails().getValue().getResult();
       sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
-      Log.i(LOG_TAG, "query model size is: " + queryViewModel.mNearbyPlaces.getValue().getResults().size());
       // launch the detail fragment.
       MapFragment.this.onMarkerPressedIntent(marker);
       marker.hideInfoWindow();
@@ -299,6 +300,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   @Override
   public boolean onQueryTextSubmit(final String query) {
     mQuery = query;
+    progressBar.setVisibility(View.VISIBLE);
     Log.i(LOG_TAG, "The Search Query is: " + query);
     // MVVM Retrofit Call Via ViewModel Factory
     if(mNearbyPlaces==null){
@@ -329,6 +331,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
           }
           mMarkerOptionsRetrieved = nearbyPlacesResponseParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation, eventMarkerMap);
           queryViewModel.mMarkersOptions = mMarkerOptionsRetrieved;
+          progressBar.setVisibility(View.INVISIBLE);
           Log.i(LOG_TAG, "queryViewModel mMarkersOptions on Rotation is" + queryViewModel.mMarkersOptions.size() );
           queryViewModel.getData().removeObserver(this);
         } else {
@@ -364,12 +367,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       if (resultCode == Activity.RESULT_OK) {
         Place place = PlacePicker.getPlace(mContext, data);
         onPlacePickerPressedIntent(place);
-
-        // TODO: INTENT TO START PLACE PICKER DETAIL ACTIVITY
-
-
-
+        progressBar.setVisibility(View.INVISIBLE);
       } else if (resultCode == PlacePicker.RESULT_ERROR) {
+        progressBar.setVisibility(View.INVISIBLE);
         Toast.makeText(mContext,
             "Places API failure! Check that the API is enabled for your key",
             Toast.LENGTH_LONG).show();
