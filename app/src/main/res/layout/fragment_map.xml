@@ -19,6 +19,7 @@
     />
 
   <ProgressBar
+    android:visibility="invisible"
     android:id="@+id/map_progress_bar"
     android:layout_width="@dimen/progress_bar"
     android:layout_height="@dimen/progress_bar"

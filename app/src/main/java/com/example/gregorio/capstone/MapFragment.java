@@ -76,7 +76,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private final int DEFAULT_ZOOM = 1500;
   @BindView(R.id.map)MapView mapView;
   @BindView(R.id.checkout_button)FloatingActionButton checkoutFap;
-  @BindView(R.id.progress_bar)
+  @BindView(R.id.map_progress_bar)
   ProgressBar progressBar;
   private GoogleMap mMap;
   private MenuItem menuItem;
@@ -182,7 +182,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     // Launches the Google Place Picker API
     checkoutFap.setOnClickListener(v -> {
       // launches the Place Picker Api
-      progressBar.setVisibility(View.VISIBLE);
       MapFragment.this.checkOut();
     });
 
@@ -285,6 +284,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   // is clicked.
   public void checkOut() {
     try {
+      progressBar.setVisibility(View.VISIBLE);
       PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
       Intent intent = intentBuilder.build(getActivity());
       startActivityForResult(intent, REQUEST_PLACE_PICKER);
