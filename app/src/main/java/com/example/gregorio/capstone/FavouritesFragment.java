@@ -145,7 +145,8 @@ public class FavouritesFragment extends Fragment implements
 
             // undo is selected, restore the deleted item on the adapter and back on the firebase
             favouritesAdapter.restoreItem(deletedItem, deletedIndex);
-            favouriteDbRef.child(FIREBASE_FAVOURITES_NODE).setValue(deletedItem);
+            DatabaseReference pushedPostRef = favouriteDbRef.child(FIREBASE_FAVOURITES_NODE).push();
+            pushedPostRef.setValue(deletedItem);
           });
           snackbar.setActionTextColor(Color.YELLOW);
           snackbar.show();
