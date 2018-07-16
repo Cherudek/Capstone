@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       fragmentClass = FavouritesFragment.class;
     } else if (id == R.id.nav_sights) {
       fragmentClass = SightsFragment.class;
-    } else if (id == R.id.nav_send) {
+    } else if (id == R.id.nav_share) {
 
     }
     try {

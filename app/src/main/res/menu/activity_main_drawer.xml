@@ -17,6 +17,10 @@
       android:icon="@drawable/ic_location_city_black_24dp"
       android:title="@string/nv_sights"/>
     <item
+      android:id="@+id/nav_museums"
+      android:icon="@drawable/ic_museums_black_24dp"
+      android:title="@string/museums"/>
+    <item
       android:id="@+id/nav_food"
       android:icon="@drawable/ic_restaurant_black_24dp"
       android:title="@string/nv_food"/>
@@ -30,16 +34,12 @@
       android:title="@string/nv_clubs"/>
   </group>
 
-  <item android:title="Communicate">
+  <item android:title="@string/info">
     <menu>
       <item
         android:id="@+id/nav_share"
-        android:icon="@drawable/ic_menu_share"
-        android:title="Share"/>
-      <item
-        android:id="@+id/nav_send"
-        android:icon="@drawable/ic_menu_send"
-        android:title="Send"/>
+        android:icon="@drawable/ic_info_outline_black_24dp"
+        android:title="@string/info"/>
     </menu>
   </item>
 
