@@ -14,33 +14,32 @@ import java.util.ArrayList;
 import java.util.List;
 import pojosplaceid.Result;
 
-public class SightsAdapter extends RecyclerView.Adapter<SightsAdapter.SightsViewHolder> {
+public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder> {
 
-  private static final String LOG_TAG = FavouritesAdapter.class.getSimpleName();
+  private static final String LOG_TAG = FoodAdapter.class.getSimpleName();
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
-  private List<Result> sightsPlaceId = new ArrayList<>();
+  private List<Result> foodPlaceId = new ArrayList<>();
   private String mApiKey;
-  private int mFavouriteSize;
+  private int mSize;
 
-  public SightsAdapter(String apiKey) {
+  public FoodAdapter(String apiKey) {
     this.mApiKey = apiKey;
   }
 
   @NonNull
   @Override
-  public SightsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+  public FoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     Context context = parent.getContext();
-    int layoutIdForListItem = R.layout.sights_item;
+    int layoutIdForListItem = R.layout.food_item;
     LayoutInflater inflater = LayoutInflater.from(context);
     boolean shouldAttachToParentImmediately = false;
     View view = inflater.inflate(layoutIdForListItem, parent, shouldAttachToParentImmediately);
-    return new SightsViewHolder(view);
+    return new FoodViewHolder(view);
   }
 
   @Override
-  public void onBindViewHolder(@NonNull SightsViewHolder holder, int position) {
-
-    Result currentPlaceId = sightsPlaceId.get(position);
+  public void onBindViewHolder(@NonNull FoodViewHolder holder, int position) {
+    Result currentPlaceId = foodPlaceId.get(position);
     String photoReference = currentPlaceId.getPhotos().get(0).getPhotoReference();
     String address = currentPlaceId.getVicinity();
     String name = currentPlaceId.getName();
@@ -50,38 +49,41 @@ public class SightsAdapter extends RecyclerView.Adapter<SightsAdapter.SightsView
     Picasso.get().load(photoUrl)
         .placeholder(R.color.gray)
         .error(R.drawable.coming_soon)
-        .into(holder.mSightImage);
+        .into(holder.mImage);
 
-    holder.mSightName.setText(name);
-    holder.mSightAddress.setText(address);
+    holder.mName.setText(name);
+    holder.mAddress.setText(address);
   }
 
   @Override
   public int getItemCount() {
-    return sightsPlaceId.size();
+    return foodPlaceId.size();
   }
 
   public void addAll(List<Result> result) {
-    if (sightsPlaceId != null) {
-      sightsPlaceId.clear();
+    if (foodPlaceId != null) {
+      foodPlaceId.clear();
     }
-    sightsPlaceId.addAll(result);
+    foodPlaceId.addAll(result);
     notifyDataSetChanged();
   }
 
-  public class SightsViewHolder extends RecyclerView.ViewHolder {
 
-    public final ImageView mSightImage;
-    public final TextView mSightName;
-    public final TextView mSightAddress;
+  public class FoodViewHolder extends RecyclerView.ViewHolder {
 
-    public SightsViewHolder(View itemView) {
+    public final ImageView mImage;
+    public final TextView mName;
+    public final TextView mAddress;
+
+    public FoodViewHolder(View itemView) {
       super(itemView);
-      mSightImage = itemView.findViewById(R.id.sights_photo_place_id);
-      mSightName = itemView.findViewById(R.id.sights_place_name);
-      mSightAddress = itemView.findViewById(R.id.sights_place_address);
+      mImage = itemView.findViewById(R.id.food_photo_place_id);
+      mName = itemView.findViewById(R.id.food_place_name);
+      mAddress = itemView.findViewById(R.id.food_place_address);
 
     }
 
   }
+
+
 }
