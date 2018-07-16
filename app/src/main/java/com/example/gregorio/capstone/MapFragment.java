@@ -375,6 +375,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
             Toast.LENGTH_LONG).show();
       } else {
         super.onActivityResult(requestCode, resultCode, data);
+        progressBar.setVisibility(View.INVISIBLE);
       }
     }
   }

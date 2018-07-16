@@ -2,7 +2,6 @@ package com.example.gregorio.capstone;
 
 import adapters.FavouritesAdapter;
 import adapters.FavouritesAdapter.FavouriteViewHolder;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -65,7 +64,6 @@ public class FavouritesFragment extends Fragment implements
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     sharedModel = ViewModelProviders.of(getActivity()).get(FavouriteDetailSharedViewModel.class);
-    favouritesViewModel = ViewModelProviders.of(getActivity()).get(FavouritesViewModel.class);
   }
 
   @Nullable
@@ -108,14 +106,6 @@ public class FavouritesFragment extends Fragment implements
         favouritesAdapter.addAll(mResultList);
         rvFavourites.setAdapter(favouritesAdapter);
 
-        favouritesViewModel.getResult().observe(getActivity(), new Observer<List<Result>>() {
-          @Override
-          public void onChanged(@Nullable List<Result> results) {
-            mResultList = results;
-            Log.i(LOG_TAG, "mResultList = " + mResultList.size());
-
-          }
-        });
       }
 
       @Override
