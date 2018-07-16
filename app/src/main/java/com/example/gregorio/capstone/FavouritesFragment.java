@@ -2,6 +2,7 @@ package com.example.gregorio.capstone;
 
 import adapters.FavouritesAdapter;
 import adapters.FavouritesAdapter.FavouriteViewHolder;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -35,6 +36,7 @@ import java.util.List;
 import pojosplaceid.Result;
 import utils.RecyclerItemTouchHelper;
 import viewmodel.FavouriteDetailSharedViewModel;
+import viewmodel.FavouritesViewModel;
 
 public class FavouritesFragment extends Fragment implements
     FavouritesAdapter.FavouriteAdapterOnClickHandler,
@@ -43,11 +45,12 @@ public class FavouritesFragment extends Fragment implements
   private static final String LOG_TAG = FavouritesFragment.class.getSimpleName();
   private static final String FIREBASE_ROOT_NODE = "checkouts";
   private static final String FIREBASE_FAVOURITES_NODE = "Favourites";
-  private FavouriteDetailSharedViewModel model;
-
-  @BindView(R.id.favourites_rv)RecyclerView rvFavourites;
   @BindView(R.id.favourites_constraint_layout)
   ConstraintLayout constraintLayout;
+  private FavouriteDetailSharedViewModel sharedModel;
+
+  @BindView(R.id.favourites_rv)RecyclerView rvFavourites;
+  private FavouritesViewModel favouritesViewModel;
   private LinearLayoutManager favouritesLayoutManager;
   private FavouritesAdapter favouritesAdapter;
   private String apiKey;
@@ -61,7 +64,8 @@ public class FavouritesFragment extends Fragment implements
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    model = ViewModelProviders.of(getActivity()).get(FavouriteDetailSharedViewModel.class);
+    sharedModel = ViewModelProviders.of(getActivity()).get(FavouriteDetailSharedViewModel.class);
+    favouritesViewModel = ViewModelProviders.of(getActivity()).get(FavouritesViewModel.class);
   }
 
   @Nullable
@@ -99,9 +103,19 @@ public class FavouritesFragment extends Fragment implements
           result.setFavourite_node_key(key);
           Log.d(LOG_TAG, "Firebase Location key: " + key);
           mResultList.add(result);
+
         }
         favouritesAdapter.addAll(mResultList);
         rvFavourites.setAdapter(favouritesAdapter);
+
+        favouritesViewModel.getResult().observe(getActivity(), new Observer<List<Result>>() {
+          @Override
+          public void onChanged(@Nullable List<Result> results) {
+            mResultList = results;
+            Log.i(LOG_TAG, "mResultList = " + mResultList.size());
+
+          }
+        });
       }
 
       @Override
@@ -190,13 +204,14 @@ public class FavouritesFragment extends Fragment implements
   // Intent to launch the favorite detail fragment
   @Override
   public void onClick(Result result) {
-    model.select(result);
+    sharedModel.select(result);
     FavouritesFragment.this.onFavouritePressedIntent(result);
   }
 
   public interface OnFavouritesFragmentInteractionListener {
     void onFavouritesFragmentInteraction(Result result);
   }
+
 
   @Override
   public void onDetach() {

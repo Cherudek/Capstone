@@ -102,7 +102,6 @@ public class FavouriteDetailFragment extends Fragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     favouriteDetailSharedViewModel = ViewModelProviders.of(getActivity()).get(FavouriteDetailSharedViewModel.class);
     favouriteDetailSharedViewModel.getSelected().observe(this, result -> {
       //Update UI
@@ -110,40 +109,31 @@ public class FavouriteDetailFragment extends Fragment {
       resultFromFavourites = result;
       Log.i(LOG_TAG, "Name: " + name);
     });
-
     // Initialize FireBase components
     mFirebaseDatabase = FirebaseDatabase.getInstance();
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child(FIREBASE_ROOT_NODE);
-
-
   }
 
   @Nullable
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
-
     View rootView = inflater.inflate(R.layout.fragment_favourite_detail, container, false);
     ButterKnife.bind(this, rootView);
     apiKey = getContext().getResources().getString(R.string.google_api_key);
-
     photosLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true);
     rvPhotoGallery.setLayoutManager(photosLayoutManager);
     rvPhotoGallery.setHasFixedSize(true);
-
     reviewsLayoutManager = new LinearLayoutManager(getContext());
     rvReviews.setLayoutManager(reviewsLayoutManager);
     rvReviews.setHasFixedSize(true);
-
     // Inflate the layout for this fragment
     return rootView;
-
   }
 
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-
     removeFavourite.setOnClickListener(v -> {
       String childKey = resultFromFavourites.getFavourite_node_key();
       String name = resultFromFavourites.getName();
@@ -151,16 +141,13 @@ public class FavouriteDetailFragment extends Fragment {
       Snackbar snackbar = Snackbar
           .make(getView(), name + " Removed form Your Favourites!", Snackbar.LENGTH_SHORT);
       snackbar.show();
-
     });
-
-
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    photoReference = resultFromFavourites.getPhotos().get(1).getPhotoReference();
+    photoReference = resultFromFavourites.getPhotos().get(0).getPhotoReference();
     picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
     Picasso.get().load(picassoPhotoUrl).error(R.drawable.coming_soon).into(ivPhotoView);
     mRating = resultFromFavourites.getRating();
@@ -179,7 +166,6 @@ public class FavouriteDetailFragment extends Fragment {
         tvOpenNow.setText(R.string.closed);
       }
       Log.i(LOG_TAG, "Open Now " + openingHours);
-
     }
     if(resultFromFavourites.getOpeningHours()!=null){
       mOpeningWeekDays = resultFromFavourites.getOpeningHours().getWeekdayText();
@@ -191,7 +177,6 @@ public class FavouriteDetailFragment extends Fragment {
         tvOpeningHours.setText(weeklyHours);
       }
     }
-
     if(resultFromFavourites.getPhotos() != null){
       numberOfPhotos = resultFromFavourites.getPhotos().size();
       photoList = resultFromFavourites.getPhotos();
@@ -201,12 +186,10 @@ public class FavouriteDetailFragment extends Fragment {
       mPhotoAdapter = new FavouritePhotoAdapter(2, apiKey);
     }
     rvPhotoGallery.setAdapter(mPhotoAdapter);
-
     reviewsList = resultFromFavourites.getReviews();
     mReviewsAdapter = new FavouriteReviewAdapter();
     mReviewsAdapter.addAll(reviewsList);
     rvReviews.setAdapter(mReviewsAdapter);
   }
-
 
 }
