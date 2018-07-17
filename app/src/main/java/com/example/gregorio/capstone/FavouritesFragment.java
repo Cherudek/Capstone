@@ -35,7 +35,6 @@ import java.util.List;
 import pojosplaceid.Result;
 import utils.RecyclerItemTouchHelper;
 import viewmodel.FavouriteDetailSharedViewModel;
-import viewmodel.FavouritesViewModel;
 
 public class FavouritesFragment extends Fragment implements
     FavouritesAdapter.FavouriteAdapterOnClickHandler,
@@ -49,7 +48,6 @@ public class FavouritesFragment extends Fragment implements
   private FavouriteDetailSharedViewModel sharedModel;
 
   @BindView(R.id.favourites_rv)RecyclerView rvFavourites;
-  private FavouritesViewModel favouritesViewModel;
   private LinearLayoutManager favouritesLayoutManager;
   private FavouritesAdapter favouritesAdapter;
   private String apiKey;

@@ -8,8 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.bumptech.glide.Glide;
 import com.example.gregorio.capstone.R;
-import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 import pojosplaceid.Result;
@@ -20,8 +20,7 @@ public class BarsAdapter extends RecyclerView.Adapter<BarsAdapter.BarsViewHolder
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
   private List<Result> barPlaceId = new ArrayList<>();
   private String mApiKey;
-  private int mSize;
-
+  private Context context;
   public BarsAdapter(String apiKey) {
     this.mApiKey = apiKey;
   }
@@ -29,7 +28,7 @@ public class BarsAdapter extends RecyclerView.Adapter<BarsAdapter.BarsViewHolder
   @NonNull
   @Override
   public BarsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    Context context = parent.getContext();
+    context = parent.getContext();
     int layoutIdForListItem = R.layout.bars_item;
     LayoutInflater inflater = LayoutInflater.from(context);
     boolean shouldAttachToParentImmediately = false;
@@ -46,9 +45,8 @@ public class BarsAdapter extends RecyclerView.Adapter<BarsAdapter.BarsViewHolder
     String placeId = currentPlaceId.getPlaceId();
     String photoUrl =
         PHOTO_PLACE_URL + "maxwidth=100&photoreference=" + photoReference + "&key=" + mApiKey;
-    Picasso.get().load(photoUrl)
-        .placeholder(R.color.gray)
-        .error(R.drawable.coming_soon)
+    Glide.with(context)
+        .load(photoUrl)
         .into(holder.mImage);
     holder.mName.setText(name);
     holder.mAddress.setText(address);

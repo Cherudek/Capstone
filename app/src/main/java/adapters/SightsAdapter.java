@@ -8,8 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.bumptech.glide.Glide;
 import com.example.gregorio.capstone.R;
-import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 import pojosplaceid.Result;
@@ -21,6 +21,7 @@ public class SightsAdapter extends RecyclerView.Adapter<SightsAdapter.SightsView
   private List<Result> sightsPlaceId = new ArrayList<>();
   private String mApiKey;
   private int mFavouriteSize;
+  private Context context;
 
   public SightsAdapter(String apiKey) {
     this.mApiKey = apiKey;
@@ -29,7 +30,7 @@ public class SightsAdapter extends RecyclerView.Adapter<SightsAdapter.SightsView
   @NonNull
   @Override
   public SightsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    Context context = parent.getContext();
+    context = parent.getContext();
     int layoutIdForListItem = R.layout.sights_item;
     LayoutInflater inflater = LayoutInflater.from(context);
     boolean shouldAttachToParentImmediately = false;
@@ -47,9 +48,8 @@ public class SightsAdapter extends RecyclerView.Adapter<SightsAdapter.SightsView
     String placeId = currentPlaceId.getPlaceId();
     String photoUrl =
         PHOTO_PLACE_URL + "maxwidth=100&photoreference=" + photoReference + "&key=" + mApiKey;
-    Picasso.get().load(photoUrl)
-        .placeholder(R.color.gray)
-        .error(R.drawable.coming_soon)
+    Glide.with(context)
+        .load(photoUrl)
         .into(holder.mSightImage);
 
     holder.mSightName.setText(name);

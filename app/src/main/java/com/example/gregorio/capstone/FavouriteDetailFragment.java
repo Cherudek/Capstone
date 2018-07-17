@@ -19,9 +19,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.squareup.picasso.Picasso;
 import java.util.List;
 import pojos.Photo;
 import pojosplaceid.Result;
@@ -149,7 +149,9 @@ public class FavouriteDetailFragment extends Fragment {
     super.onResume();
     photoReference = resultFromFavourites.getPhotos().get(0).getPhotoReference();
     picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
-    Picasso.get().load(picassoPhotoUrl).error(R.drawable.coming_soon).into(ivPhotoView);
+    Glide.with(this)
+        .load(picassoPhotoUrl)
+        .into(ivPhotoView);
     mRating = resultFromFavourites.getRating();
     tvName.setText(resultFromFavourites.getName());
     tvAddress.setText(resultFromFavourites.getVicinity());

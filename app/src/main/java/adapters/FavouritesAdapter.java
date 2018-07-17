@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import com.bumptech.glide.Glide;
 import com.example.gregorio.capstone.R;
-import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 import pojosplaceid.Result;
@@ -24,6 +24,7 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
   private String mApiKey;
   private int mFavouriteSize;
+  private Context context;
   private  final FavouriteAdapterOnClickHandler mClickHandler;
 
   public FavouritesAdapter(FavouriteAdapterOnClickHandler clickHandler, int size, String apiKey){
@@ -36,7 +37,7 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
   @NonNull
   @Override
   public FavouriteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    Context context = parent.getContext();
+    context = parent.getContext();
     int layoutIdForListItem = R.layout.favourite_item;
     LayoutInflater inflater = LayoutInflater.from(context);
     boolean shouldAttachToParentImmediately = false;
@@ -55,10 +56,8 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
     Log.i(LOG_TAG, " onBindViewHolder PlaceId = " + placeId);
 
     String photoUrl = PHOTO_PLACE_URL + "maxwidth=100&photoreference=" + photoReference + "&key=" + mApiKey;
-    Picasso.get().load(photoUrl)
-        // .networkPolicy(NetworkPolicy.OFFLINE)
-        .placeholder(R.color.gray)
-        .error(R.drawable.coming_soon)
+    Glide.with(context)
+        .load(photoUrl)
         .into(holder.mFavouriteImage);
 
     holder.mFavouriteName.setText(name);

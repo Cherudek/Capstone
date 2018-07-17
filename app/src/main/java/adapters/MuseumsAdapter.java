@@ -1,80 +1,93 @@
 package adapters;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.example.gregorio.capstone.MuseumsFragment.OnListFragmentInteractionListener;
+import com.bumptech.glide.Glide;
 import com.example.gregorio.capstone.R;
-import com.example.gregorio.capstone.dummy.DummyContent.DummyItem;
+import java.util.ArrayList;
 import java.util.List;
+import pojosplaceid.Result;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
+ * {@link RecyclerView.Adapter} that can display a {@link Result} and makes a call to the
+ * specified {@link }.
  * TODO: Replace the implementation with code for your data type.
  */
 public class MuseumsAdapter extends
     RecyclerView.Adapter<MuseumsAdapter.ViewHolder> {
 
-  private final List<DummyItem> mValues;
-  private final OnListFragmentInteractionListener mListener;
+  private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
+  private List<Result> mMuseumList = new ArrayList<>();
+  private String apiKey;
+  private Context context;
 
-  public MuseumsAdapter(List<DummyItem> items,
-      OnListFragmentInteractionListener listener) {
-    mValues = items;
-    mListener = listener;
+  public MuseumsAdapter(String apiKey) {
+    this.apiKey = apiKey;
   }
 
   @Override
   public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    View view = LayoutInflater.from(parent.getContext())
-        .inflate(R.layout.museums_item, parent, false);
+    context = parent.getContext();
+    int layoutIdForListItem = R.layout.museums_item;
+    LayoutInflater inflater = LayoutInflater.from(context);
+    boolean shouldAttachToParentImmediately = false;
+    View view = inflater.inflate(layoutIdForListItem, parent, shouldAttachToParentImmediately);
     return new ViewHolder(view);
   }
 
   @Override
   public void onBindViewHolder(final ViewHolder holder, int position) {
-    holder.mItem = mValues.get(position);
-    holder.mIdView.setText(mValues.get(position).id);
-    holder.mContentView.setText(mValues.get(position).content);
 
-    holder.mView.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        if (null != mListener) {
-          // Notify the active callbacks interface (the activity, if the
-          // fragment is attached to one) that an item has been selected.
-          mListener.onListFragmentInteraction(holder.mItem);
-        }
-      }
-    });
+    Result currentPlaceId = mMuseumList.get(position);
+    String photoReference = currentPlaceId.getPhotos().get(0).getPhotoReference();
+    String address = currentPlaceId.getVicinity();
+    String name = currentPlaceId.getName();
+    String placeId = currentPlaceId.getPlaceId();
+
+    String photoUrl =
+        PHOTO_PLACE_URL + "maxwidth=100&photoreference=" + photoReference + "&key=" + apiKey;
+    Glide.with(context)
+        .load(photoUrl)
+        .into(holder.mView);
+
+    holder.mName.setText(name);
+    holder.mAddress.setText(address);
   }
 
   @Override
   public int getItemCount() {
-    return mValues.size();
+    return mMuseumList.size();
+  }
+
+  public void addAll(List<Result> result) {
+    if (mMuseumList != null) {
+      mMuseumList.clear();
+    }
+    mMuseumList.addAll(result);
+    notifyDataSetChanged();
   }
 
   public class ViewHolder extends RecyclerView.ViewHolder {
 
     public final ImageView mView;
-    public final TextView mIdView;
-    public final TextView mContentView;
-    public DummyItem mItem;
+    public final TextView mName;
+    public final TextView mAddress;
 
     public ViewHolder(View view) {
       super(view);
       mView = view.findViewById(R.id.museums_photo_place_id);
-      mIdView = view.findViewById(R.id.museums_place_name);
-      mContentView = view.findViewById(R.id.museums_place_address);
+      mName = view.findViewById(R.id.museums_place_name);
+      mAddress = view.findViewById(R.id.museums_place_address);
     }
 
     @Override
     public String toString() {
-      return super.toString() + " '" + mContentView.getText() + "'";
+      return super.toString() + " '" + mAddress.getText() + "'";
     }
   }
 }
