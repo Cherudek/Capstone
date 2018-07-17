@@ -145,6 +145,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       fragmentClass = SightsFragment.class;
     } else if (id == R.id.nav_share) {
 
+    } else if (id == R.id.nav_museums) {
+      fragmentClass = MuseumsFragment.class;
     }
     try {
       fragment = (Fragment) fragmentClass.newInstance();

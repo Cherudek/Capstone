@@ -56,6 +56,7 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
 
     String photoUrl = PHOTO_PLACE_URL + "maxwidth=100&photoreference=" + photoReference + "&key=" + mApiKey;
     Picasso.get().load(photoUrl)
+        // .networkPolicy(NetworkPolicy.OFFLINE)
         .placeholder(R.color.gray)
         .error(R.drawable.coming_soon)
         .into(holder.mFavouriteImage);

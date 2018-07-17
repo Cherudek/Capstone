@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.example.gregorio.capstone.MuseumsFragment.OnListFragmentInteractionListener;
 import com.example.gregorio.capstone.R;
@@ -59,16 +60,16 @@ public class MuseumsAdapter extends
 
   public class ViewHolder extends RecyclerView.ViewHolder {
 
-    public final View mView;
+    public final ImageView mView;
     public final TextView mIdView;
     public final TextView mContentView;
     public DummyItem mItem;
 
     public ViewHolder(View view) {
       super(view);
-      mView = view;
-      mIdView = view.findViewById(R.id.item_number);
-      mContentView = view.findViewById(R.id.content);
+      mView = view.findViewById(R.id.museums_photo_place_id);
+      mIdView = view.findViewById(R.id.museums_place_name);
+      mContentView = view.findViewById(R.id.museums_place_address);
     }
 
     @Override
