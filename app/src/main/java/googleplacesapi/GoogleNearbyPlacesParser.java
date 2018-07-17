@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import pojos.NearbyPlaces;
-import viewmodel.QueryNearbyPlacesViewModel;
 
 public class GoogleNearbyPlacesParser {
 
@@ -57,8 +56,6 @@ public class GoogleNearbyPlacesParser {
         // Adding Title (Name of the place) and Vicinity (address) to the Marker
         markerOptions.title(placeName);
         markerCounter = markerCounter + 1;
-
-
         markerOptions.snippet(String.valueOf(markerCounter));
         // Adding Marker to the Map.
         Marker marker = map.addMarker(markerOptions);
@@ -81,7 +78,6 @@ public class GoogleNearbyPlacesParser {
       e.printStackTrace();
     }
     Log.i(LOG_TAG, "Marker Options Size is: " + markersOptions.size());
-
     return markersOptions;
   }
 }

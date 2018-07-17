@@ -202,42 +202,14 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       searchView.isIconified();
       searchView.onActionViewCollapsed();
      //TODO: FIX THE HASHMAP, MAP MARKERS CHANGE ID ON ROTATION AND BACK NAVIGATION.
-      // eventMarkerMap = (HashMap<Marker, Integer>) marker.getTag();
-      //queryViewModel.mEventMarkerMap = eventMarkerMap;
-
-//          String id = marker.getId();
-//          Log.i(LOG_TAG, "MarkerId  is: " + id);
-//          String subId = id.replace("m", "");
-//          Log.i(LOG_TAG, "MarkerId  is: " + subId);
-//          Integer idInteger = Integer.parseInt(subId);
-//          Log.i(LOG_TAG, "MarkerId  is: " + idInteger);
-//          Log.i(LOG_TAG, "onInfoWindowClickListener eventMarkerMap  is: " + eventMarkerMap.values());
-//          Integer placeId = eventMarkerMap.get(marker);
-//          Log.i(LOG_TAG, "onInfoWindowClickListener Marker is: " + marker);
-//          Log.i(LOG_TAG, "onInfoWindowClickListener MarkerId placeId  is: " + placeId);
-//          String placeIdString = String.valueOf(placeId);
-//          Log.i(LOG_TAG, "onInfoWindowClickListener MarkerId placeIdString  is: " + placeIdString);
-//        //  placeIdInt = Integer.parseInt(placeIdString);
-//          Log.i(LOG_TAG, "onInfoWindowClickListener Marker Tag is: " + marker.getTag());
-//          Log.i(LOG_TAG, "Marker Name is: " + marker.getTitle());
-//          Log.i(LOG_TAG, "Marker Snippet is: " + marker.getSnippet());
-//          Log.i(LOG_TAG, "Place Id is " + placeIdInt);
-//          Log.i(LOG_TAG, "Marker Id is " + idInteger);
-
-      // Retrieve the Marker Id Tag so we can call the corresponding NearbyPlace clicked on the Map
-      // and save it to the SharedMapDetailViewModel
-
       mPlaceIdTag = Integer.valueOf(marker.getSnippet());
       //   detailViewModel.getPlaceDetails().getValue().getResult();
       sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
       // launch the detail fragment.
       MapFragment.this.onMarkerPressedIntent(marker);
       marker.hideInfoWindow();
-
     };
   }
-
-
 
   public void onMarkerPressedIntent(Marker marker) {
     if (mListener != null) {
@@ -467,11 +439,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         for (int i = 0; i < queryViewModel.mMarkersOptions.size(); i++) {
           Log.i(LOG_TAG, "On Rotation Map Marker size is " + queryViewModel.mMarkersOptions.size());
           MarkerOptions m = queryViewModel.mMarkersOptions.get(i);
-          //   Log.i(LOG_TAG, "On Rotation Map Marker HashMap Id size is " + queryViewModel.mEventMarkerMap.size());
-          // queryViewModel.mEventMarkerMap = eventMarkerMap;
-          // Collection<Integer> values = eventMarkerMap.values();
-          // Log.i(LOG_TAG, "On Rotation Map Marker HashMap Collection  size is " + values);
-
           googleMap.addMarker(m);
         }
       }

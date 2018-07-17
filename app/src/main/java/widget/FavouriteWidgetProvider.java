@@ -1,24 +1,22 @@
-package com.example.gregorio.capstone;
+package widget;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
+import com.example.gregorio.capstone.R;
 
-/**
- * Implementation of App Widget functionality.
- * App Widget Configuration implemented in {@link FavouriteWidgetConfigureActivity FavouriteWidgetConfigureActivity}
- */
-public class FavouriteWidget extends AppWidgetProvider {
+
+public class FavouriteWidgetProvider extends AppWidgetProvider {
 
   static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
       int appWidgetId) {
 
-    CharSequence widgetText = FavouriteWidgetConfigureActivity.loadTitlePref(context, appWidgetId);
     // Construct the RemoteViews object
     RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.favourite_widget);
-    views.setTextViewText(R.id.appwidget_text, widgetText);
+    views.setTextViewText(R.id.appwidget_text, "Favourites");
+    views.setImageViewResource(R.id.appwidget_background, R.drawable.mole);
 
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views);
@@ -36,7 +34,6 @@ public class FavouriteWidget extends AppWidgetProvider {
   public void onDeleted(Context context, int[] appWidgetIds) {
     // When the user deletes the widget, delete the preference associated with it.
     for (int appWidgetId : appWidgetIds) {
-      FavouriteWidgetConfigureActivity.deleteTitlePref(context, appWidgetId);
     }
   }
 

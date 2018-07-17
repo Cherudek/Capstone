@@ -3,9 +3,7 @@ package viewmodel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import java.util.HashMap;
 import java.util.List;
 import pojos.NearbyPlaces;
 import repository.NearbyPlacesRepository;
@@ -20,9 +18,6 @@ public class QueryNearbyPlacesViewModel extends ViewModel {
   public int mRadius;
   public String mApiKey;
   public List<MarkerOptions> mMarkersOptions;
-  public HashMap<Marker, Integer> mEventMarkerMap;
-
-
 
   public QueryNearbyPlacesViewModel(NearbyPlacesRepository nearbyPlacesRepository, String keyword,
       String latitude, String longitude, int radius, String apiKey) {
@@ -33,7 +28,6 @@ public class QueryNearbyPlacesViewModel extends ViewModel {
   public LiveData<NearbyPlaces> getData(){
     return mNearbyPlaces;
   }
-
 
   public LiveData<NearbyPlaces> getNewPlaces() {
     if (mNearbyPlaces != null) {

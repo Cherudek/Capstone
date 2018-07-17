@@ -49,7 +49,7 @@
       android:name="com.google.android.geo.API_KEY"
       android:value="@string/google_maps_key"/>
 
-    <receiver android:name=".FavouriteWidget">
+    <receiver android:name="widget.FavouriteWidgetProvider">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
       </intent-filter>
@@ -59,11 +59,6 @@
         android:resource="@xml/favourite_widget_info"/>
     </receiver>
 
-    <activity android:name=".FavouriteWidgetConfigureActivity">
-      <intent-filter>
-        <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
-      </intent-filter>
-    </activity>
   </application>
 
 </manifest>
