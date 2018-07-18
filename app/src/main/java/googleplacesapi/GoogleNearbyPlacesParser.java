@@ -68,7 +68,7 @@ public class GoogleNearbyPlacesParser {
       // Construct a CameraPosition focusing on the current location View and animate the camera to that position.
       CameraPosition cameraPosition = new CameraPosition.Builder()
           .target(mCurrentLocation)      // Sets the center of the map to the current user View
-          .zoom(15)                   // Sets the zoom
+          .zoom(14)                   // Sets the zoom
           .bearing(0)                // Sets the orientation of the camera to east
           .tilt(0)                   // Sets the tilt of the camera to 30 degrees
           .build();                   // Creates a CameraPosition from the builder
