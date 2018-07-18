@@ -137,7 +137,7 @@ public class FavouriteDetailFragment extends Fragment {
     removeFavourite.setOnClickListener(v -> {
       String childKey = resultFromFavourites.getFavourite_node_key();
       String name = resultFromFavourites.getName();
-      mPlacesDatabaseReference.child(FIREBASE_FAVOURITES_NODE).push();
+      mPlacesDatabaseReference.child(FIREBASE_FAVOURITES_NODE).child(childKey).removeValue();
       Snackbar snackbar = Snackbar
           .make(getView(), name + " Removed form Your Favourites!", Snackbar.LENGTH_SHORT);
       snackbar.show();
