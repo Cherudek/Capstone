@@ -1,22 +1,34 @@
 package widget;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
+import com.example.gregorio.capstone.MainActivity;
 import com.example.gregorio.capstone.R;
 
 
 public class FavouriteWidgetProvider extends AppWidgetProvider {
+
+  public static final String INTENT_KEY = "intent key";
 
   static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
       int appWidgetId) {
 
     // Construct the RemoteViews object
     RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.favourite_widget);
-    views.setTextViewText(R.id.appwidget_text, "Favourites");
-    views.setImageViewResource(R.id.appwidget_background, R.drawable.mole);
+
+    // Set a Pending intent to launch the Favourite Fragment.
+    Intent intent = new Intent(context, MainActivity.class);
+    intent.putExtra(INTENT_KEY, "Favourite");
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+    views.setOnClickPendingIntent(R.id.appwidget_layout, pendingIntent);
+
+
+
 
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views);
@@ -27,6 +39,7 @@ public class FavouriteWidgetProvider extends AppWidgetProvider {
     // There may be multiple widgets active, so update all of them
     for (int appWidgetId : appWidgetIds) {
       updateAppWidget(context, appWidgetManager, appWidgetId);
+
     }
   }
 

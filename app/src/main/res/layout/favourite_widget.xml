@@ -2,6 +2,7 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:padding="@dimen/widget_margin"
+  android:id="@+id/appwidget_layout"
   android:background="#09C">
 
   <ImageView
@@ -21,7 +22,7 @@
     android:layout_gravity="center_horizontal"
     android:background="#09C"
     android:contentDescription="@string/nv_favourites"
-    android:text="@string/appwidget_text"
+    android:text="@string/nv_favourites"
     android:textAlignment="center"
     android:textColor="#ffffff"
     android:textSize="24sp"

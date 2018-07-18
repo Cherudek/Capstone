@@ -1,5 +1,8 @@
 package com.example.gregorio.capstone;
 
+import static widget.FavouriteWidgetProvider.INTENT_KEY;
+
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -46,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private DetailFragment detailFragment;
   private FavouriteDetailFragment favouriteDetailFragment;
   private FavouritesFragment favouritesFragment;
+  private String widgetIntnet;
 
   public MainActivity() {
   }
@@ -70,10 +74,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       } else if (mFragment instanceof FavouriteDetailFragment){
         mFragment = getSupportFragmentManager().getFragment(savedInstanceState, FAVOURITE_DETAIL_FRAGMENT_TAG);
       }
-//      //Restore the fragment's instance
-//        if(mFragment == null){
-//          mFragment = getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_FRAGMENT_TAG);
-//        }
+
+    }
+
+    Intent intent = getIntent();
+    Bundle extras = intent.getExtras();
+    if (extras != null) {
+      widgetIntnet = (String) extras.get(INTENT_KEY);
+
+      if (widgetIntnet.matches("Favourite")) {
+        FavouritesFragment favouritesFragment = new FavouritesFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().add(R.id.fragment_container, favouritesFragment)
+            .addToBackStack(FAVOURITE_FRAGMENT_TAG)
+            .commit();
+      }
     } else {
       // If the fragment is not null retain the fragment state
       mapFragment = new MapFragment();
@@ -95,6 +110,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     navigationView.setNavigationItemSelectedListener(this);
 
 
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+
+    Bundle extras = intent.getExtras();
+    if (extras != null) {
+      String value = (String) extras.get(INTENT_KEY);
+      if (value.matches("Favourite")) {
+        FavouritesFragment favouritesFragment = new FavouritesFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().add(R.id.fragment_container, favouritesFragment)
+            .addToBackStack(FAVOURITE_FRAGMENT_TAG)
+            .commit();
+      }
+    }
   }
 
   @Override
