@@ -31,6 +31,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private final static String DETAIL_FRAGMENT_TAG = "Detail Fragment Tag";
   private final static String FAVOURITE_DETAIL_FRAGMENT_TAG = "Favourite Detail Fragment Tag";
   private final static String FAVOURITE_FRAGMENT_TAG = "Favourite Fragment Tag";
+  private final static String SIGHTS_FRAGMENT_TAG = "Sights Fragment Tag";
+  private final static String MUSEUMS_FRAGMENT_TAG = "Museums Fragment Tag";
+  private final static String FOOD_FRAGMENT_TAG = "Food Fragment Tag";
+  private final static String BARS_FRAGMENT_TAG = "Bars Fragment Tag";
+  private final static String CLUBS_FRAGMENT_TAG = "Clubs Fragment Tag";
+
 
   public final static String PLACE_PICKER_WEBSITE_TAG = "PLACE PICKER WEB URL";
   public final static String PLACE_PICKER_NAME_TAG = "PLACE PICKER NAME";
@@ -49,7 +55,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private DetailFragment detailFragment;
   private FavouriteDetailFragment favouriteDetailFragment;
   private FavouritesFragment favouritesFragment;
-  private String widgetIntnet;
+  private String widgetIntent;
+  private Boolean widget;
 
   public MainActivity() {
   }
@@ -63,6 +70,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     toolbar.setLogo(R.drawable.ic_logo);
     setSupportActionBar(toolbar);
 
+    Intent intent = getIntent();
+    Bundle extras = intent.getExtras();
+
+
     if(savedInstanceState!=null){
       // If the fragment is not null retain the fragment state
       if(mFragment instanceof MapFragment){
@@ -73,32 +84,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mFragment = getSupportFragmentManager().getFragment(savedInstanceState, FAVOURITE_FRAGMENT_TAG);
       } else if (mFragment instanceof FavouriteDetailFragment){
         mFragment = getSupportFragmentManager().getFragment(savedInstanceState, FAVOURITE_DETAIL_FRAGMENT_TAG);
+      } else if (mFragment instanceof SightsFragment) {
+        mFragment = getSupportFragmentManager()
+            .getFragment(savedInstanceState, SIGHTS_FRAGMENT_TAG);
+      } else if (mFragment instanceof MuseumsFragment) {
+        mFragment = getSupportFragmentManager()
+            .getFragment(savedInstanceState, MUSEUMS_FRAGMENT_TAG);
+      } else if (mFragment instanceof FoodFragment) {
+        mFragment = getSupportFragmentManager().getFragment(savedInstanceState, FOOD_FRAGMENT_TAG);
+      } else if (mFragment instanceof BarsFragment) {
+        mFragment = getSupportFragmentManager().getFragment(savedInstanceState, BARS_FRAGMENT_TAG);
+      } else if (mFragment instanceof ClubsFragment) {
+        mFragment = getSupportFragmentManager().getFragment(savedInstanceState, CLUBS_FRAGMENT_TAG);
       }
 
-    }
-
-    Intent intent = getIntent();
-    Bundle extras = intent.getExtras();
-    if (extras != null) {
-      widgetIntnet = (String) extras.get(INTENT_KEY);
-
-      if (widgetIntnet.matches("Favourite")) {
-        FavouritesFragment favouritesFragment = new FavouritesFragment();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().add(R.id.fragment_container, favouritesFragment)
-            .addToBackStack(FAVOURITE_FRAGMENT_TAG)
-            .commit();
-      }
     } else {
-      // If the fragment is not null retain the fragment state
-      mapFragment = new MapFragment();
-      FragmentManager fragmentManager = getSupportFragmentManager();
-      fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
-          .addToBackStack(MAP_FRAGMENT_TAG)
-          .commit();
-      mapFragment.setRetainInstance(true);
+      if (extras == null) {
+        // If the fragment is not null retain the fragment state
+        mapFragment = new MapFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
+            .addToBackStack(MAP_FRAGMENT_TAG)
+            .commit();
+        mapFragment.setRetainInstance(true);
+      } else if (extras != null) {
+        widgetIntent = (String) extras.get(INTENT_KEY);
+        if (widgetIntent.matches("Favourite")) {
+          FavouritesFragment favouritesFragment = new FavouritesFragment();
+          FragmentManager fragmentManager = getSupportFragmentManager();
+          fragmentManager.beginTransaction().replace(R.id.fragment_container, favouritesFragment)
+              .addToBackStack(FAVOURITE_FRAGMENT_TAG)
+              .commit();
+        }
+      }
     }
-
 
     DrawerLayout drawer = findViewById(R.id.drawer_layout);
     ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -122,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       if (value.matches("Favourite")) {
         FavouritesFragment favouritesFragment = new FavouritesFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().add(R.id.fragment_container, favouritesFragment)
+        fragmentManager.beginTransaction().replace(R.id.fragment_container, favouritesFragment)
             .addToBackStack(FAVOURITE_FRAGMENT_TAG)
             .commit();
       }
@@ -141,6 +160,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       getSupportFragmentManager().putFragment(outState, FAVOURITE_FRAGMENT_TAG, mFragment);
     } else if (fragment instanceof FavouriteDetailFragment){
       getSupportFragmentManager().putFragment(outState, FAVOURITE_DETAIL_FRAGMENT_TAG, mFragment);
+    } else if (fragment instanceof SightsFragment) {
+      getSupportFragmentManager().putFragment(outState, SIGHTS_FRAGMENT_TAG, mFragment);
+    } else if (fragment instanceof MuseumsFragment) {
+      getSupportFragmentManager().putFragment(outState, MUSEUMS_FRAGMENT_TAG, mFragment);
+    } else if (fragment instanceof FoodFragment) {
+      getSupportFragmentManager().putFragment(outState, FOOD_FRAGMENT_TAG, mFragment);
+    } else if (fragment instanceof BarsFragment) {
+      getSupportFragmentManager().putFragment(outState, BARS_FRAGMENT_TAG, mFragment);
+    } else if (fragment instanceof ClubsFragment) {
+      getSupportFragmentManager().putFragment(outState, CLUBS_FRAGMENT_TAG, mFragment);
     }
   }
 
@@ -160,38 +189,68 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   @Override
   public boolean onNavigationItemSelected(MenuItem item) {
     // Handle navigation view item clicks here.
+    FragmentManager fragmentManager = getSupportFragmentManager();
     int id = item.getItemId();
     Fragment fragment = null;
     Class fragmentClass = null;
     if (id == R.id.nav_map) {
-      fragmentClass = MapFragment.class;
-    } else if (id == R.id.nav_food) {
-      fragmentClass = FoodFragment.class;
-    } else if (id == R.id.nav_bars) {
-      fragmentClass = BarsFragment.class;
-    } else if (id == R.id.nav_clubs) {
-      fragmentClass = ClubsFragment.class;
-    } else if (id == R.id.nav_favourites) {
-      fragmentClass = FavouritesFragment.class;
-    } else if (id == R.id.nav_sights) {
-      fragmentClass = SightsFragment.class;
-    } else if (id == R.id.nav_share) {
-
-    } else if (id == R.id.nav_museums) {
-      fragmentClass = MuseumsFragment.class;
-    }
-    try {
-      fragment = (Fragment) fragmentClass.newInstance();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    FragmentManager fragmentManager = getSupportFragmentManager();
-    if (fragment != mapFragment) {
-      fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
-          .addToBackStack(null)
+      MapFragment mapFragment = new MapFragment();
+      fragmentManager.beginTransaction().replace(R.id.fragment_container, mapFragment)
+          .addToBackStack(MAP_FRAGMENT_TAG)
           .commit();
+      mapFragment.setRetainInstance(true);
+      //    fragmentClass = MapFragment.class;
+    } else if (id == R.id.nav_food) {
+      FoodFragment foodFragment = new FoodFragment();
+      fragmentManager.beginTransaction().replace(R.id.fragment_container, foodFragment)
+          .addToBackStack(FOOD_FRAGMENT_TAG)
+          .commit();
+      //  fragmentClass = FoodFragment.class;
+    } else if (id == R.id.nav_bars) {
+      BarsFragment barsFragment = new BarsFragment();
+      fragmentManager.beginTransaction().replace(R.id.fragment_container, barsFragment)
+          .addToBackStack(BARS_FRAGMENT_TAG)
+          .commit();
+      //   fragmentClass = BarsFragment.class;
+    } else if (id == R.id.nav_clubs) {
+      ClubsFragment clubsFragment = new ClubsFragment();
+      fragmentManager.beginTransaction().replace(R.id.fragment_container, clubsFragment)
+          .addToBackStack(CLUBS_FRAGMENT_TAG)
+          .commit();
+      //  fragmentClass = ClubsFragment.class;
+    } else if (id == R.id.nav_favourites) {
+      FavouritesFragment favouritesFragment = new FavouritesFragment();
+      fragmentManager.beginTransaction().replace(R.id.fragment_container, favouritesFragment)
+          .addToBackStack(FAVOURITE_FRAGMENT_TAG)
+          .commit();
+      // fragmentClass = FavouritesFragment.class;
+    } else if (id == R.id.nav_sights) {
+      SightsFragment sightsFragment = new SightsFragment();
+      getSupportFragmentManager().beginTransaction()
+          .replace(R.id.fragment_container, sightsFragment)
+          .addToBackStack(SIGHTS_FRAGMENT_TAG)
+          .commit();
+      // fragmentClass = SightsFragment.class;
+    } else if (id == R.id.nav_museums) {
+      MuseumsFragment museumsFragment = new MuseumsFragment();
+      getSupportFragmentManager().beginTransaction()
+          .replace(R.id.fragment_container, museumsFragment)
+          .addToBackStack(MUSEUMS_FRAGMENT_TAG)
+          .commit();
+      //  fragmentClass = MuseumsFragment.class;
     }
+//    try {
+//      fragment = (Fragment) fragmentClass.newInstance();
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//    }
+
+//    FragmentManager fragmentManager = getSupportFragmentManager();
+//    if (fragment != mapFragment) {
+//      fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
+//          .addToBackStack(null)
+//          .commit();
+//    }
 
 
     DrawerLayout drawer = findViewById(R.id.drawer_layout);

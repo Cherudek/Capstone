@@ -233,7 +233,7 @@ public class DetailFragment extends Fragment {
       result = placeIdMap.getResult();
       tvName.setText(result.getName());
       tvAddress.setText(result.getVicinity());
-      if (result.getPhotos().get(0) != null) {
+      if (result.getPhotos() != null) {
         photoReference = result.getPhotos().get(0).getPhotoReference();
       }
       picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
