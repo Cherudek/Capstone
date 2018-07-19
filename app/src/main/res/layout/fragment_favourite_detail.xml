@@ -13,6 +13,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+      android:paddingBottom="@dimen/margin_6x"
       android:orientation="vertical"
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
@@ -134,10 +135,24 @@
         android:layout_height="wrap_content">
       </android.support.v7.widget.RecyclerView>
 
+      <TextView
+        android:id="@+id/tv_reviews"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/fui_button_inset_top"
+        android:fontFamily="@font/quicksand_medium"
+        android:gravity="center_horizontal"
+        android:text="Reviews"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="30sp"/>
+
       <android.support.v7.widget.RecyclerView
         android:id="@+id/favourite_reviews"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        >
 
       </android.support.v7.widget.RecyclerView>
 
