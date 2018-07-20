@@ -59,7 +59,7 @@ public class FavouriteDetailFragment extends Fragment {
   private List<Review> reviewsList;
   private int height;
   private int width;
-  private String photoReference;
+  private String photoReference = "";
   private String apiKey;
   private String picassoPhotoUrl;
   private DetailViewModelFactory detailViewModelFactory;
@@ -147,7 +147,9 @@ public class FavouriteDetailFragment extends Fragment {
   @Override
   public void onResume() {
     super.onResume();
-    photoReference = resultFromFavourites.getPhotos().get(0).getPhotoReference();
+    if (resultFromFavourites.getPhotos() != null) {
+      photoReference = resultFromFavourites.getPhotos().get(0).getPhotoReference();
+    }
     picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
     Glide.with(this)
         .load(picassoPhotoUrl)

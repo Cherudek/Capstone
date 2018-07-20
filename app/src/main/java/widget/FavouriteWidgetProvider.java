@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.widget.RemoteViews;
 import com.example.gregorio.capstone.MainActivity;
 import com.example.gregorio.capstone.R;
@@ -20,18 +21,47 @@ public class FavouriteWidgetProvider extends AppWidgetProvider {
     // Construct the RemoteViews object
     RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.favourite_widget);
 
+    Bundle options = appWidgetManager.getAppWidgetOptions(appWidgetId);
+    int width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+    RemoteViews rv;
+    // if(width<300){
+    // rv = getSingleRemoteView(context);
+    //  } else {
+    rv = getListRemoteView(context);
+    //  }
+    // Instruct the widget manager to update the widget
+    appWidgetManager.updateAppWidget(appWidgetId, rv);
+  }
+
+  private static RemoteViews getSingleRemoteView(Context context) {
+    // Construct the RemoteViews object
+    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.favourite_widget);
     // Set a Pending intent to launch the Favourite Fragment.
     Intent intent = new Intent(context, MainActivity.class);
     intent.putExtra(INTENT_KEY, "Favourite");
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
     views.setOnClickPendingIntent(R.id.appwidget_layout, pendingIntent);
+    return views;
+  }
 
+  private static RemoteViews getListRemoteView(Context context) {
+    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.favourite_widget);
+    // Set the ListWidgetService intent as the adapter for the ListView
+    Intent intent = new Intent(context, ListWidgetService.class);
+    views.setRemoteAdapter(R.id.appwidget_list_view, intent);
+    // set the FavouriteDetails fragment to launch when clicked
 
+    Intent appIntent = new Intent(context, MainActivity.class);
+    appIntent.putExtra(INTENT_KEY, "Favourite");
+    appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    PendingIntent appPendingIntent = PendingIntent
+        .getActivity(context, 0, appIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+    views.setOnClickPendingIntent(R.id.appwidget_layout, appPendingIntent);
+    // Handle Empty List View
+    views.setEmptyView(R.id.appwidget_list_view, R.id.appwidget_background);
+    return views;
 
-
-    // Instruct the widget manager to update the widget
-    appWidgetManager.updateAppWidget(appWidgetId, views);
   }
 
   @Override

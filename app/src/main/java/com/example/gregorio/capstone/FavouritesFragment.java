@@ -35,6 +35,7 @@ import java.util.List;
 import pojosplaceid.Result;
 import utils.RecyclerItemTouchHelper;
 import viewmodel.FavouriteDetailSharedViewModel;
+import widget.ListRemoteViewFactory;
 
 public class FavouritesFragment extends Fragment implements
     FavouritesAdapter.FavouriteAdapterOnClickHandler,
@@ -54,6 +55,7 @@ public class FavouritesFragment extends Fragment implements
   private DatabaseReference favouriteDbRef;
   private List<Result> mResultList;
   private OnFavouritesFragmentInteractionListener mListener;
+  private ListRemoteViewFactory listRemoteViewFactory;
 
   public FavouritesFragment() {
   }
@@ -75,6 +77,7 @@ public class FavouritesFragment extends Fragment implements
     int dbSize = favouriteDbRef.getRoot().child(FIREBASE_ROOT_NODE).child(FIREBASE_FAVOURITES_NODE)
         .getKey().length();
     favouritesAdapter = new FavouritesAdapter(this, dbSize, apiKey);
+    listRemoteViewFactory = new ListRemoteViewFactory(getContext(), apiKey);
     return rootView;
   }
 

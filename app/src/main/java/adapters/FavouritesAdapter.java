@@ -25,6 +25,7 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
   private String mApiKey;
   private int mFavouriteSize;
   private Context context;
+  private String photoReference = "";
   private  final FavouriteAdapterOnClickHandler mClickHandler;
 
   public FavouritesAdapter(FavouriteAdapterOnClickHandler clickHandler, int size, String apiKey){
@@ -48,7 +49,9 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
   @Override
   public void onBindViewHolder(@NonNull FavouriteViewHolder holder, int position) {
     Result currentPlaceId = favouritesPlaceId.get(position);
-    String photoReference = currentPlaceId.getPhotos().get(0).getPhotoReference();
+    if (currentPlaceId.getPhotos() != null) {
+      photoReference = currentPlaceId.getPhotos().get(0).getPhotoReference();
+    }
     String address = currentPlaceId.getVicinity();
     String name = currentPlaceId.getName();
     String placeId = currentPlaceId.getPlaceId();
