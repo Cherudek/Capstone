@@ -134,6 +134,7 @@ public class FavouriteDetailFragment extends Fragment {
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
+    removeFavourite.setContentDescription("Remove From Favourite Button");
     removeFavourite.setOnClickListener(v -> {
       String childKey = resultFromFavourites.getFavourite_node_key();
       String name = resultFromFavourites.getName();
@@ -154,14 +155,23 @@ public class FavouriteDetailFragment extends Fragment {
     Glide.with(this)
         .load(picassoPhotoUrl)
         .into(ivPhotoView);
+    ivPhotoView.setContentDescription("Favorite Place Image");
     mRating = resultFromFavourites.getRating();
     tvName.setText(resultFromFavourites.getName());
+    tvName.setContentDescription("The Favourite Place Name is " + resultFromFavourites.getName());
     tvAddress.setText(resultFromFavourites.getVicinity());
+    tvAddress.setContentDescription(
+        "The Favourite Place address is: " + resultFromFavourites.getVicinity());
     tvWebAddress.setText(resultFromFavourites.getWebsite());
+    tvWebAddress.setContentDescription(
+        "The Favourite Place Web address is: " + resultFromFavourites.getWebsite());
     if(mPriceLevel!=null){
       mPriceLevel = resultFromFavourites.getRating();
     }
     tvTelephone.setText(resultFromFavourites.getInternationalPhoneNumber());
+    tvTelephone.setContentDescription(
+        "The Favourite Place telephone number is: " + resultFromFavourites
+            .getInternationalPhoneNumber());
     if (resultFromFavourites.getOpeningHours() != null) {
       Boolean openingHours = resultFromFavourites.getOpeningHours().getOpenNow();
       if (openingHours) {

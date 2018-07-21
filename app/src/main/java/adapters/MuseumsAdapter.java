@@ -54,9 +54,12 @@ public class MuseumsAdapter extends
     Glide.with(context)
         .load(photoUrl)
         .into(holder.mView);
-
     holder.mName.setText(name);
     holder.mAddress.setText(address);
+    // Enable dynamic content description
+    holder.mView.setContentDescription("Image View for " + name);
+    holder.mAddress.setContentDescription("The address is: " + address);
+    holder.mName.setContentDescription("The Name of the place is: " + name);
   }
 
   @Override

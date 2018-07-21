@@ -40,7 +40,6 @@ public class SightsAdapter extends RecyclerView.Adapter<SightsAdapter.SightsView
 
   @Override
   public void onBindViewHolder(@NonNull SightsViewHolder holder, int position) {
-
     Result currentPlaceId = sightsPlaceId.get(position);
     String photoReference = currentPlaceId.getPhotos().get(0).getPhotoReference();
     String address = currentPlaceId.getVicinity();
@@ -51,9 +50,12 @@ public class SightsAdapter extends RecyclerView.Adapter<SightsAdapter.SightsView
     Glide.with(context)
         .load(photoUrl)
         .into(holder.mSightImage);
-
     holder.mSightName.setText(name);
     holder.mSightAddress.setText(address);
+    // Enable dynamic content description
+    holder.mSightImage.setContentDescription("Image View for " + name);
+    holder.mSightAddress.setContentDescription("The address is: " + address);
+    holder.mSightName.setContentDescription("The Name of the place is: " + name);
   }
 
   @Override

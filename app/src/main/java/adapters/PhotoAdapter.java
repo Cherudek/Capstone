@@ -45,6 +45,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     Glide.with(context)
         .load(photoUrl)
         .into(holder.mImageView);
+    holder.mImageView.setContentDescription("Photo Galleries for your the detail place selected");
   }
 
   public void addAll(List<Photo> photos) {

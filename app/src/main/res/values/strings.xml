@@ -41,4 +41,17 @@
   <string name="add_widget">Add widget</string>
   <string name="info">Info</string>
   <string name="museums">Museums</string>
+  <string name="photos">Photos</string>
+  <string name="place_picker_button">Place Picker Button</string>
+  <string name="map_view">Map View</string>
+  <string name="navigation_menu">Navigation Menu</string>
+  <string name="map_button">Map Button</string>
+  <string name="favourite_list_button">Favourite List Button</string>
+  <string name="recommended_sights_list_button">Recommended Sights List Button</string>
+  <string name="recommended_museums_list_button">Recommended Museums List Button</string>
+  <string name="recommended_food_places_list_button">Recommended Food Places list button</string>
+  <string name="recommended_bars_list_button">Recommended bars list button</string>
+  <string name="mole_antonelliana_background_image">Mole Antonelliana Background Image</string>
+  <string name="my_favorite_places">My Favorite Places</string>
+  <string name="widget_favourite_place_image">Widget Favourite place Image</string>
 </resources>

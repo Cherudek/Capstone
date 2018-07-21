@@ -5,6 +5,7 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
+  android:background="@color/primaryColor"
   tools:context=".DetailFragment">
 
   <ScrollView
@@ -128,6 +129,19 @@
         android:text="@string/opening_hours"
         android:textColor="@color/white"
         android:textSize="18sp"/>
+
+      <TextView
+        android:id="@+id/tv_photos"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/margin_2x"
+        android:fontFamily="@font/quicksand_medium"
+        android:gravity="center_horizontal"
+        android:text="@string/photos"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="30sp"/>
 
       <android.support.v7.widget.RecyclerView
         android:id="@+id/favourite_photo_gallery"

@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import com.example.gregorio.capstone.R;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import pojosplaceid.Review;
@@ -46,6 +45,11 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     holder.tvReviewTime.setText(String.valueOf(relativeTimeDescription));
     holder.tvReview.setText(reviewText);
     holder.ratingBar.setRating(authorRating);
+    // Content Description
+    holder.ratingBar.setContentDescription("The rating for this place is: " + authorRating);
+    holder.tvReviewAuthor.setContentDescription("The Reviewer's name is: " + authorName);
+    holder.tvReview.setContentDescription("The Review is: " + reviewText);
+    holder.tvReviewTime.setContentDescription("The Review time is:" + relativeTimeDescription);
 
   }
 

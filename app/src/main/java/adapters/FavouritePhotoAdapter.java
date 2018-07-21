@@ -47,6 +47,8 @@ public class FavouritePhotoAdapter extends RecyclerView.Adapter<FavouritePhotoAd
         .load(photoUrl)
         .into(holder.mImageView);
     Log.i(LOG_TAG, "Photo Adapter GalleryUrl " + photoUrl);
+    holder.mImageView.setContentDescription("Favourite Place Image");
+
   }
 
 

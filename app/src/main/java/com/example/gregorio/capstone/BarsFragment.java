@@ -1,6 +1,7 @@
 package com.example.gregorio.capstone;
 
-import adapters.SightsAdapter;
+import adapters.BarsAdapter;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import pojosplaceid.Result;
 
-public class BarsFragment extends Fragment {
+public class BarsFragment extends Fragment implements BarsAdapter.AdapterOnClickHandler {
 
   private static final String LOG_TAG = BarsFragment.class.getSimpleName();
   private static final String FIREBASE_ROOT_NODE = "checkouts";
@@ -36,9 +37,10 @@ public class BarsFragment extends Fragment {
   ConstraintLayout constraintLayout;
   private String apiKey;
   private LinearLayoutManager layoutManager;
-  private SightsAdapter adapter;
+  private BarsAdapter adapter;
   private DatabaseReference dbRef;
   private List<Result> mBarsList;
+  private OnBarsFragmentInteractionListener mListener;
 
 
   public BarsFragment(){
@@ -53,7 +55,7 @@ public class BarsFragment extends Fragment {
     ButterKnife.bind(this, rootView);
     apiKey = getContext().getResources().getString(R.string.google_api_key);
     dbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
-    adapter = new SightsAdapter(apiKey);
+    adapter = new BarsAdapter(this::onClick, apiKey);
     return rootView;
   }
 
@@ -89,6 +91,43 @@ public class BarsFragment extends Fragment {
 
       }
     });
+  }
+
+
+  public void onBarsPressedIntent(Result result) {
+    if (mListener != null) {
+      mListener.onBarsFragmentInteraction(result);
+    }
+  }
+
+  // Intent to launch the favorite detail fragment
+  @Override
+  public void onClick(Result result) {
+    BarsFragment.this.onBarsPressedIntent(result);
+  }
+
+  @Override
+  public void onAttach(Context context) {
+    super.onAttach(context);
+    // This makes sure that the host activity has implemented the callback interface
+    // If not, it throws an exception
+    try {
+      mListener = (OnBarsFragmentInteractionListener) context;
+    } catch (ClassCastException e) {
+      throw new ClassCastException(context.toString()
+          + " must implement OnFavouritesFragmentInteractionListener");
+    }
+  }
+
+  @Override
+  public void onDetach() {
+    super.onDetach();
+    mListener = null;
+  }
+
+  public interface OnBarsFragmentInteractionListener {
+
+    void onBarsFragmentInteraction(Result result);
   }
 }
 

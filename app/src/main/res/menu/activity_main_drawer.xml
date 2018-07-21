@@ -5,30 +5,37 @@
 
   <group android:checkableBehavior="single">
     <item
+      android:contentDescription="@string/map_button"
       android:id="@+id/nav_map"
       android:icon="@drawable/ic_map_black_24dp"
       android:title="@string/nv_map"/>
     <item
+      android:contentDescription="@string/favourite_list_button"
       android:id="@+id/nav_favourites"
       android:icon="@drawable/ic_favorite_border_black_24dp"
       android:title="@string/nv_favourites"/>
     <item
+      android:contentDescription="@string/recommended_sights_list_button"
       android:id="@+id/nav_sights"
       android:icon="@drawable/ic_location_city_black_24dp"
       android:title="@string/nv_sights"/>
     <item
+      android:contentDescription="@string/recommended_museums_list_button"
       android:id="@+id/nav_museums"
       android:icon="@drawable/ic_museums_black_24dp"
       android:title="@string/museums"/>
     <item
+      android:contentDescription="@string/recommended_food_places_list_button"
       android:id="@+id/nav_food"
       android:icon="@drawable/ic_restaurant_black_24dp"
       android:title="@string/nv_food"/>
     <item
+      android:contentDescription="@string/recommended_bars_list_button"
       android:id="@+id/nav_bars"
       android:icon="@drawable/ic_local_bar_black_24dp"
       android:title="@string/nv_bars"/>
     <item
+      android:contentDescription="Recommended Clubs list button"
       android:id="@+id/nav_clubs"
       android:icon="@drawable/ic_music_note_black_24dp"
       android:title="@string/nv_clubs"/>

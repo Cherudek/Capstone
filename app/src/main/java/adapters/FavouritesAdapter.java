@@ -55,16 +55,16 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
     String address = currentPlaceId.getVicinity();
     String name = currentPlaceId.getName();
     String placeId = currentPlaceId.getPlaceId();
-
-    Log.i(LOG_TAG, " onBindViewHolder PlaceId = " + placeId);
-
     String photoUrl = PHOTO_PLACE_URL + "maxwidth=100&photoreference=" + photoReference + "&key=" + mApiKey;
     Glide.with(context)
         .load(photoUrl)
         .into(holder.mFavouriteImage);
-
     holder.mFavouriteName.setText(name);
     holder.mFavouriteAddress.setText(address);
+    // Enable dynamic content description
+    holder.mFavouriteImage.setContentDescription("Image View for " + name);
+    holder.mFavouriteAddress.setContentDescription("The address is: " + address);
+    holder.mFavouriteName.setContentDescription("The Name of the place is: " + name);
   }
 
   public void addAll(List<Result> result) {

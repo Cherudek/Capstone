@@ -28,7 +28,7 @@
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <action android:name="android.intent.action.SEARCH"/>
-
+        <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
 
@@ -58,6 +58,12 @@
         android:name="android.appwidget.provider"
         android:resource="@xml/favourite_widget_info"/>
     </receiver>
+
+    <service
+      android:name="widget.ListWidgetService"
+      android:permission="android.permission.BIND_REMOTEVIEWS">
+
+    </service>
 
   </application>
 

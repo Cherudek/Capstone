@@ -3,6 +3,7 @@ package adapters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,10 @@ public class BarsAdapter extends RecyclerView.Adapter<BarsAdapter.BarsViewHolder
   private List<Result> barPlaceId = new ArrayList<>();
   private String mApiKey;
   private Context context;
-  public BarsAdapter(String apiKey) {
+  private final AdapterOnClickHandler mClickHandler;
+
+  public BarsAdapter(AdapterOnClickHandler adapterOnClickHandler, String apiKey) {
+    this.mClickHandler = adapterOnClickHandler;
     this.mApiKey = apiKey;
   }
 
@@ -50,6 +54,19 @@ public class BarsAdapter extends RecyclerView.Adapter<BarsAdapter.BarsViewHolder
         .into(holder.mImage);
     holder.mName.setText(name);
     holder.mAddress.setText(address);
+    // Enable dynamic content description
+    holder.mImage.setContentDescription("Image View for " + name);
+    holder.mAddress.setContentDescription("The address is: " + address);
+    holder.mName.setContentDescription("The Name of the place is: " + name);
+
+  }
+
+  /**
+   * The interface that receives onClick messages.
+   */
+  public interface AdapterOnClickHandler {
+
+    void onClick(Result result);
   }
 
   @Override
@@ -65,7 +82,7 @@ public class BarsAdapter extends RecyclerView.Adapter<BarsAdapter.BarsViewHolder
     notifyDataSetChanged();
   }
 
-  public class BarsViewHolder extends RecyclerView.ViewHolder {
+  public class BarsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public final ImageView mImage;
     public final TextView mName;
@@ -76,6 +93,17 @@ public class BarsAdapter extends RecyclerView.Adapter<BarsAdapter.BarsViewHolder
       mImage = itemView.findViewById(R.id.bars_photo_place_id);
       mName = itemView.findViewById(R.id.bars_place_name);
       mAddress = itemView.findViewById(R.id.bars_place_address);
+      itemView.setOnClickListener(this::onClick);
+    }
+
+    @Override
+    public void onClick(View v) {
+      int adapterPosition = getAdapterPosition();
+      Result result = barPlaceId.get(adapterPosition);
+      String placeId = result.getPlaceId();
+      Log.i(LOG_TAG, "The Place id clicked is" + placeId);
+      mClickHandler.onClick(result);
+
     }
   }
 }

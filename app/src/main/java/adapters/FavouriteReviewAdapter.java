@@ -1,6 +1,5 @@
 package adapters;
 
-import adapters.ReviewAdapter.ReviewViewHolder;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -44,6 +43,10 @@ public class FavouriteReviewAdapter extends RecyclerView.Adapter<FavouriteReview
     holder.tvReviewTime.setText(String.valueOf(relativeTimeDescription));
     holder.tvReview.setText(reviewText);
     holder.ratingBar.setRating(authorRating);
+    // Enable dynamic content description
+    holder.tvReviewAuthor.setContentDescription("The Reviewer's name is " + authorName);
+    holder.tvReview.setContentDescription("The Review is: " + reviewText);
+    holder.ratingBar.setContentDescription("The Rating of the place is: " + authorRating);
   }
 
   public void addAll(List<Review> reviews) {

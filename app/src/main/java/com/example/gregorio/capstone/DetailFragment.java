@@ -145,7 +145,6 @@ public class DetailFragment extends Fragment {
     return fragment;
   }
 
-
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -207,6 +206,9 @@ public class DetailFragment extends Fragment {
         mPlaceId = item.getPlaceId();
       });
     }
+
+    // Add to favourites FAB
+    addFavourites.setContentDescription("Add to Favourite Button");
     // Add Place to favourites (Room Database)
     addFavourites.setOnClickListener(v -> {
       // Object to be passed to the firebase db reference.
@@ -232,17 +234,22 @@ public class DetailFragment extends Fragment {
     detailViewModel.getPlaceDetails().observe(this, (PlaceId placeIdMap) -> {
       result = placeIdMap.getResult();
       tvName.setText(result.getName());
+      tvName.setContentDescription("The Details of the place name is " + result.getName());
       tvAddress.setText(result.getVicinity());
+      tvAddress.setContentDescription("The Address is: " + result.getVicinity());
       if (result.getPhotos() != null) {
         photoReference = result.getPhotos().get(0).getPhotoReference();
       }
       picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
       Glide.with(this).load(picassoPhotoUrl).into(ivPhotoView);
-      tvWebAddress.setText(result.getVicinity());
+      ivPhotoView.setContentDescription("Details Place Image");
+      tvWebAddress.setContentDescription("The website address is " + result.getWebsite());
       String website = result.getWebsite();
       tvWebAddress.setText(website);
       String phoneNo = result.getInternationalPhoneNumber();
       tvTelephone.setText(phoneNo);
+      tvTelephone.setContentDescription(
+          "The telephone number is: " + result.getInternationalPhoneNumber());
       if(TextUtils.isEmpty(website)){
         tvWebAddress.setVisibility(View.GONE);
       } else {

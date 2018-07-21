@@ -13,7 +13,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-
     <include
       layout="@layout/app_bar_main"
       android:layout_width="match_parent"
@@ -21,6 +20,8 @@
   </LinearLayout>
 
   <android.support.design.widget.NavigationView
+    android:contentDescription="@string/navigation_menu"
+    android:nextFocusRight="@id/menu_search"
     android:id="@+id/nav_view"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"

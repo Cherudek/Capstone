@@ -24,7 +24,8 @@ import pojosplaceid.Result;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
     MapFragment.OnFragmentInteractionListener,
     DetailFragment.OnFragmentInteractionListener,
-    FavouritesFragment.OnFavouritesFragmentInteractionListener {
+    FavouritesFragment.OnFavouritesFragmentInteractionListener,
+    BarsFragment.OnBarsFragmentInteractionListener {
 
   private final static String LOG_TAG = MainActivity.class.getSimpleName();
   private final static String MAP_FRAGMENT_TAG = "Map Fragment Tag";
@@ -48,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   public final static String PLACE_PICKER_REVIEWS_TAG = "PLACE PICKER REVIEWS";
   public final static String PLACE_PICKER_PHOTO_GALLERY_TAG = "PLACE PICKER PHOTO GALLERY";
   public final static String PLACE_PICKER_PLACE_ID_TAG = "PLACE PICKER PLACE ID";
+  public final static String FIREBASE_CHILD_NODE_TAG = "Firebase Child Node Tag";
+
 
 
   private MapFragment mapFragment;
@@ -315,6 +318,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     transaction.replace(R.id.fragment_container, favouritedetailFragment);
     transaction.addToBackStack(FAVOURITE_DETAIL_FRAGMENT_TAG);
     // Commit the transaction
+    transaction.commit();
+  }
+
+  @Override
+  public void onBarsFragmentInteraction(Result result) {
+    Bundle bundle = new Bundle();
+    String placeId = result.getPlaceId();
+    bundle.putString(PLACE_PICKER_PLACE_ID_TAG, placeId);
+    DetailFragment detailFragment = new DetailFragment();
+    detailFragment.setArguments(bundle);
+    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+    transaction.replace(R.id.fragment_container, detailFragment);
+    transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
     transaction.commit();
   }
 }

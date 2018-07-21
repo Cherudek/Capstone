@@ -13,24 +13,25 @@ import com.example.gregorio.capstone.R;
 
 public class FavouriteWidgetProvider extends AppWidgetProvider {
 
+  public static final String EXTRA_LABEL = "NAME_TEXT";
+  public static final String EXTRA_LABEL2 = "ADDRESS_TEXT";
   public static final String INTENT_KEY = "intent key";
 
   static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
       int appWidgetId) {
 
     // Construct the RemoteViews object
-    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.favourite_widget);
+    RemoteViews views;
 
     Bundle options = appWidgetManager.getAppWidgetOptions(appWidgetId);
     int width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-    RemoteViews rv;
     // if(width<300){
     // rv = getSingleRemoteView(context);
     //  } else {
-    rv = getListRemoteView(context);
+    views = getListRemoteView(context);
     //  }
     // Instruct the widget manager to update the widget
-    appWidgetManager.updateAppWidget(appWidgetId, rv);
+    appWidgetManager.updateAppWidget(appWidgetId, views);
   }
 
   private static RemoteViews getSingleRemoteView(Context context) {

@@ -23,7 +23,7 @@
 
   <FrameLayout
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    android:background="@color/primaryColor"
+    android:background="@drawable/mole_colors_primary_bkgnd"
     android:id="@+id/fragment_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"/>

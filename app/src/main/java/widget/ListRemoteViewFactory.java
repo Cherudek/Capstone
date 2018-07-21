@@ -1,6 +1,7 @@
 package widget;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -89,8 +90,16 @@ public class ListRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
     String placeId = result.getPlaceId();
     String photoUrl =
         PHOTO_PLACE_URL + "maxwidth=100&photoreference=" + photoReference + "&key=" + mApiKey;
-    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.favourite_widget);
-    views.setTextViewText(R.id.appwidget_text, name);
+    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_favourite_item);
+    views.setTextViewText(R.id.widget_favourite_place_name, name);
+    views.setTextViewText(R.id.widget_favourite_place_address, address);
+
+    Intent fillInIntent = new Intent();
+    fillInIntent.putExtra(FavouriteWidgetProvider.EXTRA_LABEL, name);
+    fillInIntent.putExtra(FavouriteWidgetProvider.EXTRA_LABEL2, address);
+
+    views.setOnClickFillInIntent(R.id.widgetItemContainer, fillInIntent);
+
 
     return views;
   }
@@ -102,16 +111,16 @@ public class ListRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
 
   @Override
   public int getViewTypeCount() {
-    return 0;
+    return 1;
   }
 
   @Override
   public long getItemId(int position) {
-    return 0;
+    return 1;
   }
 
   @Override
   public boolean hasStableIds() {
-    return false;
+    return true;
   }
 }

@@ -47,7 +47,6 @@ public class FavouritesFragment extends Fragment implements
   @BindView(R.id.favourites_constraint_layout)
   ConstraintLayout constraintLayout;
   private FavouriteDetailSharedViewModel sharedModel;
-
   @BindView(R.id.favourites_rv)RecyclerView rvFavourites;
   private LinearLayoutManager favouritesLayoutManager;
   private FavouritesAdapter favouritesAdapter;
@@ -102,11 +101,9 @@ public class FavouritesFragment extends Fragment implements
           result.setFavourite_node_key(key);
           Log.d(LOG_TAG, "Firebase Location key: " + key);
           mResultList.add(result);
-
         }
         favouritesAdapter.addAll(mResultList);
         rvFavourites.setAdapter(favouritesAdapter);
-
       }
 
       @Override
