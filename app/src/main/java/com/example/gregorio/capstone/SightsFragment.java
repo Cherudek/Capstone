@@ -1,6 +1,7 @@
 package com.example.gregorio.capstone;
 
 import adapters.SightsAdapter;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import pojosplaceid.Result;
 
-public class SightsFragment extends Fragment {
+public class SightsFragment extends Fragment implements SightsAdapter.AdapterOnClickHandler {
 
   private static final String LOG_TAG = SightsFragment.class.getSimpleName();
   private static final String FIREBASE_ROOT_NODE = "checkouts";
@@ -40,7 +41,7 @@ public class SightsFragment extends Fragment {
   private SightsAdapter sightsAdapter;
   private DatabaseReference sightsDbRef;
   private List<Result> mSightsList;
-
+  private OnSightsFragmentInteractionListener mListener;
 
   public SightsFragment() {
 
@@ -54,7 +55,7 @@ public class SightsFragment extends Fragment {
     ButterKnife.bind(this, rootView);
     apiKey = getContext().getResources().getString(R.string.google_api_key);
     sightsDbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
-    sightsAdapter = new SightsAdapter(apiKey);
+    sightsAdapter = new SightsAdapter(this::onClick, apiKey);
 
     return rootView;
   }
@@ -91,6 +92,43 @@ public class SightsFragment extends Fragment {
 
       }
     });
+  }
+
+  public void onSightsPressedIntent(Result result) {
+    if (mListener != null) {
+      mListener.onSightsFragmentInteraction(result);
+    }
+  }
+
+  // Intent to launch the favorite detail fragment
+
+  @Override
+  public void onAttach(Context context) {
+    super.onAttach(context);
+    // This makes sure that the host activity has implemented the callback interface
+    // If not, it throws an exception
+    try {
+      mListener = (OnSightsFragmentInteractionListener) context;
+    } catch (ClassCastException e) {
+      throw new ClassCastException(context.toString()
+          + " must implement OnSightsFragmentInteractionListener");
+    }
+  }
+
+  @Override
+  public void onDetach() {
+    super.onDetach();
+    mListener = null;
+  }
+
+  @Override
+  public void onClick(Result result) {
+    SightsFragment.this.onSightsPressedIntent(result);
+  }
+
+  public interface OnSightsFragmentInteractionListener {
+
+    void onSightsFragmentInteraction(Result result);
   }
 
 }

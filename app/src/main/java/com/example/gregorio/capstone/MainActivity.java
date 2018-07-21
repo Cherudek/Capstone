@@ -25,7 +25,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     MapFragment.OnFragmentInteractionListener,
     DetailFragment.OnFragmentInteractionListener,
     FavouritesFragment.OnFavouritesFragmentInteractionListener,
-    BarsFragment.OnBarsFragmentInteractionListener {
+    BarsFragment.OnBarsFragmentInteractionListener,
+    SightsFragment.OnSightsFragmentInteractionListener {
 
   private final static String LOG_TAG = MainActivity.class.getSimpleName();
   private final static String MAP_FRAGMENT_TAG = "Map Fragment Tag";
@@ -323,6 +324,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
   @Override
   public void onBarsFragmentInteraction(Result result) {
+    Bundle bundle = new Bundle();
+    String placeId = result.getPlaceId();
+    bundle.putString(PLACE_PICKER_PLACE_ID_TAG, placeId);
+    DetailFragment detailFragment = new DetailFragment();
+    detailFragment.setArguments(bundle);
+    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+    transaction.replace(R.id.fragment_container, detailFragment);
+    transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
+    transaction.commit();
+  }
+
+  @Override
+  public void onSightsFragmentInteraction(Result result) {
     Bundle bundle = new Bundle();
     String placeId = result.getPlaceId();
     bundle.putString(PLACE_PICKER_PLACE_ID_TAG, placeId);

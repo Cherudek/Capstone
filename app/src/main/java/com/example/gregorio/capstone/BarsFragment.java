@@ -126,7 +126,6 @@ public class BarsFragment extends Fragment implements BarsAdapter.AdapterOnClick
   }
 
   public interface OnBarsFragmentInteractionListener {
-
     void onBarsFragmentInteraction(Result result);
   }
 }

@@ -1,6 +1,6 @@
 package com.example.gregorio.capstone;
 
-import adapters.SightsAdapter;
+import adapters.FoodAdapter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -36,7 +36,7 @@ public class FoodFragment extends Fragment {
   ConstraintLayout constraintLayout;
   private String apiKey;
   private LinearLayoutManager layoutManager;
-  private SightsAdapter adapter;
+  private FoodAdapter adapter;
   private DatabaseReference dbRef;
   private List<Result> mFoodList;
 
@@ -52,7 +52,7 @@ public class FoodFragment extends Fragment {
     ButterKnife.bind(this, rootView);
     apiKey = getContext().getResources().getString(R.string.google_api_key);
     dbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
-    adapter = new SightsAdapter(apiKey);
+    adapter = new FoodAdapter(apiKey);
     return rootView;
   }
 
