@@ -62,8 +62,12 @@
     <service
       android:name="widget.ListWidgetService"
       android:permission="android.permission.BIND_REMOTEVIEWS">
-
     </service>
+
+    <service
+      android:name="widget.FirebaseToWidgetService">
+    </service>
+
 
   </application>
 

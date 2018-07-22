@@ -1,9 +1,14 @@
 package com.example.gregorio.capstone;
 
+import static widget.FavouriteWidgetProvider.INTENT_KEY;
+
 import adapters.FavouritesAdapter;
 import adapters.FavouritesAdapter.FavouriteViewHolder;
+import android.appwidget.AppWidgetManager;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -35,7 +40,7 @@ import java.util.List;
 import pojosplaceid.Result;
 import utils.RecyclerItemTouchHelper;
 import viewmodel.FavouriteDetailSharedViewModel;
-import widget.ListRemoteViewFactory;
+import widget.FavouriteWidgetProvider;
 
 public class FavouritesFragment extends Fragment implements
     FavouritesAdapter.FavouriteAdapterOnClickHandler,
@@ -44,6 +49,9 @@ public class FavouritesFragment extends Fragment implements
   private static final String LOG_TAG = FavouritesFragment.class.getSimpleName();
   private static final String FIREBASE_ROOT_NODE = "checkouts";
   private static final String FIREBASE_FAVOURITES_NODE = "Favourites";
+  private static final String WIDGET_INTENT_TAG = "Favourite List";
+
+
   @BindView(R.id.favourites_constraint_layout)
   ConstraintLayout constraintLayout;
   private FavouriteDetailSharedViewModel sharedModel;
@@ -54,7 +62,6 @@ public class FavouritesFragment extends Fragment implements
   private DatabaseReference favouriteDbRef;
   private List<Result> mResultList;
   private OnFavouritesFragmentInteractionListener mListener;
-  private ListRemoteViewFactory listRemoteViewFactory;
 
   public FavouritesFragment() {
   }
@@ -76,7 +83,6 @@ public class FavouritesFragment extends Fragment implements
     int dbSize = favouriteDbRef.getRoot().child(FIREBASE_ROOT_NODE).child(FIREBASE_FAVOURITES_NODE)
         .getKey().length();
     favouritesAdapter = new FavouritesAdapter(this, dbSize, apiKey);
-    listRemoteViewFactory = new ListRemoteViewFactory(getContext(), apiKey);
     return rootView;
   }
 
@@ -104,6 +110,18 @@ public class FavouritesFragment extends Fragment implements
         }
         favouritesAdapter.addAll(mResultList);
         rvFavourites.setAdapter(favouritesAdapter);
+
+        ArrayList<String> favourites = getFavouritesNames();
+        Log.i(LOG_TAG, "getFavouritesNames: " + favourites);
+        //Intent to pass recipe data (ingredient list) to the Widget Layout
+        Intent widgetIntent = new Intent(getContext(), FavouriteWidgetProvider.class);
+        widgetIntent.putExtra(INTENT_KEY, favourites);
+        widgetIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
+        int ids[] = AppWidgetManager.getInstance(getContext())
+            .getAppWidgetIds(new ComponentName(getContext(), FavouriteWidgetProvider.class));
+        widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        getContext().sendBroadcast(widgetIntent);
+
       }
 
       @Override
@@ -205,5 +223,15 @@ public class FavouritesFragment extends Fragment implements
   public void onDetach() {
     super.onDetach();
     mListener = null;
+  }
+
+  private ArrayList<String> getFavouritesNames() {
+    ArrayList<String> strings = new ArrayList<>();
+    for (int x = 0; x < mResultList.size(); x++) {
+      Result result = mResultList.get(x);
+      String name = result.getName();
+      strings.add(name);
+    }
+    return strings;
   }
 }

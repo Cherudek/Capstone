@@ -1,22 +1,18 @@
 package widget;
 
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.RemoteViewsService;
+import android.widget.RemoteViewsService.RemoteViewsFactory;
 import com.example.gregorio.capstone.R;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 import pojosplaceid.Result;
 
-public class ListRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory {
+public class ListRemoteViewFactory implements RemoteViewsFactory {
 
   private static final String LOG_TAG = ListRemoteViewFactory.class.getSimpleName();
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
@@ -25,46 +21,36 @@ public class ListRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
   private String mApiKey;
   private Context context;
   private DatabaseReference favouriteDbRef;
-  private List<Result> mResultList;
+  private String[] strings = {"1", "2", "3", "4", "5"};
+  private int appWidgetId;
+  private List<Result> favouritesPlaceId = new ArrayList<>();
 
 
-  public ListRemoteViewFactory(Context context, String apiKey) {
+  public ListRemoteViewFactory(Context context, List<Result> favouriteList) {
     this.context = context;
-    this.mApiKey = apiKey;
+    this.favouritesPlaceId = favouriteList;
   }
 
-  public ListRemoteViewFactory(Context context) {
+  public ListRemoteViewFactory(Context context, Intent intent) {
     this.context = context;
+    this.appWidgetId = intent
+        .getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+
   }
 
   @Override
   public void onCreate() {
 
+
   }
+
 
   @Override
   public void onDataSetChanged() {
 
-    favouriteDbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
-    favouriteDbRef.child(FIREBASE_FAVOURITES_NODE).addValueEventListener(new ValueEventListener() {
-      @Override
-      public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-        mResultList = new ArrayList<>();
-        Log.i(LOG_TAG, "DataSnapshot = " + dataSnapshot.getValue(Result.class));
-        for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {
-          String key = locationSnapshot.getKey();
-          Result result = locationSnapshot.getValue(Result.class);
-          result.setFavourite_node_key(key);
-          Log.d(LOG_TAG, "FireBase Location key: " + key);
-          mResultList.add(result);
-        }
-      }
 
-      @Override
-      public void onCancelled(@NonNull DatabaseError databaseError) {
 
-      }
-    });
+
   }
 
   @Override
@@ -74,31 +60,37 @@ public class ListRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
 
   @Override
   public int getCount() {
-    return mResultList.size();
+    if (favouritesPlaceId != null) {
+      Log.i(LOG_TAG, "getCount: " + favouritesPlaceId.size());
+      return favouritesPlaceId.size();
+    } else {
+      return 0;
+    }
+
   }
 
   @Override
   public RemoteViews getViewAt(int position) {
 
-    if (favouriteDbRef == null || mResultList.size() == 0) {
+    if (favouritesPlaceId.size() == 0) {
       return null;
     }
-    Result result = mResultList.get(position);
+    Result result = favouritesPlaceId.get(position);
     String photoReference = result.getPhotos().get(0).getPhotoReference();
     String address = result.getVicinity();
     String name = result.getName();
     String placeId = result.getPlaceId();
     String photoUrl =
         PHOTO_PLACE_URL + "maxwidth=100&photoreference=" + photoReference + "&key=" + mApiKey;
+
     RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_favourite_item);
     views.setTextViewText(R.id.widget_favourite_place_name, name);
     views.setTextViewText(R.id.widget_favourite_place_address, address);
 
-    Intent fillInIntent = new Intent();
-    fillInIntent.putExtra(FavouriteWidgetProvider.EXTRA_LABEL, name);
-    fillInIntent.putExtra(FavouriteWidgetProvider.EXTRA_LABEL2, address);
-
-    views.setOnClickFillInIntent(R.id.widgetItemContainer, fillInIntent);
+//    Intent fillInIntent = new Intent();
+//    fillInIntent.putExtra(FavouriteWidgetProvider.EXTRA_LABEL, name);
+//    fillInIntent.putExtra(FavouriteWidgetProvider.EXTRA_LABEL2, address);
+//    views.setOnClickFillInIntent(R.id.widgetItemContainer, fillInIntent);
 
 
     return views;
@@ -116,7 +108,7 @@ public class ListRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
 
   @Override
   public long getItemId(int position) {
-    return 1;
+    return position;
   }
 
   @Override

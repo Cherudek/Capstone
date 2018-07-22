@@ -1,6 +1,8 @@
 package com.example.gregorio.capstone;
 
+import adapters.AdapterOnClickHandler;
 import adapters.MuseumsAdapter;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -31,7 +33,7 @@ import pojosplaceid.Result;
  * Activities containing this fragment MUST implement the {@link }
  * interface.
  */
-public class MuseumsFragment extends Fragment {
+public class MuseumsFragment extends Fragment implements AdapterOnClickHandler {
 
   // TODO: Customize parameter argument names
   private static final String ARG_COLUMN_COUNT = "column-count";
@@ -50,6 +52,8 @@ public class MuseumsFragment extends Fragment {
   private DatabaseReference museumsDbRef;
   private List<Result> mMueseumsList;
   private int mColumnCount = 1;
+  private OnFragmentInteractionListener mListener;
+
 
   /**
    * Mandatory empty constructor for the fragment manager to instantiate the
@@ -75,7 +79,7 @@ public class MuseumsFragment extends Fragment {
     museumsDbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
     int dbSize = museumsDbRef.getRoot().child(FIREBASE_ROOT_NODE).child(FIREBASE_MUSEUMS_NODE)
         .getKey().length();
-    adapter = new MuseumsAdapter(apiKey);
+    adapter = new MuseumsAdapter(this::onClick, apiKey);
     return view;
   }
 
@@ -113,4 +117,33 @@ public class MuseumsFragment extends Fragment {
     });
   }
 
+  @Override
+  public void onAttach(Context context) {
+    super.onAttach(context);
+    // This makes sure that the host activity has implemented the callback interface
+    // If not, it throws an exception
+    try {
+      mListener = (OnFragmentInteractionListener) context;
+    } catch (ClassCastException e) {
+      throw new ClassCastException(context.toString()
+          + " must implement OnFragmentInteractionListener");
+    }
+  }
+
+  public void onMuseumsPressedIntent(Result result) {
+    if (mListener != null) {
+      mListener.onFragmentInteraction(result);
+    }
+  }
+
+  @Override
+  public void onDetach() {
+    super.onDetach();
+    mListener = null;
+  }
+
+  @Override
+  public void onClick(Result result) {
+    MuseumsFragment.this.onMuseumsPressedIntent(result);
+  }
 }

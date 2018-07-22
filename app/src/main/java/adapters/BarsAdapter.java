@@ -61,13 +61,6 @@ public class BarsAdapter extends RecyclerView.Adapter<BarsAdapter.BarsViewHolder
 
   }
 
-  /**
-   * The interface that receives onClick messages.
-   */
-  public interface AdapterOnClickHandler {
-
-    void onClick(Result result);
-  }
 
   @Override
   public int getItemCount() {

@@ -2,6 +2,7 @@ package adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,13 +22,16 @@ import pojosplaceid.Result;
 public class MuseumsAdapter extends
     RecyclerView.Adapter<MuseumsAdapter.ViewHolder> {
 
+  private static final String LOG_TAG = MuseumsAdapter.class.getSimpleName();
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
   private List<Result> mMuseumList = new ArrayList<>();
   private String apiKey;
   private Context context;
+  private final AdapterOnClickHandler mClickHandler;
 
-  public MuseumsAdapter(String apiKey) {
+  public MuseumsAdapter(AdapterOnClickHandler adapterOnClickHandler, String apiKey) {
     this.apiKey = apiKey;
+    this.mClickHandler = adapterOnClickHandler;
   }
 
   @Override
@@ -75,7 +79,7 @@ public class MuseumsAdapter extends
     notifyDataSetChanged();
   }
 
-  public class ViewHolder extends RecyclerView.ViewHolder {
+  public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public final ImageView mView;
     public final TextView mName;
@@ -86,11 +90,21 @@ public class MuseumsAdapter extends
       mView = view.findViewById(R.id.museums_photo_place_id);
       mName = view.findViewById(R.id.museums_place_name);
       mAddress = view.findViewById(R.id.museums_place_address);
+      view.setOnClickListener(this::onClick);
     }
 
     @Override
     public String toString() {
       return super.toString() + " '" + mAddress.getText() + "'";
+    }
+
+    @Override
+    public void onClick(View v) {
+      int adapterPosition = getAdapterPosition();
+      Result result = mMuseumList.get(adapterPosition);
+      String placeId = result.getPlaceId();
+      Log.i(LOG_TAG, "The Place id clicked is" + placeId);
+      mClickHandler.onClick(result);
     }
   }
 }

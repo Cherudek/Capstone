@@ -3,6 +3,7 @@ package adapters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +22,11 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
   private List<Result> foodPlaceId = new ArrayList<>();
   private String mApiKey;
   private Context context;
+  private final AdapterOnClickHandler mClickHandler;
 
-  public FoodAdapter(String apiKey) {
+  public FoodAdapter(AdapterOnClickHandler adapterOnClickHandler, String apiKey) {
     this.mApiKey = apiKey;
+    this.mClickHandler = adapterOnClickHandler;
   }
 
   @NonNull
@@ -57,6 +60,14 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
     holder.mName.setContentDescription("The Name of the place is: " + name);
   }
 
+  /**
+   * The interface that receives onClick messages.
+   */
+  public interface AdapterOnClickHandler {
+
+    void onClick(Result result);
+  }
+
   @Override
   public int getItemCount() {
     return foodPlaceId.size();
@@ -71,7 +82,7 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
   }
 
 
-  public class FoodViewHolder extends RecyclerView.ViewHolder {
+  public class FoodViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public final ImageView mImage;
     public final TextView mName;
@@ -82,9 +93,19 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
       mImage = itemView.findViewById(R.id.food_photo_place_id);
       mName = itemView.findViewById(R.id.food_place_name);
       mAddress = itemView.findViewById(R.id.food_place_address);
+      itemView.setOnClickListener(this::onClick);
 
     }
 
+    @Override
+    public void onClick(View v) {
+      int adapterPosition = getAdapterPosition();
+      Result result = foodPlaceId.get(adapterPosition);
+      String placeId = result.getPlaceId();
+      Log.i(LOG_TAG, "The Place id clicked is" + placeId);
+      mClickHandler.onClick(result);
+
+    }
   }
 
 

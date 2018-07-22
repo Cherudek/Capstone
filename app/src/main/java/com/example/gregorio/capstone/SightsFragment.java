@@ -1,5 +1,6 @@
 package com.example.gregorio.capstone;
 
+import adapters.AdapterOnClickHandler;
 import adapters.SightsAdapter;
 import android.content.Context;
 import android.os.Bundle;
@@ -26,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import pojosplaceid.Result;
 
-public class SightsFragment extends Fragment implements SightsAdapter.AdapterOnClickHandler {
+public class SightsFragment extends Fragment implements AdapterOnClickHandler {
 
   private static final String LOG_TAG = SightsFragment.class.getSimpleName();
   private static final String FIREBASE_ROOT_NODE = "checkouts";
@@ -41,7 +42,7 @@ public class SightsFragment extends Fragment implements SightsAdapter.AdapterOnC
   private SightsAdapter sightsAdapter;
   private DatabaseReference sightsDbRef;
   private List<Result> mSightsList;
-  private OnSightsFragmentInteractionListener mListener;
+  private OnFragmentInteractionListener mListener;
 
   public SightsFragment() {
 
@@ -96,7 +97,7 @@ public class SightsFragment extends Fragment implements SightsAdapter.AdapterOnC
 
   public void onSightsPressedIntent(Result result) {
     if (mListener != null) {
-      mListener.onSightsFragmentInteraction(result);
+      mListener.onFragmentInteraction(result);
     }
   }
 
@@ -108,7 +109,7 @@ public class SightsFragment extends Fragment implements SightsAdapter.AdapterOnC
     // This makes sure that the host activity has implemented the callback interface
     // If not, it throws an exception
     try {
-      mListener = (OnSightsFragmentInteractionListener) context;
+      mListener = (OnFragmentInteractionListener) context;
     } catch (ClassCastException e) {
       throw new ClassCastException(context.toString()
           + " must implement OnSightsFragmentInteractionListener");
@@ -124,11 +125,6 @@ public class SightsFragment extends Fragment implements SightsAdapter.AdapterOnC
   @Override
   public void onClick(Result result) {
     SightsFragment.this.onSightsPressedIntent(result);
-  }
-
-  public interface OnSightsFragmentInteractionListener {
-
-    void onSightsFragmentInteraction(Result result);
   }
 
 }

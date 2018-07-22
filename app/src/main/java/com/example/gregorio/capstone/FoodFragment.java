@@ -1,6 +1,7 @@
 package com.example.gregorio.capstone;
 
 import adapters.FoodAdapter;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import pojosplaceid.Result;
 
-public class FoodFragment extends Fragment {
+public class FoodFragment extends Fragment implements FoodAdapter.AdapterOnClickHandler {
 
   private static final String LOG_TAG = FoodFragment.class.getSimpleName();
   private static final String FIREBASE_ROOT_NODE = "checkouts";
@@ -39,9 +40,9 @@ public class FoodFragment extends Fragment {
   private FoodAdapter adapter;
   private DatabaseReference dbRef;
   private List<Result> mFoodList;
+  private OnFragmentInteractionListener mListener;
 
   public FoodFragment() {
-
   }
 
   @Nullable
@@ -52,7 +53,7 @@ public class FoodFragment extends Fragment {
     ButterKnife.bind(this, rootView);
     apiKey = getContext().getResources().getString(R.string.google_api_key);
     dbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
-    adapter = new FoodAdapter(apiKey);
+    adapter = new FoodAdapter(this::onClick, apiKey);
     return rootView;
   }
 
@@ -88,6 +89,36 @@ public class FoodFragment extends Fragment {
 
       }
     });
+  }
+
+  public void onFoodPressedIntent(Result result) {
+    if (mListener != null) {
+      mListener.onFragmentInteraction(result);
+    }
+  }
+
+  @Override
+  public void onClick(Result result) {
+    FoodFragment.this.onFoodPressedIntent(result);
+  }
+
+  @Override
+  public void onAttach(Context context) {
+    super.onAttach(context);
+    // This makes sure that the host activity has implemented the callback interface
+    // If not, it throws an exception
+    try {
+      mListener = (OnFragmentInteractionListener) context;
+    } catch (ClassCastException e) {
+      throw new ClassCastException(context.toString()
+          + " must implement OnFoodFragmentInteractionListener");
+    }
+  }
+
+  @Override
+  public void onDetach() {
+    super.onDetach();
+    mListener = null;
   }
 }
 

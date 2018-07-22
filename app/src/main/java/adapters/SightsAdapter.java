@@ -62,13 +62,6 @@ public class SightsAdapter extends RecyclerView.Adapter<SightsAdapter.SightsView
     holder.mSightName.setContentDescription("The Name of the place is: " + name);
   }
 
-  /**
-   * The interface that receives onClick messages.
-   */
-  public interface AdapterOnClickHandler {
-
-    void onClick(Result result);
-  }
 
   @Override
   public int getItemCount() {

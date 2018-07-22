@@ -3,6 +3,7 @@ package adapters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +22,11 @@ public class ClubsAdapter extends RecyclerView.Adapter<ClubsAdapter.ViewHolder> 
   private List<Result> clubPlaceId = new ArrayList<>();
   private String mApiKey;
   private Context context;
+  private final AdapterOnClickHandler mClickHandler;
 
-  public ClubsAdapter(String apiKey) {
+  public ClubsAdapter(AdapterOnClickHandler adapterOnClickHandler, String apiKey) {
     this.mApiKey = apiKey;
+    this.mClickHandler = adapterOnClickHandler;
   }
 
   @NonNull
@@ -71,7 +74,7 @@ public class ClubsAdapter extends RecyclerView.Adapter<ClubsAdapter.ViewHolder> 
     notifyDataSetChanged();
   }
 
-  public class ViewHolder extends RecyclerView.ViewHolder {
+  public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public final ImageView mImage;
     public final TextView mName;
@@ -82,6 +85,16 @@ public class ClubsAdapter extends RecyclerView.Adapter<ClubsAdapter.ViewHolder> 
       mImage = itemView.findViewById(R.id.clubs_photo_place_id);
       mName = itemView.findViewById(R.id.club_place_name);
       mAddress = itemView.findViewById(R.id.club_place_address);
+      itemView.setOnClickListener(this::onClick);
+    }
+
+    @Override
+    public void onClick(View v) {
+      int adapterPosition = getAdapterPosition();
+      Result result = clubPlaceId.get(adapterPosition);
+      String placeId = result.getPlaceId();
+      Log.i(LOG_TAG, "The Place id clicked is" + placeId);
+      mClickHandler.onClick(result);
     }
   }
 

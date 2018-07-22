@@ -1,5 +1,6 @@
 package com.example.gregorio.capstone;
 
+import adapters.AdapterOnClickHandler;
 import adapters.BarsAdapter;
 import android.content.Context;
 import android.os.Bundle;
@@ -26,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import pojosplaceid.Result;
 
-public class BarsFragment extends Fragment implements BarsAdapter.AdapterOnClickHandler {
+public class BarsFragment extends Fragment implements AdapterOnClickHandler {
 
   private static final String LOG_TAG = BarsFragment.class.getSimpleName();
   private static final String FIREBASE_ROOT_NODE = "checkouts";
@@ -40,7 +41,7 @@ public class BarsFragment extends Fragment implements BarsAdapter.AdapterOnClick
   private BarsAdapter adapter;
   private DatabaseReference dbRef;
   private List<Result> mBarsList;
-  private OnBarsFragmentInteractionListener mListener;
+  private OnFragmentInteractionListener mListener;
 
 
   public BarsFragment(){
@@ -96,7 +97,7 @@ public class BarsFragment extends Fragment implements BarsAdapter.AdapterOnClick
 
   public void onBarsPressedIntent(Result result) {
     if (mListener != null) {
-      mListener.onBarsFragmentInteraction(result);
+      mListener.onFragmentInteraction(result);
     }
   }
 
@@ -112,10 +113,10 @@ public class BarsFragment extends Fragment implements BarsAdapter.AdapterOnClick
     // This makes sure that the host activity has implemented the callback interface
     // If not, it throws an exception
     try {
-      mListener = (OnBarsFragmentInteractionListener) context;
+      mListener = (OnFragmentInteractionListener) context;
     } catch (ClassCastException e) {
       throw new ClassCastException(context.toString()
-          + " must implement OnFavouritesFragmentInteractionListener");
+          + " must implement OnFragmentInteractionListener");
     }
   }
 
@@ -125,8 +126,5 @@ public class BarsFragment extends Fragment implements BarsAdapter.AdapterOnClick
     mListener = null;
   }
 
-  public interface OnBarsFragmentInteractionListener {
-    void onBarsFragmentInteraction(Result result);
-  }
 }
 

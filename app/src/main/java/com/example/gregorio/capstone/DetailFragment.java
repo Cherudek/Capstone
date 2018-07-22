@@ -1,6 +1,5 @@
 package com.example.gregorio.capstone;
 
-import static com.example.gregorio.capstone.MainActivity.PLACE_PICKER_NAME_TAG;
 import static com.example.gregorio.capstone.MainActivity.PLACE_PICKER_PLACE_ID_TAG;
 
 import adapters.PhotoAdapter;
@@ -164,7 +163,6 @@ public class DetailFragment extends Fragment {
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
     menu.findItem(R.menu.main).collapseActionView();
-
   }
 
   @Override
@@ -173,16 +171,12 @@ public class DetailFragment extends Fragment {
     View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
     ButterKnife.bind(this, rootView);
     apiKey = getContext().getResources().getString(R.string.google_api_key);
-
-
     photosLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true);
     rvPhotoGallery.setLayoutManager(photosLayoutManager);
     rvPhotoGallery.setHasFixedSize(true);
-
     reviewsLayoutManager = new LinearLayoutManager(getContext());
     rvReviews.setLayoutManager(reviewsLayoutManager);
     rvReviews.setHasFixedSize(true);
-
     // Inflate the layout for this fragment
     return rootView;
   }
@@ -194,9 +188,6 @@ public class DetailFragment extends Fragment {
     if (bundle != null) {
       // Get the Data from the map object clicked in the Place Picker API
       mPlaceId = bundle.getString(PLACE_PICKER_PLACE_ID_TAG);
-      String placePickerPlaceName = bundle.getString(PLACE_PICKER_NAME_TAG);
-      Log.i(LOG_TAG, "The Place Picker Place ID is " + mPlaceId);
-      Log.i(LOG_TAG, "The Place Picker Place Name is " + placePickerPlaceName);
 
     } else {
       // Get the Data from the map object clicked in the Map API

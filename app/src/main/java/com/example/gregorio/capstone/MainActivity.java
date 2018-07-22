@@ -25,8 +25,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     MapFragment.OnFragmentInteractionListener,
     DetailFragment.OnFragmentInteractionListener,
     FavouritesFragment.OnFavouritesFragmentInteractionListener,
-    BarsFragment.OnBarsFragmentInteractionListener,
-    SightsFragment.OnSightsFragmentInteractionListener {
+    OnFragmentInteractionListener {
 
   private final static String LOG_TAG = MainActivity.class.getSimpleName();
   private final static String MAP_FRAGMENT_TAG = "Map Fragment Tag";
@@ -132,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     NavigationView navigationView = findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
 
-
   }
 
   @Override
@@ -195,67 +193,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // Handle navigation view item clicks here.
     FragmentManager fragmentManager = getSupportFragmentManager();
     int id = item.getItemId();
-    Fragment fragment = null;
-    Class fragmentClass = null;
     if (id == R.id.nav_map) {
       MapFragment mapFragment = new MapFragment();
       fragmentManager.beginTransaction().replace(R.id.fragment_container, mapFragment)
           .addToBackStack(MAP_FRAGMENT_TAG)
           .commit();
       mapFragment.setRetainInstance(true);
-      //    fragmentClass = MapFragment.class;
     } else if (id == R.id.nav_food) {
       FoodFragment foodFragment = new FoodFragment();
       fragmentManager.beginTransaction().replace(R.id.fragment_container, foodFragment)
           .addToBackStack(FOOD_FRAGMENT_TAG)
           .commit();
-      //  fragmentClass = FoodFragment.class;
     } else if (id == R.id.nav_bars) {
       BarsFragment barsFragment = new BarsFragment();
       fragmentManager.beginTransaction().replace(R.id.fragment_container, barsFragment)
           .addToBackStack(BARS_FRAGMENT_TAG)
           .commit();
-      //   fragmentClass = BarsFragment.class;
     } else if (id == R.id.nav_clubs) {
       ClubsFragment clubsFragment = new ClubsFragment();
       fragmentManager.beginTransaction().replace(R.id.fragment_container, clubsFragment)
           .addToBackStack(CLUBS_FRAGMENT_TAG)
           .commit();
-      //  fragmentClass = ClubsFragment.class;
     } else if (id == R.id.nav_favourites) {
       FavouritesFragment favouritesFragment = new FavouritesFragment();
       fragmentManager.beginTransaction().replace(R.id.fragment_container, favouritesFragment)
           .addToBackStack(FAVOURITE_FRAGMENT_TAG)
           .commit();
-      // fragmentClass = FavouritesFragment.class;
     } else if (id == R.id.nav_sights) {
       SightsFragment sightsFragment = new SightsFragment();
       getSupportFragmentManager().beginTransaction()
           .replace(R.id.fragment_container, sightsFragment)
           .addToBackStack(SIGHTS_FRAGMENT_TAG)
           .commit();
-      // fragmentClass = SightsFragment.class;
     } else if (id == R.id.nav_museums) {
       MuseumsFragment museumsFragment = new MuseumsFragment();
       getSupportFragmentManager().beginTransaction()
           .replace(R.id.fragment_container, museumsFragment)
           .addToBackStack(MUSEUMS_FRAGMENT_TAG)
           .commit();
-      //  fragmentClass = MuseumsFragment.class;
     }
-//    try {
-//      fragment = (Fragment) fragmentClass.newInstance();
-//    } catch (Exception e) {
-//      e.printStackTrace();
-//    }
-
-//    FragmentManager fragmentManager = getSupportFragmentManager();
-//    if (fragment != mapFragment) {
-//      fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
-//          .addToBackStack(null)
-//          .commit();
-//    }
-
 
     DrawerLayout drawer = findViewById(R.id.drawer_layout);
     drawer.closeDrawer(GravityCompat.START);
@@ -280,17 +256,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   public void OnPlacePickerInteraction(Place place) {
     Bundle bundle = new Bundle();
     String placeId = place.getId();
-    String placeName = place.getName().toString();
-
-    if (place.getWebsiteUri() == null || place.getWebsiteUri().toString().isEmpty()) {
-      String placeWebUrl = "";
-      bundle.putString(PLACE_PICKER_WEBSITE_TAG, placeWebUrl);
-    } else {
-      String placeWebUrl = place.getWebsiteUri().toString();
-      bundle.putString(PLACE_PICKER_WEBSITE_TAG, placeWebUrl);
-    }
     bundle.putString(PLACE_PICKER_PLACE_ID_TAG, placeId);
-    bundle.putString(PLACE_PICKER_NAME_TAG, placeName);
     // set DetailFragment Arguments
     DetailFragment detailFragment = new DetailFragment();
     detailFragment.setArguments(bundle);
@@ -314,7 +280,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // set DetailFragment Arguments
     FavouriteDetailFragment favouritedetailFragment = new FavouriteDetailFragment();
     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-    Log.i(LOG_TAG, "The Favourite Place is: " + result.getName());
     // Replace whatever is in the fragment_container view with this fragment,
     transaction.replace(R.id.fragment_container, favouritedetailFragment);
     transaction.addToBackStack(FAVOURITE_DETAIL_FRAGMENT_TAG);
@@ -322,21 +287,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     transaction.commit();
   }
 
-  @Override
-  public void onBarsFragmentInteraction(Result result) {
-    Bundle bundle = new Bundle();
-    String placeId = result.getPlaceId();
-    bundle.putString(PLACE_PICKER_PLACE_ID_TAG, placeId);
-    DetailFragment detailFragment = new DetailFragment();
-    detailFragment.setArguments(bundle);
-    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-    transaction.replace(R.id.fragment_container, detailFragment);
-    transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
-    transaction.commit();
-  }
 
   @Override
-  public void onSightsFragmentInteraction(Result result) {
+  public void onFragmentInteraction(Result result) {
     Bundle bundle = new Bundle();
     String placeId = result.getPlaceId();
     bundle.putString(PLACE_PICKER_PLACE_ID_TAG, placeId);

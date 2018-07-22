@@ -70,9 +70,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private static final String RADIUS_TAG_KEY = "RadiusTagKey";
   private static final String KEY_TAG = "KeyTag";
 
-
-
-
   private final int DEFAULT_ZOOM = 1500;
   @BindView(R.id.map)MapView mapView;
   @BindView(R.id.checkout_button)FloatingActionButton checkoutFap;
@@ -188,12 +185,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     // OnMarkerClickListener added to the map
     onMarkerClickListener = marker -> {
       marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-      Log.i(LOG_TAG, "onMarkerClickListener Id Tag is: " + marker.getTag());
-      Log.i(LOG_TAG, "onMarkerClickListener Snippet  is: " + marker.getSnippet());
-      Log.i(LOG_TAG, "onMarkerClickListener Title  is: " + marker.getTitle());
-      Log.i(LOG_TAG, "onMarkerClickListener Marker Id  is: " + marker.getId());
-      Log.i(LOG_TAG, "Marker is: " + marker);
-      Log.i(LOG_TAG, "onInfoWindowClickListener eventMarkerMap  is: " + eventMarkerMap.values());
 
       return false;
     };
