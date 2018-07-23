@@ -60,6 +60,7 @@ public class FavouritesFragment extends Fragment implements
   private DatabaseReference favouriteDbRef;
   private List<Result> mResultList;
   private OnFavouritesFragmentInteractionListener mListener;
+  private Context context;
 
   public FavouritesFragment() {
   }
@@ -68,6 +69,7 @@ public class FavouritesFragment extends Fragment implements
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     sharedModel = ViewModelProviders.of(getActivity()).get(FavouriteDetailSharedViewModel.class);
+    context = getContext();
   }
 
   @Nullable
@@ -112,13 +114,13 @@ public class FavouritesFragment extends Fragment implements
         ArrayList<String> favourites = getFavouritesNames();
         Log.i(LOG_TAG, "getFavouritesNames: " + favourites);
         //Intent to pass recipe data (ingredient list) to the Widget Layout
-        Intent widgetIntent = new Intent(getContext(), FavouriteWidgetProvider.class);
+        Intent widgetIntent = new Intent(context, FavouriteWidgetProvider.class);
         widgetIntent.putExtra(WIDGET_INTENT_TAG, favourites);
         widgetIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
-        int ids[] = AppWidgetManager.getInstance(getContext())
-            .getAppWidgetIds(new ComponentName(getContext(), FavouriteWidgetProvider.class));
+        int ids[] = AppWidgetManager.getInstance(context)
+            .getAppWidgetIds(new ComponentName(context, FavouriteWidgetProvider.class));
         widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-        getContext().sendBroadcast(widgetIntent);
+        context.sendBroadcast(widgetIntent);
 
       }
 
@@ -193,6 +195,7 @@ public class FavouritesFragment extends Fragment implements
     // If not, it throws an exception
     try {
       mListener = (OnFavouritesFragmentInteractionListener) context;
+
     } catch (ClassCastException e) {
       throw new ClassCastException(context.toString()
           + " must implement OnFavouritesFragmentInteractionListener");

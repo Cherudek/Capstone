@@ -54,4 +54,6 @@
   <string name="mole_antonelliana_background_image">Mole Antonelliana Background Image</string>
   <string name="my_favorite_places">My Favorite Places</string>
   <string name="widget_favourite_place_image">Widget Favourite place Image</string>
+  <string name="my_turin_favourites">"My Turin's Favourites"</string>
+  <string name="search_nearby_places">Search Nearby Places</string>
 </resources>

@@ -31,7 +31,7 @@ public class FavouriteWidgetProvider extends AppWidgetProvider {
       int appWidgetId, String favouriteList) {
 
     views = new RemoteViews(context.getPackageName(), R.layout.favourite_widget);
-    views.setTextViewText(R.id.appwidget_title, "My Favourite Places");
+    views.setTextViewText(R.id.appwidget_title, context.getString(R.string.my_turin_favourites));
     views.setTextViewText(R.id.appwidget_favourite_list_tv, favouriteList);
 
     // Async Intent Service Thread to fetch Data from Firebase Db

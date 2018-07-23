@@ -19,6 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -230,17 +231,13 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   }
 
 
-  // App bar Search View setUp
-  @Override
-  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    super.onCreateOptionsMenu(menu, inflater);
-    menu.clear();
-    inflater.inflate(R.menu.main, menu);
-    menuItem = menu.findItem(R.id.menu_search);
-    searchView = (SearchView) menuItem.getActionView();
-    searchView.setOnQueryTextListener(this);
-    searchView.setQueryHint("Search Nearby Places");
-    searchView.setIconified(true);
+  public static void hideKeyboard(Activity activity) {
+    View view = activity.findViewById(R.id.menu_search);
+    if (view != null) {
+      InputMethodManager imm = (InputMethodManager) activity
+          .getSystemService(Context.INPUT_METHOD_SERVICE);
+      imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
   }
 
   // Prompt the user to check out of their location. Called when the "Check Out!" button
@@ -258,6 +255,19 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       Toast.makeText(mContext, R.string.install_google_play_services, Toast.LENGTH_LONG)
           .show();
     }
+  }
+
+  // App bar Search View setUp
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    super.onCreateOptionsMenu(menu, inflater);
+    menu.clear();
+    inflater.inflate(R.menu.main, menu);
+    menuItem = menu.findItem(R.id.menu_search);
+    searchView = (SearchView) menuItem.getActionView();
+    searchView.setOnQueryTextListener(this);
+    searchView.setQueryHint(getString(R.string.search_nearby_places));
+    searchView.setIconified(true);
   }
 
   @Override
@@ -295,6 +305,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
           mMarkerOptionsRetrieved = nearbyPlacesResponseParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation, eventMarkerMap);
           queryViewModel.mMarkersOptions = mMarkerOptionsRetrieved;
           progressBar.setVisibility(View.INVISIBLE);
+          hideKeyboard(getActivity());
           Log.i(LOG_TAG, "queryViewModel mMarkersOptions on Rotation is" + queryViewModel.mMarkersOptions.size() );
           queryViewModel.getData().removeObserver(this);
         } else {
