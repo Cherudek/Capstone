@@ -8,6 +8,12 @@ android {
             storePassword 'Cherud3k'
             storeFile file('/Users/Gregorio/Android Keystore/androidkeystore.jks')
         }
+        config1 {
+            keyAlias 'gregorio'
+            keyPassword 'Cherud3k'
+            storeFile file('$rootdir/keystore.jks')
+            storePassword 'Cherud3k'
+        }
     }
     compileSdkVersion 27
     defaultConfig {
@@ -27,7 +33,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.config
+            signingConfig signingConfigs.config1
         }
     }
     dataBinding {

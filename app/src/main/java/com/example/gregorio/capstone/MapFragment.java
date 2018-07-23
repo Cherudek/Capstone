@@ -105,22 +105,19 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private SearchView searchView;
   private int placeIdInt;
   private HashMap<Marker, Integer> eventMarkerMap;
+  private Activity activity;
 
 
   public MapFragment() {
   }
 
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    mContext = getActivity();
-    setHasOptionsMenu(true);
-    // Check if the Google Play Services are available or not and set Up Map
-    GoogleMapsApi googleMapsApi = new GoogleMapsApi();
-    googleMapsApi.CheckGooglePlayServices(mContext, getActivity());
-    googleMapsApi.GoogleApiClient(mContext);
-    // Check if the user has granted permission to use Location Services
-    locationPermission = new LocationPermission();
+  public static void hideKeyboard(Activity activity) {
+    View view = activity.findViewById(R.id.menu_search);
+    if (view != null && activity != null) {
+      InputMethodManager imm = (InputMethodManager) activity
+          .getSystemService(Context.INPUT_METHOD_SERVICE);
+      imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
   }
 
   @Nullable
@@ -230,14 +227,18 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     mListener = null;
   }
 
-
-  public static void hideKeyboard(Activity activity) {
-    View view = activity.findViewById(R.id.menu_search);
-    if (view != null) {
-      InputMethodManager imm = (InputMethodManager) activity
-          .getSystemService(Context.INPUT_METHOD_SERVICE);
-      imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    mContext = getActivity();
+    activity = getActivity();
+    setHasOptionsMenu(true);
+    // Check if the Google Play Services are available or not and set Up Map
+    GoogleMapsApi googleMapsApi = new GoogleMapsApi();
+    googleMapsApi.CheckGooglePlayServices(mContext, getActivity());
+    googleMapsApi.GoogleApiClient(mContext);
+    // Check if the user has granted permission to use Location Services
+    locationPermission = new LocationPermission();
   }
 
   // Prompt the user to check out of their location. Called when the "Check Out!" button
@@ -305,7 +306,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
           mMarkerOptionsRetrieved = nearbyPlacesResponseParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation, eventMarkerMap);
           queryViewModel.mMarkersOptions = mMarkerOptionsRetrieved;
           progressBar.setVisibility(View.INVISIBLE);
-          hideKeyboard(getActivity());
+          hideKeyboard(activity);
           Log.i(LOG_TAG, "queryViewModel mMarkersOptions on Rotation is" + queryViewModel.mMarkersOptions.size() );
           queryViewModel.getData().removeObserver(this);
         } else {

@@ -13,12 +13,14 @@
     android:layout_height="match_parent"/>
 
   <ProgressBar
-    android:background="@color/white"
+    android:layout_marginTop="@dimen/margin_7x"
+    android:layout_gravity="center_horizontal"
     android:visibility="invisible"
+    android:background="@drawable/white_circle"
     android:id="@+id/map_progress_bar"
     android:layout_width="@dimen/progress_bar"
     android:layout_height="@dimen/progress_bar"
-    android:layout_gravity="center_horizontal|center_vertical"/>
+    android:elevation="@dimen/margin_1x"/>
 
   <android.support.design.widget.FloatingActionButton
     android:id="@+id/checkout_button"
