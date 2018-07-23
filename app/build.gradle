@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
+
+
     signingConfigs {
         config {
             keyAlias 'key0'
@@ -11,7 +13,7 @@ android {
         config1 {
             keyAlias 'gregorio'
             keyPassword 'Cherud3k'
-            storeFile file('$rootdir/keystore.jks')
+            storeFile file('keystore.jks')
             storePassword 'Cherud3k'
         }
     }
@@ -23,7 +25,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        signingConfig signingConfigs.config
+        signingConfig signingConfigs.config1
     }
     packagingOptions {
         exclude 'META-INF/LICENSE'

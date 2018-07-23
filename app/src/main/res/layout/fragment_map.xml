@@ -13,7 +13,7 @@
     android:layout_height="match_parent"/>
 
   <ProgressBar
-    android:layout_marginTop="@dimen/margin_7x"
+    android:layout_marginTop="@dimen/margin_9x"
     android:layout_gravity="center_horizontal"
     android:visibility="invisible"
     android:background="@drawable/white_circle"
