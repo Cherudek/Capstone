@@ -1,7 +1,5 @@
 package com.example.gregorio.capstone;
 
-import static widget.FavouriteWidgetProvider.INTENT_KEY;
-
 import adapters.FavouritesAdapter;
 import adapters.FavouritesAdapter.FavouriteViewHolder;
 import android.appwidget.AppWidgetManager;
@@ -49,7 +47,7 @@ public class FavouritesFragment extends Fragment implements
   private static final String LOG_TAG = FavouritesFragment.class.getSimpleName();
   private static final String FIREBASE_ROOT_NODE = "checkouts";
   private static final String FIREBASE_FAVOURITES_NODE = "Favourites";
-  private static final String WIDGET_INTENT_TAG = "Favourite List";
+  public static final String WIDGET_INTENT_TAG = "Favourite List";
 
 
   @BindView(R.id.favourites_constraint_layout)
@@ -115,7 +113,7 @@ public class FavouritesFragment extends Fragment implements
         Log.i(LOG_TAG, "getFavouritesNames: " + favourites);
         //Intent to pass recipe data (ingredient list) to the Widget Layout
         Intent widgetIntent = new Intent(getContext(), FavouriteWidgetProvider.class);
-        widgetIntent.putExtra(INTENT_KEY, favourites);
+        widgetIntent.putExtra(WIDGET_INTENT_TAG, favourites);
         widgetIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
         int ids[] = AppWidgetManager.getInstance(getContext())
             .getAppWidgetIds(new ComponentName(getContext(), FavouriteWidgetProvider.class));

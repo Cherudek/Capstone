@@ -1,6 +1,7 @@
 package com.example.gregorio.capstone;
 
-import static widget.FavouriteWidgetProvider.INTENT_KEY;
+import static com.example.gregorio.capstone.FavouritesFragment.WIDGET_INTENT_TAG;
+import static widget.FavouriteWidgetProvider.INTENT_TO_FAVOURITE_LIST_KEY;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -111,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             .commit();
         mapFragment.setRetainInstance(true);
       } else if (extras != null) {
-        widgetIntent = (String) extras.get(INTENT_KEY);
+        widgetIntent = (String) extras.get(INTENT_TO_FAVOURITE_LIST_KEY);
         if (widgetIntent.matches("Favourite")) {
           FavouritesFragment favouritesFragment = new FavouritesFragment();
           FragmentManager fragmentManager = getSupportFragmentManager();
@@ -139,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     Bundle extras = intent.getExtras();
     if (extras != null) {
-      String value = (String) extras.get(INTENT_KEY);
+      String value = (String) extras.get(WIDGET_INTENT_TAG);
       if (value.matches("Favourite")) {
         FavouritesFragment favouritesFragment = new FavouritesFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
