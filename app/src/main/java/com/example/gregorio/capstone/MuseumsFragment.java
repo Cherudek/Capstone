@@ -46,9 +46,7 @@ public class MuseumsFragment extends Fragment implements AdapterOnClickHandler {
 
   @BindView(R.id.museums_rv)
   RecyclerView rvMuseums;
-  private LinearLayoutManager layoutManager;
   private MuseumsAdapter adapter;
-  private String apiKey;
   private DatabaseReference museumsDbRef;
   private List<Result> mMueseumsList;
   private int mColumnCount = 1;
@@ -73,7 +71,7 @@ public class MuseumsFragment extends Fragment implements AdapterOnClickHandler {
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_museums, container, false);
-    apiKey = getContext().getResources().getString(R.string.google_api_key);
+    String apiKey = getContext().getResources().getString(R.string.google_api_key);
 
     ButterKnife.bind(this, view);
     museumsDbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
@@ -87,7 +85,7 @@ public class MuseumsFragment extends Fragment implements AdapterOnClickHandler {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    layoutManager = new LinearLayoutManager(getContext());
+    LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
     rvMuseums.setLayoutManager(layoutManager);
     rvMuseums.setHasFixedSize(true);
     rvMuseums.setItemAnimator(new DefaultItemAnimator());

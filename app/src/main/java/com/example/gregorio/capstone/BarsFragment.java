@@ -36,8 +36,6 @@ public class BarsFragment extends Fragment implements AdapterOnClickHandler {
   RecyclerView rvBars;
   @BindView(R.id.bars_constraint_layout)
   ConstraintLayout constraintLayout;
-  private String apiKey;
-  private LinearLayoutManager layoutManager;
   private BarsAdapter adapter;
   private DatabaseReference dbRef;
   private List<Result> mBarsList;
@@ -54,7 +52,7 @@ public class BarsFragment extends Fragment implements AdapterOnClickHandler {
 
     View rootView = inflater.inflate(R.layout.fragment_bars, container, false);
     ButterKnife.bind(this, rootView);
-    apiKey = getContext().getResources().getString(R.string.google_api_key);
+    String apiKey = getContext().getResources().getString(R.string.google_api_key);
     dbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
     adapter = new BarsAdapter(this::onClick, apiKey);
     return rootView;
@@ -64,7 +62,7 @@ public class BarsFragment extends Fragment implements AdapterOnClickHandler {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    layoutManager = new LinearLayoutManager(getContext());
+    LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
     rvBars.setLayoutManager(layoutManager);
     rvBars.setHasFixedSize(true);
     rvBars.setItemAnimator(new DefaultItemAnimator());
@@ -95,7 +93,7 @@ public class BarsFragment extends Fragment implements AdapterOnClickHandler {
   }
 
 
-  public void onBarsPressedIntent(Result result) {
+  private void onBarsPressedIntent(Result result) {
     if (mListener != null) {
       mListener.onFragmentInteraction(result);
     }
@@ -116,7 +114,7 @@ public class BarsFragment extends Fragment implements AdapterOnClickHandler {
       mListener = (OnFragmentInteractionListener) context;
     } catch (ClassCastException e) {
       throw new ClassCastException(context.toString()
-          + " must implement OnFragmentInteractionListener");
+          + context.getResources().getString(R.string.must_implement_on_frag_list));
     }
   }
 

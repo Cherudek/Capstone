@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import com.example.gregorio.capstone.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -29,7 +30,9 @@ public class GoogleMapsApi extends AppCompatActivity {
       if (googleAPI.isUserResolvableError(result)) {
         googleAPI.getErrorDialog(activity, result,
             0).show();
-        Snackbar snackbar = Snackbar.make(activity.getCurrentFocus(), "Google Place Services Not Available", Snackbar.LENGTH_LONG);
+        Snackbar snackbar = Snackbar
+            .make(activity.getCurrentFocus(), R.string.google_play_services_failure,
+                Snackbar.LENGTH_LONG);
         snackbar.show();
       }
       return false;

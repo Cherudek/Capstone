@@ -54,9 +54,7 @@ public class FavouritesFragment extends Fragment implements
   ConstraintLayout constraintLayout;
   private FavouriteDetailSharedViewModel sharedModel;
   @BindView(R.id.favourites_rv)RecyclerView rvFavourites;
-  private LinearLayoutManager favouritesLayoutManager;
   private FavouritesAdapter favouritesAdapter;
-  private String apiKey;
   private DatabaseReference favouriteDbRef;
   private List<Result> mResultList;
   private OnFavouritesFragmentInteractionListener mListener;
@@ -77,7 +75,7 @@ public class FavouritesFragment extends Fragment implements
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_favourites, container, false);
-    apiKey = getContext().getResources().getString(R.string.google_api_key);
+    String apiKey = getContext().getResources().getString(R.string.google_api_key);
     ButterKnife.bind(this, rootView);
     favouriteDbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
     int dbSize = favouriteDbRef.getRoot().child(FIREBASE_ROOT_NODE).child(FIREBASE_FAVOURITES_NODE)
@@ -89,7 +87,7 @@ public class FavouritesFragment extends Fragment implements
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    favouritesLayoutManager = new LinearLayoutManager(getContext());
+    LinearLayoutManager favouritesLayoutManager = new LinearLayoutManager(getContext());
     rvFavourites.setLayoutManager(favouritesLayoutManager);
     rvFavourites.setHasFixedSize(true);
     rvFavourites.setItemAnimator(new DefaultItemAnimator());
@@ -160,7 +158,8 @@ public class FavouritesFragment extends Fragment implements
           favouriteDbRef.child(FIREBASE_FAVOURITES_NODE).child(firebaseChildKey).removeValue();
           // showing snack bar with Undo option
           Snackbar snackbar = Snackbar
-              .make(getView(), name + " removed from favourites!", Snackbar.LENGTH_LONG);
+              .make(getView(), name + getString(R.string.removed_from_favourites2),
+                  Snackbar.LENGTH_LONG);
           snackbar.setAction("UNDO", view -> {
 
             // undo is selected, restore the deleted item on the adapter and back on the firebase
@@ -198,11 +197,11 @@ public class FavouritesFragment extends Fragment implements
 
     } catch (ClassCastException e) {
       throw new ClassCastException(context.toString()
-          + " must implement OnFavouritesFragmentInteractionListener");
+          + context.getResources().getString(R.string.must_implement_on_frag_list));
     }
   }
 
-  public void onFavouritePressedIntent(Result result) {
+  private void onFavouritePressedIntent(Result result) {
     if (mListener != null) {
       mListener.onFavouritesFragmentInteraction(result);
     }

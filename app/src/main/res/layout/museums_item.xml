@@ -36,6 +36,7 @@
           android:layout_weight="1"
           android:backgroundTint="@color/gray"
           android:scaleType="centerCrop"
+          android:contentDescription="@string/museum_photo_item"
           app:layout_constraintTop_toTopOf="parent"/>
 
         <LinearLayout

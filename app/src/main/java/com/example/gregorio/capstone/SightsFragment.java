@@ -37,8 +37,6 @@ public class SightsFragment extends Fragment implements AdapterOnClickHandler {
   RecyclerView rvSights;
   @BindView(R.id.sights_constraint_layout)
   ConstraintLayout constraintLayout;
-  private String apiKey;
-  private LinearLayoutManager sightsLayoutManager;
   private SightsAdapter sightsAdapter;
   private DatabaseReference sightsDbRef;
   private List<Result> mSightsList;
@@ -54,7 +52,7 @@ public class SightsFragment extends Fragment implements AdapterOnClickHandler {
       @Nullable Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_sights, container, false);
     ButterKnife.bind(this, rootView);
-    apiKey = getContext().getResources().getString(R.string.google_api_key);
+    String apiKey = getContext().getResources().getString(R.string.google_api_key);
     sightsDbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
     sightsAdapter = new SightsAdapter(this::onClick, apiKey);
 
@@ -65,7 +63,7 @@ public class SightsFragment extends Fragment implements AdapterOnClickHandler {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    sightsLayoutManager = new LinearLayoutManager(getContext());
+    LinearLayoutManager sightsLayoutManager = new LinearLayoutManager(getContext());
     rvSights.setLayoutManager(sightsLayoutManager);
     rvSights.setHasFixedSize(true);
     rvSights.setItemAnimator(new DefaultItemAnimator());
@@ -112,7 +110,7 @@ public class SightsFragment extends Fragment implements AdapterOnClickHandler {
       mListener = (OnFragmentInteractionListener) context;
     } catch (ClassCastException e) {
       throw new ClassCastException(context.toString()
-          + " must implement OnSightsFragmentInteractionListener");
+          + context.getResources().getString(R.string.must_implement_on_frag_list));
     }
   }
 

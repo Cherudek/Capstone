@@ -31,13 +31,13 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/quicksand_medium"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Author"/>
+        tools:text="@string/author"/>
 
       <TextView
         android:id="@+id/favourite_review_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="One Week Ago"/>
+        tools:text="@string/one_week_ago"/>
 
       <android.support.v7.widget.AppCompatRatingBar
         style="?android:attr/ratingBarStyleSmall"

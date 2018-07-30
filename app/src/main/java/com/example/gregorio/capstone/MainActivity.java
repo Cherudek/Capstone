@@ -53,13 +53,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   public final static String FIREBASE_CHILD_NODE_TAG = "Firebase Child Node Tag";
 
 
-
-  private MapFragment mapFragment;
   private Fragment mFragment;
   private DetailFragment detailFragment;
   private FavouriteDetailFragment favouriteDetailFragment;
   private FavouritesFragment favouritesFragment;
-  private String widgetIntent;
   private Boolean widget;
 
   public MainActivity() {
@@ -105,14 +102,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     } else {
       if (extras == null) {
         // If the fragment is not null retain the fragment state
-        mapFragment = new MapFragment();
+        MapFragment mapFragment = new MapFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
             .addToBackStack(MAP_FRAGMENT_TAG)
             .commit();
         mapFragment.setRetainInstance(true);
-      } else if (extras != null) {
-        widgetIntent = (String) extras.get(INTENT_TO_FAVOURITE_LIST_KEY);
+      } else {
+        String widgetIntent = (String) extras.get(INTENT_TO_FAVOURITE_LIST_KEY);
         if (widgetIntent.matches("Favourite")) {
           FavouritesFragment favouritesFragment = new FavouritesFragment();
           FragmentManager fragmentManager = getSupportFragmentManager();

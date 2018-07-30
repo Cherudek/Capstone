@@ -23,14 +23,12 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
   private List<Result> favouritesPlaceId = new ArrayList<>();
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
   private String mApiKey;
-  private int mFavouriteSize;
   private Context context;
   private String photoReference = "";
   private  final FavouriteAdapterOnClickHandler mClickHandler;
 
   public FavouritesAdapter(FavouriteAdapterOnClickHandler clickHandler, int size, String apiKey){
     mApiKey = apiKey;
-    mFavouriteSize = size;
     this.mClickHandler = clickHandler;
   }
 
@@ -62,9 +60,11 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
     holder.mFavouriteName.setText(name);
     holder.mFavouriteAddress.setText(address);
     // Enable dynamic content description
-    holder.mFavouriteImage.setContentDescription("Image View for " + name);
-    holder.mFavouriteAddress.setContentDescription("The address is: " + address);
-    holder.mFavouriteName.setContentDescription("The Name of the place is: " + name);
+    holder.mFavouriteImage
+        .setContentDescription(context.getString(R.string.the_image_view_cd) + name);
+    holder.mFavouriteAddress
+        .setContentDescription(context.getString(R.string.the_address_is_cd) + address);
+    holder.mFavouriteName.setContentDescription(context.getString(R.string.the_name_is_cd) + name);
   }
 
   public void addAll(List<Result> result) {

@@ -35,7 +35,7 @@
       android:icon="@drawable/ic_local_bar_black_24dp"
       android:title="@string/nv_bars"/>
     <item
-      android:contentDescription="Recommended Clubs list button"
+      android:contentDescription="@string/recommended_clubs_list_button"
       android:id="@+id/nav_clubs"
       android:icon="@drawable/ic_music_note_black_24dp"
       android:title="@string/nv_clubs"/>

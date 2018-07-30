@@ -35,8 +35,6 @@ public class FoodFragment extends Fragment implements FoodAdapter.AdapterOnClick
   RecyclerView rvFood;
   @BindView(R.id.food_constraint_layout)
   ConstraintLayout constraintLayout;
-  private String apiKey;
-  private LinearLayoutManager layoutManager;
   private FoodAdapter adapter;
   private DatabaseReference dbRef;
   private List<Result> mFoodList;
@@ -51,7 +49,7 @@ public class FoodFragment extends Fragment implements FoodAdapter.AdapterOnClick
       @Nullable Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_food, container, false);
     ButterKnife.bind(this, rootView);
-    apiKey = getContext().getResources().getString(R.string.google_api_key);
+    String apiKey = getContext().getResources().getString(R.string.google_api_key);
     dbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
     adapter = new FoodAdapter(this::onClick, apiKey);
     return rootView;
@@ -61,7 +59,7 @@ public class FoodFragment extends Fragment implements FoodAdapter.AdapterOnClick
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    layoutManager = new LinearLayoutManager(getContext());
+    LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
     rvFood.setLayoutManager(layoutManager);
     rvFood.setHasFixedSize(true);
     rvFood.setItemAnimator(new DefaultItemAnimator());
@@ -91,7 +89,7 @@ public class FoodFragment extends Fragment implements FoodAdapter.AdapterOnClick
     });
   }
 
-  public void onFoodPressedIntent(Result result) {
+  private void onFoodPressedIntent(Result result) {
     if (mListener != null) {
       mListener.onFragmentInteraction(result);
     }
@@ -111,7 +109,7 @@ public class FoodFragment extends Fragment implements FoodAdapter.AdapterOnClick
       mListener = (OnFragmentInteractionListener) context;
     } catch (ClassCastException e) {
       throw new ClassCastException(context.toString()
-          + " must implement OnFoodFragmentInteractionListener");
+          + context.getResources().getString(R.string.must_implement_on_frag_list));
     }
   }
 

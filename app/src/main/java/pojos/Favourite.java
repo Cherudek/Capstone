@@ -1,6 +1,6 @@
 package pojos;
 
-public class Favourite {
+class Favourite {
 
   private String placeId;
   private String name;

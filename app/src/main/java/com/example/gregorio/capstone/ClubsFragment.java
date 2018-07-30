@@ -36,8 +36,6 @@ public class ClubsFragment extends Fragment implements AdapterOnClickHandler {
   RecyclerView rvClubs;
   @BindView(R.id.clubs_constraint_layout)
   ConstraintLayout constraintLayout;
-  private String apiKey;
-  private LinearLayoutManager layoutManager;
   private ClubsAdapter adapter;
   private DatabaseReference dbRef;
   private List<Result> mClubsList;
@@ -53,7 +51,7 @@ public class ClubsFragment extends Fragment implements AdapterOnClickHandler {
       @Nullable Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_clubs, container, false);
     ButterKnife.bind(this, rootView);
-    apiKey = getContext().getResources().getString(R.string.google_api_key);
+    String apiKey = getContext().getResources().getString(R.string.google_api_key);
     dbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
     adapter = new ClubsAdapter(this::onClick, apiKey);
     return rootView;
@@ -63,7 +61,7 @@ public class ClubsFragment extends Fragment implements AdapterOnClickHandler {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    layoutManager = new LinearLayoutManager(getContext());
+    LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
     rvClubs.setLayoutManager(layoutManager);
     rvClubs.setHasFixedSize(true);
     rvClubs.setItemAnimator(new DefaultItemAnimator());
@@ -102,11 +100,11 @@ public class ClubsFragment extends Fragment implements AdapterOnClickHandler {
       mListener = (OnFragmentInteractionListener) context;
     } catch (ClassCastException e) {
       throw new ClassCastException(context.toString()
-          + " must implement OnFragmentInteractionListener");
+          + context.getResources().getString(R.string.must_implement_on_frag_list));
     }
   }
 
-  public void onClubsPressedIntent(Result result) {
+  private void onClubsPressedIntent(Result result) {
     if (mListener != null) {
       mListener.onFragmentInteraction(result);
     }

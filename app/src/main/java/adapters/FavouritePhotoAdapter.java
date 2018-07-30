@@ -23,7 +23,6 @@ public class FavouritePhotoAdapter extends RecyclerView.Adapter<FavouritePhotoAd
   private Context context;
 
   public FavouritePhotoAdapter(int numberOfItems, String apiKey){
-    int mNumberOfItems = numberOfItems;
     mApiKey = apiKey;
   }
 
@@ -47,7 +46,7 @@ public class FavouritePhotoAdapter extends RecyclerView.Adapter<FavouritePhotoAd
         .load(photoUrl)
         .into(holder.mImageView);
     Log.i(LOG_TAG, "Photo Adapter GalleryUrl " + photoUrl);
-    holder.mImageView.setContentDescription("Favourite Place Image");
+    holder.mImageView.setContentDescription(context.getString(R.string.favourite_place_image));
 
   }
 

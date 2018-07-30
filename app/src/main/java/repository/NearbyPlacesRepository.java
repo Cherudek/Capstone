@@ -4,7 +4,6 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.os.AsyncTask;
 import android.util.Log;
-import javax.inject.Singleton;
 import pojos.NearbyPlaces;
 import pojosplaceid.PlaceId;
 import retrofit2.Call;
@@ -13,7 +12,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-@Singleton
 public class NearbyPlacesRepository {
 
   private final static String LOG_TAG = NearbyPlacesRepository.class.getSimpleName();

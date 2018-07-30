@@ -61,9 +61,9 @@ public class MuseumsAdapter extends
     holder.mName.setText(name);
     holder.mAddress.setText(address);
     // Enable dynamic content description
-    holder.mView.setContentDescription("Image View for " + name);
-    holder.mAddress.setContentDescription("The address is: " + address);
-    holder.mName.setContentDescription("The Name of the place is: " + name);
+    holder.mView.setContentDescription(context.getString(R.string.the_image_view_cd) + name);
+    holder.mAddress.setContentDescription(context.getString(R.string.the_address_is_cd) + address);
+    holder.mName.setContentDescription(context.getString(R.string.the_name_is_cd) + name);
   }
 
   @Override

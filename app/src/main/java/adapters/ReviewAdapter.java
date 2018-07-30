@@ -17,6 +17,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
   private static final String LOG_TAG = ReviewAdapter.class.getSimpleName();
   private List<Review> mReviewId = new ArrayList<>();
+  private Context context;
 
 
   public ReviewAdapter(int numberOfItems){
@@ -26,7 +27,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
   @NonNull
   @Override
   public ReviewViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    Context context = parent.getContext();
+    context = parent.getContext();
     int layoutIdForListItem = R.layout.rewiew_item;
     LayoutInflater inflater = LayoutInflater.from(context);
     boolean shouldAttachToParentImmediately = false;
@@ -46,10 +47,14 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     holder.tvReview.setText(reviewText);
     holder.ratingBar.setRating(authorRating);
     // Content Description
-    holder.ratingBar.setContentDescription("The rating for this place is: " + authorRating);
-    holder.tvReviewAuthor.setContentDescription("The Reviewer's name is: " + authorName);
-    holder.tvReview.setContentDescription("The Review is: " + reviewText);
-    holder.tvReviewTime.setContentDescription("The Review time is:" + relativeTimeDescription);
+    holder.ratingBar
+        .setContentDescription(context.getString(R.string.the_rating_is_cd) + authorRating);
+    holder.tvReviewAuthor
+        .setContentDescription(context.getString(R.string.the_name_is_cd) + authorName);
+    holder.tvReview
+        .setContentDescription(context.getString(R.string.the_revies_is_cd) + reviewText);
+    holder.tvReviewTime.setContentDescription(
+        context.getString(R.string.review_time_cd) + relativeTimeDescription);
 
   }
 

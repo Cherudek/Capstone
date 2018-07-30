@@ -57,9 +57,10 @@ public class SightsAdapter extends RecyclerView.Adapter<SightsAdapter.SightsView
     holder.mSightName.setText(name);
     holder.mSightAddress.setText(address);
     // Enable dynamic content description
-    holder.mSightImage.setContentDescription("Image View for " + name);
-    holder.mSightAddress.setContentDescription("The address is: " + address);
-    holder.mSightName.setContentDescription("The Name of the place is: " + name);
+    holder.mSightImage.setContentDescription(context.getString(R.string.the_image_view_cd) + name);
+    holder.mSightAddress
+        .setContentDescription(context.getString(R.string.the_address_is_cd) + address);
+    holder.mSightName.setContentDescription(context.getString(R.string.the_name_is_cd) + name);
   }
 
 

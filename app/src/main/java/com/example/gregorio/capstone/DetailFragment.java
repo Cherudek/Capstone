@@ -50,7 +50,7 @@ import viewmodel.MapDetailSharedViewHolder;
  */
 public class DetailFragment extends Fragment {
 
-  public static final String LOG_TAG = DetailFragment.class.getSimpleName();
+  private static final String LOG_TAG = DetailFragment.class.getSimpleName();
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
   // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
   private static final String ARG_TITLE = "TITLE";
@@ -77,13 +77,8 @@ public class DetailFragment extends Fragment {
 
   private String apiKey;
   private String picassoPhotoUrl;
-  private DetailViewModelFactory detailViewModelFactory;
-  private DetailViewModel detailViewModel;
-  private MapDetailSharedViewHolder detailModel;
   private PhotoAdapter mPhotoAdapter;
   private ReviewAdapter mReviewsAdapter;
-  private LinearLayoutManager reviewsLayoutManager;
-  private LinearLayoutManager photosLayoutManager;
   private int numberOfPhotos;
   private Result favouriteResult;
 
@@ -105,7 +100,6 @@ public class DetailFragment extends Fragment {
   private String photoReference = "";
 
 
-  private FirebaseDatabase mFirebaseDatabase;
   private DatabaseReference mPlacesDatabaseReference;
 
   @BindView(R.id.detail_image)ImageView ivPhotoView;
@@ -155,7 +149,7 @@ public class DetailFragment extends Fragment {
     }
 
     // Initialize Firebase components
-    mFirebaseDatabase = FirebaseDatabase.getInstance();
+    FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child(FIREBASE_ROOT_NODE);
   }
 
@@ -171,10 +165,11 @@ public class DetailFragment extends Fragment {
     View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
     ButterKnife.bind(this, rootView);
     apiKey = getContext().getResources().getString(R.string.google_api_key);
-    photosLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true);
+    LinearLayoutManager photosLayoutManager = new LinearLayoutManager(getContext(),
+        LinearLayoutManager.HORIZONTAL, true);
     rvPhotoGallery.setLayoutManager(photosLayoutManager);
     rvPhotoGallery.setHasFixedSize(true);
-    reviewsLayoutManager = new LinearLayoutManager(getContext());
+    LinearLayoutManager reviewsLayoutManager = new LinearLayoutManager(getContext());
     rvReviews.setLayoutManager(reviewsLayoutManager);
     rvReviews.setHasFixedSize(true);
     // Inflate the layout for this fragment
@@ -191,7 +186,8 @@ public class DetailFragment extends Fragment {
 
     } else {
       // Get the Data from the map object clicked in the Map API
-      detailModel = ViewModelProviders.of(getActivity()).get(MapDetailSharedViewHolder.class);
+      MapDetailSharedViewHolder detailModel = ViewModelProviders.of(getActivity())
+          .get(MapDetailSharedViewHolder.class);
       detailModel.getSelected().observe(this, item -> {
         // Extract the Pace ID
         mPlaceId = item.getPlaceId();
@@ -199,7 +195,7 @@ public class DetailFragment extends Fragment {
     }
 
     // Add to favourites FAB
-    addFavourites.setContentDescription("Add to Favourite Button");
+    addFavourites.setContentDescription(getString(R.string.add_to_favourite_tn));
     // Add Place to favourites (Room Database)
     addFavourites.setOnClickListener(v -> {
       // Object to be passed to the firebase db reference.
@@ -220,27 +216,29 @@ public class DetailFragment extends Fragment {
   public void onResume() {
     super.onResume();
     // DetailViewModel Factory picks Api Key and Place Id to fetch data for a single Place
-    detailViewModelFactory = new DetailViewModelFactory(NearbyPlacesRepository.getInstance(), mPlaceId, apiKey);
-    detailViewModel = ViewModelProviders.of(this, detailViewModelFactory).get(DetailViewModel.class);
+    DetailViewModelFactory detailViewModelFactory = new DetailViewModelFactory(
+        NearbyPlacesRepository.getInstance(), mPlaceId, apiKey);
+    DetailViewModel detailViewModel = ViewModelProviders.of(this, detailViewModelFactory)
+        .get(DetailViewModel.class);
     detailViewModel.getPlaceDetails().observe(this, (PlaceId placeIdMap) -> {
       result = placeIdMap.getResult();
       tvName.setText(result.getName());
-      tvName.setContentDescription("The Details of the place name is " + result.getName());
+      tvName.setContentDescription(getString(R.string.place_name_cd) + result.getName());
       tvAddress.setText(result.getVicinity());
-      tvAddress.setContentDescription("The Address is: " + result.getVicinity());
+      tvAddress.setContentDescription(getString(R.string.the_address_is_cd) + result.getVicinity());
       if (result.getPhotos() != null) {
         photoReference = result.getPhotos().get(0).getPhotoReference();
       }
       picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
       Glide.with(this).load(picassoPhotoUrl).into(ivPhotoView);
-      ivPhotoView.setContentDescription("Details Place Image");
-      tvWebAddress.setContentDescription("The website address is " + result.getWebsite());
+      ivPhotoView.setContentDescription(getString(R.string.the_image_view_cd));
+      tvWebAddress.setContentDescription(getString(R.string.website_name_cd) + result.getWebsite());
       String website = result.getWebsite();
       tvWebAddress.setText(website);
       String phoneNo = result.getInternationalPhoneNumber();
       tvTelephone.setText(phoneNo);
       tvTelephone.setContentDescription(
-          "The telephone number is: " + result.getInternationalPhoneNumber());
+          getString(R.string.telephone_number_cd) + result.getInternationalPhoneNumber());
       if(TextUtils.isEmpty(website)){
         tvWebAddress.setVisibility(View.GONE);
       } else {
@@ -259,10 +257,11 @@ public class DetailFragment extends Fragment {
       if(result.getOpeningHours()!=null){
         mOpeningWeekDays = result.getOpeningHours().getWeekdayText();
         StringBuilder weeklyHours = new StringBuilder();
-        weeklyHours.append("Opening Hours:"+"\n\n");
-        Log.i(LOG_TAG, "Week Days opening " + mOpeningWeekDays);
+        weeklyHours.append(getContext().getResources().getString(R.string.opening_hours) + "\n\n");
+        Log.i(LOG_TAG,
+            getContext().getResources().getString(R.string.wee_days_opening) + mOpeningWeekDays);
         for(int i = 0; i < mOpeningWeekDays.size(); i++) {
-          weeklyHours.append(mOpeningWeekDays.get(i) + "\n");
+          weeklyHours.append(mOpeningWeekDays.get(i)).append("\n");
           tvOpeningHours.setText(weeklyHours);
         }
       }
@@ -315,7 +314,7 @@ public class DetailFragment extends Fragment {
       mListener = (OnFragmentInteractionListener) context;
     } else {
       throw new RuntimeException(context.toString()
-          + " must implement OnFragmentInteractionListener");
+          + context.getResources().getString(R.string.must_implement_on_frag_list));
     }
   }
 

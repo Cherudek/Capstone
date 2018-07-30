@@ -48,40 +48,28 @@ public class FavouriteDetailFragment extends Fragment {
   private String mPlaceId;
   private String mName;
   private String mAddress;
-  private Double mRating;
   private String mPhoneNumber;
   private String mOpeningHours;
-  private List<String> mOpeningWeekDays;
   private String mTelephone;
   private Double mPriceLevel;
   private List<Photo> photoHeader;
-  private List<pojosplaceid.Photo> photoList;
-  private List<Review> reviewsList;
   private int height;
   private int width;
   private String photoReference = "";
   private String apiKey;
-  private String picassoPhotoUrl;
   private DetailViewModelFactory detailViewModelFactory;
   private DetailViewModel detailViewModel;
   private MapDetailSharedViewHolder detailModel;
-  private FavouritePhotoAdapter mPhotoAdapter;
-  private FavouriteReviewAdapter mReviewsAdapter;
-  private LinearLayoutManager reviewsLayoutManager;
-  private LinearLayoutManager photosLayoutManager;
   private int numberOfReviews;
-  private int numberOfPhotos;
   private double numberOfStars;
   private Result favouriteResult;
   private Result mapResult;
   private Result resultFromFavourites;
   private Result result;
-  private FavouriteDetailSharedViewModel favouriteDetailSharedViewModel;
 
   private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
   private static final String FIREBASE_ROOT_NODE = "checkouts";
   private static final String FIREBASE_FAVOURITES_NODE = "Favourites";
-  private FirebaseDatabase mFirebaseDatabase;
   private DatabaseReference mPlacesDatabaseReference;
 
   @BindView(R.id.favourite_detail_image)ImageView ivPhotoView;
@@ -102,7 +90,8 @@ public class FavouriteDetailFragment extends Fragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    favouriteDetailSharedViewModel = ViewModelProviders.of(getActivity()).get(FavouriteDetailSharedViewModel.class);
+    FavouriteDetailSharedViewModel favouriteDetailSharedViewModel = ViewModelProviders
+        .of(getActivity()).get(FavouriteDetailSharedViewModel.class);
     favouriteDetailSharedViewModel.getSelected().observe(this, result -> {
       //Update UI
       String name = result.getName();
@@ -110,7 +99,7 @@ public class FavouriteDetailFragment extends Fragment {
       Log.i(LOG_TAG, "Name: " + name);
     });
     // Initialize FireBase components
-    mFirebaseDatabase = FirebaseDatabase.getInstance();
+    FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child(FIREBASE_ROOT_NODE);
   }
 
@@ -121,10 +110,11 @@ public class FavouriteDetailFragment extends Fragment {
     View rootView = inflater.inflate(R.layout.fragment_favourite_detail, container, false);
     ButterKnife.bind(this, rootView);
     apiKey = getContext().getResources().getString(R.string.google_api_key);
-    photosLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true);
+    LinearLayoutManager photosLayoutManager = new LinearLayoutManager(getContext(),
+        LinearLayoutManager.HORIZONTAL, true);
     rvPhotoGallery.setLayoutManager(photosLayoutManager);
     rvPhotoGallery.setHasFixedSize(true);
-    reviewsLayoutManager = new LinearLayoutManager(getContext());
+    LinearLayoutManager reviewsLayoutManager = new LinearLayoutManager(getContext());
     rvReviews.setLayoutManager(reviewsLayoutManager);
     rvReviews.setHasFixedSize(true);
     // Inflate the layout for this fragment
@@ -134,13 +124,14 @@ public class FavouriteDetailFragment extends Fragment {
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-    removeFavourite.setContentDescription("Remove From Favourite Button");
+    removeFavourite.setContentDescription(getString(R.string.remove_from_favourites_button));
     removeFavourite.setOnClickListener(v -> {
       String childKey = resultFromFavourites.getFavourite_node_key();
       String name = resultFromFavourites.getName();
       mPlacesDatabaseReference.child(FIREBASE_FAVOURITES_NODE).child(childKey).removeValue();
       Snackbar snackbar = Snackbar
-          .make(getView(), name + " Removed form Your Favourites!", Snackbar.LENGTH_SHORT);
+          .make(getView(), name + getString(R.string.removed_from_favourites),
+              Snackbar.LENGTH_SHORT);
       snackbar.show();
     });
   }
@@ -151,26 +142,28 @@ public class FavouriteDetailFragment extends Fragment {
     if (resultFromFavourites.getPhotos() != null) {
       photoReference = resultFromFavourites.getPhotos().get(0).getPhotoReference();
     }
-    picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
+    String picassoPhotoUrl =
+        PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
     Glide.with(this)
         .load(picassoPhotoUrl)
         .into(ivPhotoView);
-    ivPhotoView.setContentDescription("Favorite Place Image");
-    mRating = resultFromFavourites.getRating();
+    ivPhotoView.setContentDescription(getString(R.string.favourite_place_image));
+    Double mRating = resultFromFavourites.getRating();
     tvName.setText(resultFromFavourites.getName());
-    tvName.setContentDescription("The Favourite Place Name is " + resultFromFavourites.getName());
+    tvName.setContentDescription(
+        getString(R.string.favourite_place_name) + resultFromFavourites.getName());
     tvAddress.setText(resultFromFavourites.getVicinity());
     tvAddress.setContentDescription(
-        "The Favourite Place address is: " + resultFromFavourites.getVicinity());
+        getString(R.string.favourite_place_address) + resultFromFavourites.getVicinity());
     tvWebAddress.setText(resultFromFavourites.getWebsite());
     tvWebAddress.setContentDescription(
-        "The Favourite Place Web address is: " + resultFromFavourites.getWebsite());
+        getString(R.string.favourite_web_addrees) + resultFromFavourites.getWebsite());
     if(mPriceLevel!=null){
       mPriceLevel = resultFromFavourites.getRating();
     }
     tvTelephone.setText(resultFromFavourites.getInternationalPhoneNumber());
     tvTelephone.setContentDescription(
-        "The Favourite Place telephone number is: " + resultFromFavourites
+        getString(R.string.the_favourite_telephone_number_is) + resultFromFavourites
             .getInternationalPhoneNumber());
     if (resultFromFavourites.getOpeningHours() != null) {
       Boolean openingHours = resultFromFavourites.getOpeningHours().getOpenNow();
@@ -179,29 +172,31 @@ public class FavouriteDetailFragment extends Fragment {
       } else {
         tvOpenNow.setText(R.string.closed);
       }
-      Log.i(LOG_TAG, "Open Now " + openingHours);
+      Log.i(LOG_TAG, getString(R.string.open_now) + openingHours);
     }
     if(resultFromFavourites.getOpeningHours()!=null){
-      mOpeningWeekDays = resultFromFavourites.getOpeningHours().getWeekdayText();
+      List<String> mOpeningWeekDays = resultFromFavourites.getOpeningHours().getWeekdayText();
       StringBuilder weeklyHours = new StringBuilder();
-      weeklyHours.append("Opening Hours:"+"\n\n");
-      Log.i(LOG_TAG, "Week Days opening " + mOpeningWeekDays);
+      weeklyHours.append(R.string.opening_hours + "\n\n");
+      Log.i(LOG_TAG, getString(R.string.wee_days_opening) + mOpeningWeekDays);
       for(int i = 0; i < mOpeningWeekDays.size(); i++) {
-        weeklyHours.append(mOpeningWeekDays.get(i) + "\n");
+        String openDays = mOpeningWeekDays.get(i);
+        weeklyHours.append(openDays).append("\n");
         tvOpeningHours.setText(weeklyHours);
       }
     }
+    FavouritePhotoAdapter mPhotoAdapter;
     if(resultFromFavourites.getPhotos() != null){
-      numberOfPhotos = resultFromFavourites.getPhotos().size();
-      photoList = resultFromFavourites.getPhotos();
+      int numberOfPhotos = resultFromFavourites.getPhotos().size();
+      List<pojosplaceid.Photo> photoList = resultFromFavourites.getPhotos();
       mPhotoAdapter = new FavouritePhotoAdapter(numberOfPhotos, apiKey);
       mPhotoAdapter.addAll(photoList);
     } else {
       mPhotoAdapter = new FavouritePhotoAdapter(2, apiKey);
     }
     rvPhotoGallery.setAdapter(mPhotoAdapter);
-    reviewsList = resultFromFavourites.getReviews();
-    mReviewsAdapter = new FavouriteReviewAdapter();
+    List<Review> reviewsList = resultFromFavourites.getReviews();
+    FavouriteReviewAdapter mReviewsAdapter = new FavouriteReviewAdapter();
     mReviewsAdapter.addAll(reviewsList);
     rvReviews.setAdapter(mReviewsAdapter);
   }

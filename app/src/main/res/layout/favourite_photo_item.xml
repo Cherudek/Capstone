@@ -24,6 +24,7 @@
       android:layout_height="match_parent"
       android:backgroundTint="@color/gray"
       android:scaleType="centerCrop"
+      android:contentDescription="@string/favourite_photo_item"
       app:layout_constraintTop_toTopOf="parent"/>
 
   </android.support.v7.widget.CardView>

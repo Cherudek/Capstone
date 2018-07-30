@@ -22,7 +22,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
   private Context context;
 
   public PhotoAdapter(int numberOfItems, String apiKey){
-    int mNumberOfItems = numberOfItems;
     mApiKey = apiKey;
   }
 
@@ -45,7 +44,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     Glide.with(context)
         .load(photoUrl)
         .into(holder.mImageView);
-    holder.mImageView.setContentDescription("Photo Galleries for your the detail place selected");
+    holder.mImageView.setContentDescription(context.getString(R.string.photo_gallery_detail_view));
   }
 
   public void addAll(List<Photo> photos) {
@@ -62,9 +61,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
   static class PhotoViewHolder extends RecyclerView.ViewHolder {
 
-    public final ImageView mImageView;
+    private final ImageView mImageView;
 
-    public PhotoViewHolder(View imageView) {
+    private PhotoViewHolder(View imageView) {
       super(imageView);
       mImageView = imageView.findViewById(R.id.photo_place_id);
     }

@@ -20,7 +20,6 @@ public class FirebaseToWidgetService extends IntentService {
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
   private static final String FIREBASE_ROOT_NODE = "checkouts";
   private static final String FIREBASE_FAVOURITES_NODE = "Favourites";
-  private DatabaseReference favouriteDbRef;
   private List<Result> mResultList;
 
   public FirebaseToWidgetService() {
@@ -38,7 +37,8 @@ public class FirebaseToWidgetService extends IntentService {
 
   public List<Result> buildUpdate() {
     // Connect to Data Source
-    favouriteDbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
+    DatabaseReference favouriteDbRef = FirebaseDatabase.getInstance().getReference()
+        .child(FIREBASE_ROOT_NODE);
     favouriteDbRef.child(FIREBASE_FAVOURITES_NODE).addValueEventListener(new ValueEventListener() {
       @Override
       public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

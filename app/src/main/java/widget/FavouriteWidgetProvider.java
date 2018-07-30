@@ -73,7 +73,8 @@ public class FavouriteWidgetProvider extends AppWidgetProvider {
         //the Widget ingredients list
         for (int a = 0; a < favouriteList.size(); a++) {
           CharSequence currentFavourite = favouriteList.get(a);
-          favourites = favourites + currentFavourite.toString() + "\n";
+          favourites = new StringBuilder().append(favourites).append(currentFavourite.toString())
+              .append("\n").toString();
         }
       }
 

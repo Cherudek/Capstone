@@ -22,7 +22,6 @@ public class ListRemoteViewFactory implements RemoteViewsFactory {
   private Context context;
   private DatabaseReference favouriteDbRef;
   private String[] strings = {"1", "2", "3", "4", "5"};
-  private int appWidgetId;
   private List<Result> favouritesPlaceId = new ArrayList<>();
 
 
@@ -33,7 +32,7 @@ public class ListRemoteViewFactory implements RemoteViewsFactory {
 
   public ListRemoteViewFactory(Context context, Intent intent) {
     this.context = context;
-    this.appWidgetId = intent
+    int appWidgetId = intent
         .getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
 
   }

@@ -53,7 +53,6 @@ import permissions.Connectivity;
 import permissions.LocationPermission;
 import pojos.NearbyPlaces;
 import repository.NearbyPlacesRepository;
-import viewmodel.DetailViewModel;
 import viewmodel.MapDetailSharedViewHolder;
 import viewmodel.NearbyPlacesListViewModelFactory;
 import viewmodel.QueryNearbyPlacesViewModel;
@@ -61,23 +60,18 @@ import viewmodel.QueryNearbyPlacesViewModel;
 public class MapFragment extends Fragment implements SearchView.OnQueryTextListener,
     MenuItem.OnActionExpandListener, OnMapReadyCallback {
 
-  public static final String LOG_TAG = MapFragment.class.getSimpleName();
-  public static final String CURRENT_LATITUDE_TAG = "CURRENT LATITUDE TAG";
-  public static final String CURRENT_LONGITUDE_TAG = "CURRENT LONGITUDE TAG";
-  public static final String CURRENT_QUERY_TAG = "CURRENT QUERY TAG";
+  private static final String LOG_TAG = MapFragment.class.getSimpleName();
+  private static final String CURRENT_LATITUDE_TAG = "CURRENT LATITUDE TAG";
+  private static final String CURRENT_LONGITUDE_TAG = "CURRENT LONGITUDE TAG";
+  private static final String CURRENT_QUERY_TAG = "CURRENT QUERY TAG";
   private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
   private static final String MARKERS_TAG_KEY = "MarkerTagKey";
-  private static final String LOCATION_TAG_KEY = "LocationTagKey";
-  private static final String RADIUS_TAG_KEY = "RadiusTagKey";
-  private static final String KEY_TAG = "KeyTag";
 
-  private final int DEFAULT_ZOOM = 1500;
   @BindView(R.id.map)MapView mapView;
   @BindView(R.id.checkout_button)FloatingActionButton checkoutFap;
   @BindView(R.id.map_progress_bar)
   ProgressBar progressBar;
   private GoogleMap mMap;
-  private MenuItem menuItem;
   private static final int REQUEST_PLACE_PICKER = 1;
   // A default location (Piazza Castello, Turin, Italy) and default zoom to use when location permission is
   private static final LatLng PiazzaCastello = new LatLng(45.0710394, 7.6862986);
@@ -88,11 +82,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private LatLng mCurrentLocation;
   private String apiKey;
   private String mQuery;
-  private Task<Location> location;
   private LocationPermission locationPermission;
   private Context mContext;
   private OnFragmentInteractionListener mListener;
-  private NearbyPlacesListViewModelFactory factory;
   private QueryNearbyPlacesViewModel queryViewModel;
   private GoogleNearbyPlacesParser nearbyPlacesResponseParser;
   private NearbyPlaces mNearbyPlaces;
@@ -100,7 +92,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private View rootView;
   private List<MarkerOptions> mMarkerOptionsRetrieved;
   private MapDetailSharedViewHolder sharedModel;
-  private DetailViewModel detailViewModel;
   private int mPlaceIdTag;
   private SearchView searchView;
   private int placeIdInt;
@@ -113,7 +104,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 
   public static void hideKeyboard(Activity activity) {
     View view = activity.findViewById(R.id.menu_search);
-    if (view != null && activity != null) {
+    if (view != null) {
       InputMethodManager imm = (InputMethodManager) activity
           .getSystemService(Context.INPUT_METHOD_SERVICE);
       imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -170,7 +161,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 
     Connectivity connectivity = new Connectivity();
     if(!connectivity.isOnline(mContext)){
-      Snackbar snackbar = Snackbar.make(rootView, "No Internet Connection", Snackbar.LENGTH_LONG);
+      Snackbar snackbar = Snackbar
+          .make(rootView, com.example.gregorio.capstone.R.string.no_internet_connection,
+              Snackbar.LENGTH_LONG);
       snackbar.show();
     }
 
@@ -200,12 +193,13 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     };
   }
 
-  public void onMarkerPressedIntent(Marker marker) {
+  private void onMarkerPressedIntent(Marker marker) {
     if (mListener != null) {
       mListener.onFragmentInteraction(marker);
     }
   }
-  public void onPlacePickerPressedIntent(Place place) {
+
+  private void onPlacePickerPressedIntent(Place place) {
     if (mListener != null) {
       mListener.OnPlacePickerInteraction(place);
     }
@@ -218,7 +212,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 
     } else {
       throw new RuntimeException(context.toString()
-          + " must implement OnFragmentInteractionListener");
+          + getString(com.example.gregorio.capstone.R.string.must_implement_on_frag_list));
     }
   }
   @Override
@@ -264,7 +258,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     super.onCreateOptionsMenu(menu, inflater);
     menu.clear();
     inflater.inflate(R.menu.main, menu);
-    menuItem = menu.findItem(R.id.menu_search);
+    MenuItem menuItem = menu.findItem(R.id.menu_search);
     searchView = (SearchView) menuItem.getActionView();
     searchView.setOnQueryTextListener(this);
     searchView.setQueryHint(getString(R.string.search_nearby_places));
@@ -277,8 +271,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     progressBar.setVisibility(View.VISIBLE);
     Log.i(LOG_TAG, "The Search Query is: " + query);
     // MVVM Retrofit Call Via ViewModel Factory
+    int DEFAULT_ZOOM = 1500;
     if(mNearbyPlaces==null){
-      factory = new NearbyPlacesListViewModelFactory(NearbyPlacesRepository.getInstance(),
+      NearbyPlacesListViewModelFactory factory = new NearbyPlacesListViewModelFactory(
+          NearbyPlacesRepository.getInstance(),
           mQuery, latitude.toString(), longitude.toString(), DEFAULT_ZOOM, apiKey);
       queryViewModel = ViewModelProviders.of(this, factory).get(QueryNearbyPlacesViewModel.class);
 
@@ -346,7 +342,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
       } else if (resultCode == PlacePicker.RESULT_ERROR) {
         progressBar.setVisibility(View.INVISIBLE);
         Toast.makeText(mContext,
-            "Places API failure! Check that the API is enabled for your key",
+            com.example.gregorio.capstone.R.string.places_api_failure_msg,
             Toast.LENGTH_LONG).show();
       } else {
         super.onActivityResult(requestCode, resultCode, data);
@@ -359,8 +355,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public void getLastLocation() {
     // Get last known recent location using new Google Play Services SDK (v11+)
     if (locationPermission.checkLocalPermission(mContext, getActivity())) {
-      location = LocationServices.getFusedLocationProviderClient(mContext).getLastLocation();
-      location
+      Task<Location> location1 = LocationServices.getFusedLocationProviderClient(mContext)
+          .getLastLocation();
+      location1
           .addOnSuccessListener(location -> {
             // GPS location can be null if GPS is switched off
             if (location != null) {
@@ -376,14 +373,18 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
               Log.i(LOG_TAG,
                   "Could not fetch the GPS location, we set to the default one: "
                       + PiazzaCastello);
-              Snackbar snackbar = Snackbar.make(rootView, "Check Your Internet Connection and Location is on", Snackbar.LENGTH_LONG);
+              Snackbar snackbar = Snackbar.make(rootView,
+                  mContext.getResources().getString(R.string.check_internet_gps_msg),
+                  Snackbar.LENGTH_LONG);
               snackbar.show();
             }
           })
           .addOnFailureListener(e -> {
             Log.d(LOG_TAG, "Error trying to get last GPS location");
             e.printStackTrace();
-            Snackbar snackbar = Snackbar.make(rootView, "Check Your Internet Connection and Location is on", Snackbar.LENGTH_LONG);
+            Snackbar snackbar = Snackbar
+                .make(rootView, com.example.gregorio.capstone.R.string.check_internet_gps_msg,
+                    Snackbar.LENGTH_LONG);
             snackbar.show();
           });
     }

@@ -1,14 +1,10 @@
 <resources>
-  <string name="app_name">Capstone</string>
+  <string name="app_name">Lost In Turin</string>
   <string name="navigation_drawer_open">Open navigation drawer</string>
   <string name="navigation_drawer_close">Close navigation drawer</string>
   <string name="nav_header_title">Lost In Turin</string>
   <string name="nav_header_subtitle">android.studio@android.com</string>
   <string name="nav_header_desc">Navigation header</string>
-  <string name="action_settings">Settings</string>
-  <string name="title_activity_maps">Map</string>
-  <string name="check_out">Check Out</string>
-  <string name="london_toast">Hello London Click</string>
   <string name="nv_map">Maps</string>
   <string name="nv_food">Food</string>
   <string name="nv_bars">Bars</string>
@@ -16,14 +12,12 @@
   <string name="nv_sights">Sights</string>
   <string name="nv_favourites">Favourites</string>
   <string name="search_hint">Search Nearby Places</string>
-  <string name="hello">Hello</string>
   <string name="search_title">Search Nearby Places</string>
   <string name="delete_swipe_bkg">DELETE</string>
 
 
   <!-- TODO: Remove or change this placeholder text -->
-  <string name="hello_blank_fragment">Hello blank fragment</string>
-  <string name="marker_id">Marker Id</string>
+
   <string name="marker_title">Marker Title</string>
   <string name="web_url">Web Url</string>
   <string name="location_photo">Location Photo</string>
@@ -36,9 +30,6 @@
   <string name="no_results">No Results</string>
   <string name="check_internet_connection">Check Your Internet Connection</string>
   <string name="install_google_play_services">Please install Google Play Services!</string>
-  <string name="appwidget_text">EXAMPLE</string>
-  <string name="configure">Configure</string>
-  <string name="add_widget">Add widget</string>
   <string name="info">Info</string>
   <string name="museums">Museums</string>
   <string name="photos">Photos</string>
@@ -56,4 +47,44 @@
   <string name="widget_favourite_place_image">Widget Favourite place Image</string>
   <string name="my_turin_favourites">"My Turin's Favourites"</string>
   <string name="search_nearby_places">Search Nearby Places</string>
+  <string name="delete_from_favourites_button">Delete from Favourites button</string>
+  <string name="recommended_clubs_list_button">Recommended Clubs list button</string>
+  <string name="reviews">Reviews</string>
+  <string name="grey_photo_background_for_image_list_view">Grey Photo background for image list view</string>
+  <string name="favourite_photo_item">Favourite Photo item</string>
+  <string name="delete_icon">Delete Icon</string>
+  <string name="sights_photo_item">Sights Photo Item</string>
+  <string name="food_photo_item">Food Photo Item</string>
+  <string name="bars_photo_item">bars photo item</string>
+  <string name="clubs_photo_item">Clubs Photo item</string>
+  <string name="museum_photo_item">Museum Photo Item</string>
+  <string name="add_to_favourites_button">Add to Favourites button</string>
+  <string name="the_favourite_telephone_number_is">The Favourite Place telephone number is:</string>
+  <string name="wee_days_opening">Week Days opening</string>
+  <string name="favourite_web_addrees">The Favourite Place Web address is:</string>
+  <string name="favourite_place_address">The Favourite Place address is:</string>
+  <string name="favourite_place_name">The Favourite Place Name is</string>
+  <string name="favourite_place_image">Favorite Place Image</string>
+  <string name="removed_from_favourites">Removed form Your Favourites!</string>
+  <string name="remove_from_favourites_button">Remove From Favourite Button</string>
+  <string name="no_internet_connection">No Internet Connection</string>
+  <string name="must_implement_on_frag_list">must implement OnFragmentInteractionListener</string>
+  <string name="places_api_failure_msg">Places API failure! Check that the API is enabled for your key</string>
+  <string name="check_internet_gps_msg">Check Your Internet Connection and Location is on</string>
+  <string name="the_image_view_cd">Image View for</string>
+  <string name="the_address_is_cd">The address is:</string>
+  <string name="the_name_is_cd">The Name of the place is:</string>
+  <string name="the_reviewer_name_cd">The Reviewer\'s name is</string>
+  <string name="the_revies_is_cd">The Review is:</string>
+  <string name="the_rating_is_cd">The Rating of the place is:</string>
+  <string name="photo_gallery_detail_view">Photo Galleries for your the detail place selected</string>
+  <string name="removed_from_favourites2">removed from favourites!</string>
+  <string name="google_play_services_failure">Google Place Services Not Available</string>
+  <string name="place_name_cd">The Details of the place name is</string>
+  <string name="website_name_cd">The website address is</string>
+  <string name="telephone_number_cd">The telephone number is:</string>
+  <string name="review_time_cd">The Review time is:</string>
+  <string name="author">Author</string>
+  <string name="one_week_ago">One Week Ago</string>
+  <string name="add_to_favourite_tn">Add to Favourite Button</string>
 </resources>

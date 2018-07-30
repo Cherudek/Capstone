@@ -17,6 +17,8 @@ public class FavouriteReviewAdapter extends RecyclerView.Adapter<FavouriteReview
 
   private static final String LOG_TAG = FavouriteReviewAdapter.class.getSimpleName();
   private List<Review> mReviewId = new ArrayList<>();
+  private Context context;
+
 
   public FavouriteReviewAdapter() {
   }
@@ -24,7 +26,7 @@ public class FavouriteReviewAdapter extends RecyclerView.Adapter<FavouriteReview
   @NonNull
   @Override
   public FavouriteReviewViewHold onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    Context context = parent.getContext();
+    context = parent.getContext();
     int layoutIdForListItem = R.layout.favourite_review_item;
     LayoutInflater inflater = LayoutInflater.from(context);
     boolean shouldAttachToParentImmediately = false;
@@ -44,9 +46,12 @@ public class FavouriteReviewAdapter extends RecyclerView.Adapter<FavouriteReview
     holder.tvReview.setText(reviewText);
     holder.ratingBar.setRating(authorRating);
     // Enable dynamic content description
-    holder.tvReviewAuthor.setContentDescription("The Reviewer's name is " + authorName);
-    holder.tvReview.setContentDescription("The Review is: " + reviewText);
-    holder.ratingBar.setContentDescription("The Rating of the place is: " + authorRating);
+    holder.tvReviewAuthor
+        .setContentDescription(context.getString(R.string.the_reviewer_name_cd) + authorName);
+    holder.tvReview
+        .setContentDescription(context.getString(R.string.the_revies_is_cd) + reviewText);
+    holder.ratingBar
+        .setContentDescription(context.getString(R.string.the_rating_is_cd) + authorRating);
   }
 
   public void addAll(List<Review> reviews) {

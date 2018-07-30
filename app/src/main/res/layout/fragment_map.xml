@@ -30,7 +30,7 @@
     android:layout_marginEnd="@dimen/margin_2x"
     android:layout_gravity="bottom|end"
     android:contentDescription="@string/place_picker_button"
-    android:src="@drawable/ic_baseline_add_24px"/>
+    android:src="@drawable/ic_place_white_24dp"/>
 </android.support.design.widget.CoordinatorLayout>
 
 </layout>
