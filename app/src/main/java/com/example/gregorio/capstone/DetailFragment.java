@@ -30,6 +30,7 @@ import com.bumptech.glide.Glide;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import java.util.List;
+import permissions.Connectivity;
 import pojos.Photo;
 import pojosplaceid.PlaceId;
 import pojosplaceid.Result;
@@ -81,6 +82,7 @@ public class DetailFragment extends Fragment {
   private ReviewAdapter mReviewsAdapter;
   private int numberOfPhotos;
   private Result favouriteResult;
+  private View rootView;
 
   private Result result;
   private FavouriteDetailSharedViewModel favouriteDetailSharedViewModel;
@@ -162,7 +164,7 @@ public class DetailFragment extends Fragment {
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
-    View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+    rootView = inflater.inflate(R.layout.fragment_detail, container, false);
     ButterKnife.bind(this, rootView);
     apiKey = getContext().getResources().getString(R.string.google_api_key);
     LinearLayoutManager photosLayoutManager = new LinearLayoutManager(getContext(),
@@ -221,70 +223,82 @@ public class DetailFragment extends Fragment {
     DetailViewModel detailViewModel = ViewModelProviders.of(this, detailViewModelFactory)
         .get(DetailViewModel.class);
     detailViewModel.getPlaceDetails().observe(this, (PlaceId placeIdMap) -> {
-      result = placeIdMap.getResult();
-      tvName.setText(result.getName());
-      tvName.setContentDescription(getString(R.string.place_name_cd) + result.getName());
-      tvAddress.setText(result.getVicinity());
-      tvAddress.setContentDescription(getString(R.string.the_address_is_cd) + result.getVicinity());
-      if (result.getPhotos() != null) {
-        photoReference = result.getPhotos().get(0).getPhotoReference();
-      }
-      picassoPhotoUrl = PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
-      Glide.with(this).load(picassoPhotoUrl).into(ivPhotoView);
-      ivPhotoView.setContentDescription(getString(R.string.the_image_view_cd));
-      tvWebAddress.setContentDescription(getString(R.string.website_name_cd) + result.getWebsite());
-      String website = result.getWebsite();
-      tvWebAddress.setText(website);
-      String phoneNo = result.getInternationalPhoneNumber();
-      tvTelephone.setText(phoneNo);
-      tvTelephone.setContentDescription(
-          getString(R.string.telephone_number_cd) + result.getInternationalPhoneNumber());
-      if(TextUtils.isEmpty(website)){
-        tvWebAddress.setVisibility(View.GONE);
-      } else {
-        tvWebAddress.setVisibility(View.VISIBLE);
+      if (placeIdMap != null) {
+        result = placeIdMap.getResult();
+        tvName.setText(result.getName());
+        tvName.setContentDescription(getString(R.string.place_name_cd) + result.getName());
+        tvAddress.setText(result.getVicinity());
+        tvAddress
+            .setContentDescription(getString(R.string.the_address_is_cd) + result.getVicinity());
+        if (result.getPhotos() != null) {
+          photoReference = result.getPhotos().get(0).getPhotoReference();
+        }
+        picassoPhotoUrl =
+            PHOTO_PLACE_URL + "maxwidth=600&photoreference=" + photoReference + "&key=" + apiKey;
+        Glide.with(this).load(picassoPhotoUrl).into(ivPhotoView);
+        ivPhotoView.setContentDescription(getString(R.string.the_image_view_cd));
+        tvWebAddress
+            .setContentDescription(getString(R.string.website_name_cd) + result.getWebsite());
+        String website = result.getWebsite();
         tvWebAddress.setText(website);
-      }
-      if(result.getOpeningHours()!=null){
-        Boolean openingHours = result.getOpeningHours().getOpenNow();
-        if(openingHours){
-          tvOpenNow.setText(R.string.open);
+        String phoneNo = result.getInternationalPhoneNumber();
+        tvTelephone.setText(phoneNo);
+        tvTelephone.setContentDescription(
+            getString(R.string.telephone_number_cd) + result.getInternationalPhoneNumber());
+        if (TextUtils.isEmpty(website)) {
+          tvWebAddress.setVisibility(View.GONE);
         } else {
-          tvOpenNow.setText(R.string.closed);
+          tvWebAddress.setVisibility(View.VISIBLE);
+          tvWebAddress.setText(website);
         }
-        Log.i(LOG_TAG, "Open Now " + openingHours);
-      }
-      if(result.getOpeningHours()!=null){
-        mOpeningWeekDays = result.getOpeningHours().getWeekdayText();
-        StringBuilder weeklyHours = new StringBuilder();
-        weeklyHours.append(getContext().getResources().getString(R.string.opening_hours) + "\n\n");
-        Log.i(LOG_TAG,
-            getContext().getResources().getString(R.string.wee_days_opening) + mOpeningWeekDays);
-        for(int i = 0; i < mOpeningWeekDays.size(); i++) {
-          weeklyHours.append(mOpeningWeekDays.get(i)).append("\n");
-          tvOpeningHours.setText(weeklyHours);
+        if (result.getOpeningHours() != null) {
+          Boolean openingHours = result.getOpeningHours().getOpenNow();
+          if (openingHours) {
+            tvOpenNow.setText(R.string.open);
+          } else {
+            tvOpenNow.setText(R.string.closed);
+          }
+          Log.i(LOG_TAG, "Open Now " + openingHours);
         }
-      }
-      if(result.getPhotos() != null){
-        numberOfPhotos = result.getPhotos().size();
-        photoList = result.getPhotos();
-        mPhotoAdapter = new PhotoAdapter(numberOfPhotos, apiKey);
-        mPhotoAdapter.addAll(photoList);
+        if (result.getOpeningHours() != null) {
+          mOpeningWeekDays = result.getOpeningHours().getWeekdayText();
+          StringBuilder weeklyHours = new StringBuilder();
+          weeklyHours
+              .append(getContext().getResources().getString(R.string.opening_hours) + "\n\n");
+          Log.i(LOG_TAG,
+              getContext().getResources().getString(R.string.wee_days_opening) + mOpeningWeekDays);
+          for (int i = 0; i < mOpeningWeekDays.size(); i++) {
+            weeklyHours.append(mOpeningWeekDays.get(i)).append("\n");
+            tvOpeningHours.setText(weeklyHours);
+          }
+        }
+        if (result.getPhotos() != null) {
+          numberOfPhotos = result.getPhotos().size();
+          photoList = result.getPhotos();
+          mPhotoAdapter = new PhotoAdapter(numberOfPhotos, apiKey);
+          mPhotoAdapter.addAll(photoList);
+        } else {
+          mPhotoAdapter = new PhotoAdapter(2, apiKey);
+        }
+        rvPhotoGallery.setAdapter(mPhotoAdapter);
+
+        if (result.getReviews() != null) {
+          int reviewSize = result.getReviews().size();
+          reviewsList = result.getReviews();
+          mReviewsAdapter = new ReviewAdapter(reviewSize);
+          mReviewsAdapter.addAll(reviewsList);
+          rvReviews.setAdapter(mReviewsAdapter);
+        }
+        favouriteResult = result;
       } else {
-        mPhotoAdapter = new PhotoAdapter(2, apiKey);
+        Connectivity connectivity = new Connectivity();
+        if (!connectivity.isOnline(getContext())) {
+          Snackbar snackbar = Snackbar
+              .make(rootView, com.example.gregorio.capstone.R.string.no_internet_connection,
+                  Snackbar.LENGTH_LONG);
+          snackbar.show();
+        }
       }
-      rvPhotoGallery.setAdapter(mPhotoAdapter);
-
-      if (result.getReviews() != null) {
-        int reviewSize = result.getReviews().size();
-        reviewsList = result.getReviews();
-        mReviewsAdapter = new ReviewAdapter(reviewSize);
-        mReviewsAdapter.addAll(reviewsList);
-        rvReviews.setAdapter(mReviewsAdapter);
-      }
-
-      favouriteResult = result;
-
     });
   }
 

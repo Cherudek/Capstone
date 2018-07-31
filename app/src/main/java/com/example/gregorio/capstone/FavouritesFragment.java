@@ -201,21 +201,22 @@ public class FavouritesFragment extends Fragment implements
     }
   }
 
-  private void onFavouritePressedIntent(Result result) {
+  private void onFavouritePressedIntent(Result result, View view) {
     if (mListener != null) {
-      mListener.onFavouritesFragmentInteraction(result);
+      mListener.onFavouritesFragmentInteraction(result, view);
     }
   }
 
   // Intent to launch the favorite detail fragment
   @Override
-  public void onClick(Result result) {
+  public void onClick(Result result, View view) {
     sharedModel.select(result);
-    FavouritesFragment.this.onFavouritePressedIntent(result);
+    FavouritesFragment.this.onFavouritePressedIntent(result, view);
   }
 
   public interface OnFavouritesFragmentInteractionListener {
-    void onFavouritesFragmentInteraction(Result result);
+
+    void onFavouritesFragmentInteraction(Result result, View view);
   }
 
 

@@ -49,7 +49,7 @@
             android:paddingStart="@dimen/margin_1x"
             android:fontFamily="@font/yeseva_one"
             android:gravity="start"
-            android:text="@string/marker_title"
+            tools:text="@string/marker_title"
             android:textColor="@color/white"
             android:textSize="36sp"/>
 
@@ -61,7 +61,7 @@
             android:paddingStart="@dimen/margin_1x"
             android:fontFamily="@font/quicksand_medium"
             android:gravity="start"
-            android:text="@string/address"
+            tools:text="@string/address"
             android:textColor="@color/white"
             android:textColorLink="@color/white"
             android:textSize="18sp"/>
@@ -85,7 +85,7 @@
           android:autoLink="phone"
           android:fontFamily="@font/quicksand_medium"
           android:gravity="bottom|center"
-          android:text="@string/telephone_number"
+          tools:text="@string/telephone_number"
           android:textColor="@color/white"
           android:textColorLink="@color/white"
           android:textSize="18sp"/>
@@ -98,7 +98,7 @@
           android:autoLink="web"
           android:fontFamily="@font/quicksand_medium"
           android:gravity="bottom|center"
-          android:text="@string/web_url"
+          tools:text="@string/web_url"
           android:textColor="@color/white"
           android:textColorLink="@color/white"
           android:textSize="18sp"/>
@@ -130,6 +130,12 @@
         android:textColor="@color/white"
         android:textSize="18sp"/>
 
+      <com.google.android.gms.maps.MapView
+        android:id="@+id/map_detail"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:contentDescription="@string/map_view"/>
+
       <TextView
         android:id="@+id/tv_photos"
         android:textStyle="bold"
@@ -148,6 +154,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
       </android.support.v7.widget.RecyclerView>
+
 
       <TextView
         android:id="@+id/tv_reviews"
@@ -169,6 +176,7 @@
         >
 
       </android.support.v7.widget.RecyclerView>
+
 
     </LinearLayout>
 

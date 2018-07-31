@@ -20,6 +20,15 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.bumptech.glide.Glide;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import java.util.List;
@@ -31,7 +40,7 @@ import viewmodel.DetailViewModelFactory;
 import viewmodel.FavouriteDetailSharedViewModel;
 import viewmodel.MapDetailSharedViewHolder;
 
-public class FavouriteDetailFragment extends Fragment {
+public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallback {
 
   public static final String LOG_TAG = FavouriteDetailFragment.class.getSimpleName();
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
@@ -39,7 +48,7 @@ public class FavouriteDetailFragment extends Fragment {
   private static final String ARG_TITLE = "TITLE";
   private static final String ARG_ID = "ID";
   private static final String ARG_WEB_URL = "PLACE WEB URL";
-  private static final String PHOTO_URL_TAG = "PhotoUrlTag";
+  private static final String MAPVIEW_DETAIL_BUNDLE_KEY = "MapViewDetailBundle";
   private static final String NAME_TAG = "NameTag";
   private static final String ADDRESS_TAG = "AddressTag";
   private static final String API_KEY_TAG = "ApiKeyTag";
@@ -66,6 +75,8 @@ public class FavouriteDetailFragment extends Fragment {
   private Result mapResult;
   private Result resultFromFavourites;
   private Result result;
+  @BindView(R.id.map_detail)
+  MapView detailMap;
 
   private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
   private static final String FIREBASE_ROOT_NODE = "checkouts";
@@ -82,6 +93,7 @@ public class FavouriteDetailFragment extends Fragment {
   @BindView(R.id.favourite_telephone_no)TextView tvTelephone;
   @BindView(R.id.favourite_photo_gallery)RecyclerView rvPhotoGallery;
   @BindView(R.id.favourite_reviews)RecyclerView rvReviews;
+  private LatLng latLng;
 
   public FavouriteDetailFragment() {
     // Required empty public constructor
@@ -98,6 +110,7 @@ public class FavouriteDetailFragment extends Fragment {
       resultFromFavourites = result;
       Log.i(LOG_TAG, "Name: " + name);
     });
+
     // Initialize FireBase components
     FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child(FIREBASE_ROOT_NODE);
@@ -117,6 +130,12 @@ public class FavouriteDetailFragment extends Fragment {
     LinearLayoutManager reviewsLayoutManager = new LinearLayoutManager(getContext());
     rvReviews.setLayoutManager(reviewsLayoutManager);
     rvReviews.setHasFixedSize(true);
+    Bundle mapViewBundle = null;
+    if (savedInstanceState != null) {
+      mapViewBundle = savedInstanceState.getBundle(MAPVIEW_DETAIL_BUNDLE_KEY);
+    }
+    detailMap.onCreate(mapViewBundle);
+    detailMap.getMapAsync(this);
     // Inflate the layout for this fragment
     return rootView;
   }
@@ -139,6 +158,7 @@ public class FavouriteDetailFragment extends Fragment {
   @Override
   public void onResume() {
     super.onResume();
+    detailMap.onResume();
     if (resultFromFavourites.getPhotos() != null) {
       photoReference = resultFromFavourites.getPhotos().get(0).getPhotoReference();
     }
@@ -147,7 +167,10 @@ public class FavouriteDetailFragment extends Fragment {
     Glide.with(this)
         .load(picassoPhotoUrl)
         .into(ivPhotoView);
+
     ivPhotoView.setContentDescription(getString(R.string.favourite_place_image));
+    ivPhotoView.setTransitionName(resultFromFavourites.getName());
+
     Double mRating = resultFromFavourites.getRating();
     tvName.setText(resultFromFavourites.getName());
     tvName.setContentDescription(
@@ -177,7 +200,8 @@ public class FavouriteDetailFragment extends Fragment {
     if(resultFromFavourites.getOpeningHours()!=null){
       List<String> mOpeningWeekDays = resultFromFavourites.getOpeningHours().getWeekdayText();
       StringBuilder weeklyHours = new StringBuilder();
-      weeklyHours.append(R.string.opening_hours + "\n\n");
+      String openingHours = getString(R.string.opening_hours);
+      weeklyHours.append(openingHours + "\n\n");
       Log.i(LOG_TAG, getString(R.string.wee_days_opening) + mOpeningWeekDays);
       for(int i = 0; i < mOpeningWeekDays.size(); i++) {
         String openDays = mOpeningWeekDays.get(i);
@@ -185,6 +209,12 @@ public class FavouriteDetailFragment extends Fragment {
         tvOpeningHours.setText(weeklyHours);
       }
     }
+
+    pojosplaceid.Location scope = resultFromFavourites.getGeometry().getLocation();
+    Double lat = scope.getLat();
+    Double lon = scope.getLng();
+    latLng = new LatLng(lat, lon);
+
     FavouritePhotoAdapter mPhotoAdapter;
     if(resultFromFavourites.getPhotos() != null){
       int numberOfPhotos = resultFromFavourites.getPhotos().size();
@@ -201,4 +231,73 @@ public class FavouriteDetailFragment extends Fragment {
     rvReviews.setAdapter(mReviewsAdapter);
   }
 
+
+  @Override
+  public void onStart() {
+    super.onStart();
+    detailMap.onStart();
+  }
+
+  @Override
+  public void onStop() {
+    super.onStop();
+    detailMap.onStop();
+  }
+
+  @Override
+  public void onPause() {
+    detailMap.onPause();
+    super.onPause();
+  }
+
+  @Override
+  public void onMapReady(GoogleMap googleMap) {
+    MapsInitializer.initialize(getContext());
+    MapStyleOptions style = MapStyleOptions
+        .loadRawResourceStyle(getContext(), R.raw.mapstyle_retro);
+    googleMap.setMapStyle(style);
+    googleMap.setBuildingsEnabled(true);
+    MarkerOptions options = new MarkerOptions();
+    options.position(latLng);
+    options.title(mName);
+    options.snippet(mAddress);
+    googleMap.addMarker(options);
+    googleMap.setOnMarkerClickListener(marker -> {
+      marker.isInfoWindowShown();
+      return false;
+    });
+    // Construct a CameraPosition focusing on Piazza Castello, Turin Italy and animate the camera to that position.
+    CameraPosition cameraPosition = new CameraPosition.Builder()
+        .target(latLng)      // Sets the center of the map to Piazza Castello
+        .zoom(16)                   // Sets the zoom
+        .bearing(0)                // Sets the orientation of the camera to east
+        .build();
+    // Creates a CameraPosition from the builder
+    googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+  }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+    detailMap.onDestroy();
+  }
+
+  @Override
+  public void onLowMemory() {
+    super.onLowMemory();
+    detailMap.onLowMemory();
+  }
+
+  @Override
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    Bundle mapViewBundle = outState.getBundle(MAPVIEW_DETAIL_BUNDLE_KEY);
+    if (mapViewBundle == null) {
+      mapViewBundle = new Bundle();
+      outState.putBundle(MAPVIEW_DETAIL_BUNDLE_KEY, mapViewBundle);
+
+    }
+    detailMap.onSaveInstanceState(mapViewBundle);
+  }
 }

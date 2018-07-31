@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.Marker;
 import pojosplaceid.Result;
@@ -70,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Toolbar toolbar = findViewById(R.id.toolbar);
     toolbar.setLogo(R.drawable.ic_logo);
     setSupportActionBar(toolbar);
+    getSupportActionBar().setDisplayShowTitleEnabled(false);
+
 
     Intent intent = getIntent();
     Bundle extras = intent.getExtras();
@@ -274,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   }
 
   @Override
-  public void onFavouritesFragmentInteraction(Result result) {
+  public void onFavouritesFragmentInteraction(Result result, View view) {
     // set DetailFragment Arguments
     FavouriteDetailFragment favouritedetailFragment = new FavouriteDetailFragment();
     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

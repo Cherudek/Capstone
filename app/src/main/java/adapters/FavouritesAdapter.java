@@ -2,6 +2,7 @@ package adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -57,6 +58,9 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
     Glide.with(context)
         .load(photoUrl)
         .into(holder.mFavouriteImage);
+
+    ViewCompat.setTransitionName(holder.mFavouriteImage, name);
+
     holder.mFavouriteName.setText(name);
     holder.mFavouriteAddress.setText(address);
     // Enable dynamic content description
@@ -98,7 +102,8 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
    * The interface that receives onClick messages.
    */
   public interface FavouriteAdapterOnClickHandler {
-    void onClick(Result result);
+
+    void onClick(Result result, View view);
   }
 
   public class FavouriteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -126,7 +131,7 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
       Result result = favouritesPlaceId.get(adapterPosition);
       String placeId = result.getPlaceId();
       Log.i(LOG_TAG,"The Place id clicked is" + placeId);
-      mClickHandler.onClick(result);
+      mClickHandler.onClick(result, v);
 
     }
   }
