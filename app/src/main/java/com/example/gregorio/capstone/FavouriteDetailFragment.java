@@ -180,10 +180,12 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
     ivPhotoView.setTransitionName(resultFromFavourites.getName());
 
     Double mRating = resultFromFavourites.getRating();
-    tvName.setText(resultFromFavourites.getName());
+    mName = resultFromFavourites.getName();
+    tvName.setText(mName);
     tvName.setContentDescription(
         getString(R.string.favourite_place_name) + resultFromFavourites.getName());
-    tvAddress.setText(resultFromFavourites.getVicinity());
+    mAddress = resultFromFavourites.getVicinity();
+    tvAddress.setText(mAddress);
     tvAddress.setContentDescription(
         getString(R.string.favourite_place_address) + resultFromFavourites.getVicinity());
     tvWebAddress.setText(resultFromFavourites.getWebsite());

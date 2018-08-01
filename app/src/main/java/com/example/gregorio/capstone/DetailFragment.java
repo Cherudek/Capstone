@@ -33,10 +33,10 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -192,7 +192,6 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     }
     mapView.onCreate(mapViewBundle);
     onMarkerClickListener = marker -> {
-      marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
       return false;
     };
     // Inflate the layout for this fragment
@@ -254,9 +253,11 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
           latLng = new LatLng(lat, lon);
         }
         mapView.getMapAsync(this::onMapReady);
-        tvName.setText(result.getName());
+        mName = result.getName();
+        tvName.setText(mName);
         tvName.setContentDescription(getString(R.string.place_name_cd) + result.getName());
-        tvAddress.setText(result.getVicinity());
+        mAddress = result.getVicinity();
+        tvAddress.setText(mAddress);
         tvAddress
             .setContentDescription(getString(R.string.the_address_is_cd) + result.getVicinity());
         if (result.getPhotos() != null) {
@@ -329,9 +330,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
           snackbar.show();
         }
       }
-
     });
-
   }
 
   @Override
@@ -360,12 +359,10 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     outState.putString(ADDRESS_TAG, mAddress);
     outState.putString(API_KEY_TAG, apiKey);
     outState.putString(PLACE_ID_TAG, mPlaceId);
-
     Bundle mapViewBundle = outState.getBundle(MAPVIEW_DETAIL_BUNDLE_KEY);
     if (mapViewBundle == null) {
       mapViewBundle = new Bundle();
       outState.putBundle(MAPVIEW_DETAIL_BUNDLE_KEY, mapViewBundle);
-
     }
     mapView.onSaveInstanceState(mapViewBundle);
   }
@@ -390,7 +387,6 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     }
   }
 
-
   @Override
   public void onDetach() {
     super.onDetach();
@@ -404,21 +400,23 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         .loadRawResourceStyle(getContext(), R.raw.mapstyle_retro);
     googleMap.setMapStyle(style);
     googleMap.setBuildingsEnabled(true);
+    googleMap.setTrafficEnabled(true);
     MarkerOptions options = new MarkerOptions();
     options.position(latLng);
     options.title(mName);
     options.snippet(mAddress);
-    googleMap.addMarker(options);
+    Marker marker = googleMap.addMarker(options);
+    marker.showInfoWindow();
+    marker.isInfoWindowShown();
     googleMap.setOnMarkerClickListener(onMarkerClickListener);
-    // Construct a CameraPosition focusing on Piazza Castello, Turin Italy and animate the camera to that position.
+    // Construct a CameraPosition focusing on the selected detail of the place and animate the camera to that position.
     CameraPosition cameraPosition = new CameraPosition.Builder()
-        .target(latLng)      // Sets the center of the map to Piazza Castello
-        .zoom(16)                   // Sets the zoom
-        .bearing(0)                // Sets the orientation of the camera to east
+        .target(latLng)           // Sets the center of the map to the detail place location
+        .zoom(16)                 // Sets the zoom
+        .bearing(0)               // Sets the orientation of the camera to east
         .build();
     // Creates a CameraPosition from the builder
     googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
   }
 
   @Override
@@ -433,18 +431,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     mapView.onLowMemory();
   }
 
-  /**
-   * This interface must be implemented by activities that contain this
-   * fragment to allow an interaction in this fragment to be communicated
-   * to the activity and potentially other fragments contained in that
-   * activity.
-   * <p>
-   * See the Android Training lesson <a href=
-   * "http://developer.android.com/training/basics/fragments/communicating.html"
-   * >Communicating with Other Fragments</a> for more information.
-   */
   public interface OnFragmentInteractionListener {
-
     // TODO: Update argument type and name
     void onFragmentInteraction(Uri uri);
   }

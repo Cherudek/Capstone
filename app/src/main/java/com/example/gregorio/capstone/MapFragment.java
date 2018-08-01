@@ -143,7 +143,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     }
     eventMarkerMap = new HashMap<>();
     mapView.onCreate(mapViewBundle);
-    mapView.getMapAsync(this);
+    // mapView.getMapAsync(this);
     // Instantiate the data parsing class
     nearbyPlacesResponseParser = new GoogleNearbyPlacesParser();
     // Shared View Model to send Data from this fragment to the Detail one
@@ -155,8 +155,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     if(savedInstanceState!=null){
-      //  mPlaceIdTag = savedInstanceState.getInt(MARKERS_TAG_KEY);
-      //  Log.i(LOG_TAG,"mPlaceIdTag savedInstanceState is " + mPlaceIdTag);
+
     }
 
     Connectivity connectivity = new Connectivity();
@@ -393,6 +392,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public void onResume() {
     super.onResume();
     mapView.onResume();
+    mapView.getMapAsync(this);
+
   }
 
   @Override
