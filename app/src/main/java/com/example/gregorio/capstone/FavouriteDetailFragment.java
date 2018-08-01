@@ -22,9 +22,11 @@ import butterknife.ButterKnife;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -75,8 +77,9 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
   private Result mapResult;
   private Result resultFromFavourites;
   private Result result;
-  @BindView(R.id.map_detail)
+  @BindView(R.id.map_favourite_detail)
   MapView detailMap;
+  private OnMarkerClickListener onMarkerClickListener;
 
   private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
   private static final String FIREBASE_ROOT_NODE = "checkouts";
@@ -136,6 +139,11 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
     }
     detailMap.onCreate(mapViewBundle);
     detailMap.getMapAsync(this);
+    // OnMarkerClickListener added to the map
+    onMarkerClickListener = marker -> {
+      marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+      return false;
+    };
     // Inflate the layout for this fragment
     return rootView;
   }
@@ -262,10 +270,7 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
     options.title(mName);
     options.snippet(mAddress);
     googleMap.addMarker(options);
-    googleMap.setOnMarkerClickListener(marker -> {
-      marker.isInfoWindowShown();
-      return false;
-    });
+    googleMap.setOnMarkerClickListener(onMarkerClickListener);
     // Construct a CameraPosition focusing on Piazza Castello, Turin Italy and animate the camera to that position.
     CameraPosition cameraPosition = new CameraPosition.Builder()
         .target(latLng)      // Sets the center of the map to Piazza Castello

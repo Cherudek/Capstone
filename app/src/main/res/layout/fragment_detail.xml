@@ -126,6 +126,14 @@
         android:textColor="@color/white"
         android:textSize="18sp"/>
 
+      <com.google.android.gms.maps.MapView
+        android:id="@+id/map_detail"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:padding="@dimen/margin_half"
+        android:background="@color/white"
+        android:contentDescription="@string/map_view"/>
+
       <TextView
         android:id="@+id/tv_photos2"
         android:textStyle="bold"

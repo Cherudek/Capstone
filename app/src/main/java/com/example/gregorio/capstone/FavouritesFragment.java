@@ -158,7 +158,7 @@ public class FavouritesFragment extends Fragment implements
           favouriteDbRef.child(FIREBASE_FAVOURITES_NODE).child(firebaseChildKey).removeValue();
           // showing snack bar with Undo option
           Snackbar snackbar = Snackbar
-              .make(getView(), name + getString(R.string.removed_from_favourites2),
+              .make(getView(), name + " " + getString(R.string.removed_from_favourites2),
                   Snackbar.LENGTH_LONG);
           snackbar.setAction("UNDO", view -> {
 

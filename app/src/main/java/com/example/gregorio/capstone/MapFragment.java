@@ -176,7 +176,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     // OnMarkerClickListener added to the map
     onMarkerClickListener = marker -> {
       marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-
       return false;
     };
     // On InfoClickListener to launch NearPlaces object details event

@@ -131,7 +131,9 @@
         android:textSize="18sp"/>
 
       <com.google.android.gms.maps.MapView
-        android:id="@+id/map_detail"
+        android:id="@+id/map_favourite_detail"
+        android:padding="@dimen/margin_half"
+        android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="250dp"
         android:contentDescription="@string/map_view"/>
