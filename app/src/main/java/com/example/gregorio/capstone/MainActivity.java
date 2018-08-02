@@ -20,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.AuthUI.IdpConfig;
@@ -48,32 +49,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private final static String BARS_FRAGMENT_TAG = "Bars Fragment Tag";
   private final static String CLUBS_FRAGMENT_TAG = "Clubs Fragment Tag";
   private final static int RC_SIGN_IN = 1;
-
-
-  public final static String PLACE_PICKER_WEBSITE_TAG = "PLACE PICKER WEB URL";
-  public final static String PLACE_PICKER_NAME_TAG = "PLACE PICKER NAME";
-  public final static String PLACE_PICKER_ADDRESS_TAG = "PLACE PICKER ADDRESS";
-  public final static String PLACE_PICKER_TELEPHONE_TAG = "PLACE PICKER TELEPHONE";
-  public final static String PLACE_PICKER_OPEN_NOW_TAG = "PLACE PICKER OPEN NOW";
-  public final static String PLACE_PICKER_OPENING_HOURS_TAG = "PLACE PICKER OPENING HOURS";
-  public final static String PLACE_PICKER_PHOTO_REFERENCE_TAG = "PLACE PICKER PHOTO REFERENCE";
-  public final static String PLACE_PICKER_REVIEWS_TAG = "PLACE PICKER REVIEWS";
-  public final static String PLACE_PICKER_PHOTO_GALLERY_TAG = "PLACE PICKER PHOTO GALLERY";
+  public static final String ANONYMOUS = "anonymous";
+  public static final String UNKNOWN = "unknown";
   public final static String PLACE_PICKER_PLACE_ID_TAG = "PLACE PICKER PLACE ID";
   public final static String FIREBASE_CHILD_NODE_TAG = "Firebase Child Node Tag";
 
-
   private Fragment mFragment;
-  private DetailFragment detailFragment;
-  private FavouriteDetailFragment favouriteDetailFragment;
-  private FavouritesFragment favouritesFragment;
-  private Boolean widget;
   private DrawerLayout.SimpleDrawerListener drawerListener;
   private Runnable runnable;
   private ActionBarDrawerToggle toggle;
 
   private FirebaseAuth mFirebaseAuth;
   private FirebaseAuth.AuthStateListener mAuthStateListener;
+  private String mUsername;
+  private String mUserEmail;
+  private TextView tvUserName;
+  private TextView tvUserEmail;
+
 
 
   public MainActivity() {
@@ -84,10 +76,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    mUsername = ANONYMOUS;
+    mUserEmail = UNKNOWN;
+    NavigationView navigationView = findViewById(R.id.nav_view);
+    View headerView = navigationView.getHeaderView(0);
     Toolbar toolbar = findViewById(R.id.toolbar);
     toolbar.setLogo(R.drawable.ic_logo);
     setSupportActionBar(toolbar);
     getSupportActionBar().setDisplayShowTitleEnabled(false);
+    tvUserName = headerView.findViewById(R.id.user_name);
+    tvUserEmail = headerView.findViewById(R.id.user_email);
 
     mFirebaseAuth = FirebaseAuth.getInstance();
 
@@ -145,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     drawer.addDrawerListener(toggle);
     toggle.syncState();
 
-    NavigationView navigationView = findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
 
     // Listener to check when the Drawer is in STATE_IDLE so we can perform UI operation such as
@@ -167,9 +164,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       FirebaseUser user = firebaseAuth.getCurrentUser();
       if (user != null) {
         // User is signed in
+        onSignedInInitialize(user.getDisplayName(), user.getEmail());
         Toast.makeText(MainActivity.this, "You're now signed in. Welcome to FriendlyChat.",
             Toast.LENGTH_SHORT).show();
       } else {
+        onSignedOutCleanup();
         // Choose authentication providers
         List<IdpConfig> providers = Arrays.asList(
             new IdpConfig.EmailBuilder().build(),
@@ -184,22 +183,52 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .build(),
             RC_SIGN_IN);
       }
-
     };
   }
 
   @Override
-  protected void onPostResume() {
-    super.onPostResume();
-    mFirebaseAuth.addAuthStateListener(mAuthStateListener);
-
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == RC_SIGN_IN) {
+      if (resultCode == RESULT_OK) {
+        // Sign-in succeeded, set up the UI
+        Toast.makeText(this, "Signed in!", Toast.LENGTH_SHORT).show();
+      } else if (resultCode == RESULT_CANCELED) {
+        // Sign in was canceled by the user, finish the activity
+        Toast.makeText(this, "Sign in canceled", Toast.LENGTH_SHORT).show();
+        finish();
+      }
+    }
   }
+
 
   @Override
   protected void onPause() {
     super.onPause();
-    mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+    if (mAuthStateListener != null) {
+      mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+    }
   }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+
+  }
+
+  private void onSignedInInitialize(String username, String userEmail) {
+    mUsername = username;
+    mUserEmail = userEmail;
+    tvUserName.setText(mUsername);
+    tvUserEmail.setText(mUserEmail);
+  }
+
+  private void onSignedOutCleanup() {
+    mUsername = ANONYMOUS;
+  }
+
+
 
   public void runWhenIdle(Runnable runnable) {
     this.runnable = runnable;

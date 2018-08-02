@@ -87,4 +87,5 @@
   <string name="author">Author</string>
   <string name="one_week_ago">One Week Ago</string>
   <string name="add_to_favourite_tn">Add to Favourite Button</string>
+  <string name="user_name">User Name</string>
 </resources>
