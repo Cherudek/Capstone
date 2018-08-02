@@ -20,8 +20,15 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.AuthUI.IdpConfig;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.Marker;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import java.util.Arrays;
+import java.util.List;
 import pojosplaceid.Result;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
@@ -40,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private final static String FOOD_FRAGMENT_TAG = "Food Fragment Tag";
   private final static String BARS_FRAGMENT_TAG = "Bars Fragment Tag";
   private final static String CLUBS_FRAGMENT_TAG = "Clubs Fragment Tag";
+  private final static int RC_SIGN_IN = 1;
 
 
   public final static String PLACE_PICKER_WEBSITE_TAG = "PLACE PICKER WEB URL";
@@ -64,6 +72,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private Runnable runnable;
   private ActionBarDrawerToggle toggle;
 
+  private FirebaseAuth mFirebaseAuth;
+  private FirebaseAuth.AuthStateListener mAuthStateListener;
+
 
   public MainActivity() {
   }
@@ -77,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     toolbar.setLogo(R.drawable.ic_logo);
     setSupportActionBar(toolbar);
     getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+    mFirebaseAuth = FirebaseAuth.getInstance();
 
     Intent intent = getIntent();
     Bundle extras = intent.getExtras();
@@ -148,6 +161,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       }
     };
     drawer.addDrawerListener(drawerListener);
+
+    // Firebase Authentication
+    mAuthStateListener = firebaseAuth -> {
+      FirebaseUser user = firebaseAuth.getCurrentUser();
+      if (user != null) {
+        // User is signed in
+        Toast.makeText(MainActivity.this, "You're now signed in. Welcome to FriendlyChat.",
+            Toast.LENGTH_SHORT).show();
+      } else {
+        // Choose authentication providers
+        List<IdpConfig> providers = Arrays.asList(
+            new IdpConfig.EmailBuilder().build(),
+            new IdpConfig.GoogleBuilder().build());
+
+        // User is signed out
+        startActivityForResult(
+            AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setIsSmartLockEnabled(false)
+                .setAvailableProviders(providers)
+                .build(),
+            RC_SIGN_IN);
+      }
+
+    };
+  }
+
+  @Override
+  protected void onPostResume() {
+    super.onPostResume();
+    mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
   }
 
   public void runWhenIdle(Runnable runnable) {
