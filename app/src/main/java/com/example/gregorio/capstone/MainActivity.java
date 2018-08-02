@@ -75,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-
     mUsername = ANONYMOUS;
     mUserEmail = UNKNOWN;
     NavigationView navigationView = findViewById(R.id.nav_view);
@@ -86,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     getSupportActionBar().setDisplayShowTitleEnabled(false);
     tvUserName = headerView.findViewById(R.id.user_name);
     tvUserEmail = headerView.findViewById(R.id.user_email);
-
     mFirebaseAuth = FirebaseAuth.getInstance();
 
     Intent intent = getIntent();
@@ -392,6 +390,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
               .commit();
         });
         break;
+
+      case R.id.sign_out:
+        runWhenIdle(() -> {
+          AuthUI.getInstance()
+              .signOut(this);
+        });
+        break;
+
     }
     DrawerLayout drawer = findViewById(R.id.drawer_layout);
     drawer.closeDrawer(GravityCompat.START);

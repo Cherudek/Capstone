@@ -44,9 +44,9 @@
   <item android:title="@string/info">
     <menu>
       <item
-        android:id="@+id/nav_share"
-        android:icon="@drawable/ic_info_outline_black_24dp"
-        android:title="@string/info"/>
+        android:id="@+id/sign_out"
+        android:icon="@drawable/ic_cancel_black_24dp"
+        android:title="Sign Out"/>
     </menu>
   </item>
 
