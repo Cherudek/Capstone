@@ -96,7 +96,7 @@ one of the markers he or she can check infos about the place (name and address) 
 a furter click can access the detail page of the object selected with place reviews, photos,
 website address and if available opening times.
 
-![Lost In Turin Main](https://cherudek.github.io/FilmApp/film_app_screenshot3.png "Popular Movies Main Screenshot")
+![Lost In Turin Main](https://cherudek.github.io/Capstone/nearby_places.png "Nearby Places Search")
 
 
 ### Screen 2: Place Picker View
@@ -107,6 +107,9 @@ informations by going to a detail page. On the detail page will be also possible
 a favourite list that is synchronised with a Firebase realtime database. The detail page will also
 allow to share the location of the place with someone else.
 
+![Lost In Turin Main](https://cherudek.github.io/Capstone/place_picker.png "Place Picker Search")
+
+
 
 ### Screen 3: Navigation Drawer
 
@@ -115,6 +118,9 @@ lists. Based on the user location, for example we can see on a list nearby resta
 sights. Each list will then allow the user to go to a detail page. The detail page will contain a
 map, photos and general info like address, websites and reviews...
 
+![Lost In Turin Main](https://cherudek.github.io/Capstone/navigation.png "Navigation Drawer")
+
+
 
 ### Screen 4: Detail Fragment
 
@@ -122,11 +128,19 @@ The Detail View will show Name, address, website, reviews and the map location o
 From the detail view the user will be able to save the location to his or her favourite list and also
 to share the location with someone else.
 
+![Lost In Turin Main](https://cherudek.github.io/Capstone/detail_view.png "Detail View 1")
+
+![Lost In Turin Main](https://cherudek.github.io/Capstone/detail_view_two.png "Detail View 2")
+
+![Lost In Turin Main](https://cherudek.github.io/Capstone/detail_view_three.png "Detail View 3")
 
 ### Screen 5: The Widget
 
 The Widget will show the Favourite location saved by the user, clicking on one item it will open
 the Detail location of the place.
+
+![Lost In Turin Main](https://cherudek.github.io/Capstone/widget.png "Widget Favourites")
+
 
 
 ## Key Considerations
