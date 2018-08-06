@@ -28,8 +28,11 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import java.util.Arrays;
 import java.util.List;
+import pojos.User;
 import pojosplaceid.Result;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
@@ -63,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private FirebaseAuth.AuthStateListener mAuthStateListener;
   private String mUsername;
   private String mUserEmail;
+  private String mUserId;
   private TextView tvUserName;
   private TextView tvUserEmail;
 
@@ -162,9 +166,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       FirebaseUser user = firebaseAuth.getCurrentUser();
       if (user != null) {
         // User is signed in
-        onSignedInInitialize(user.getDisplayName(), user.getEmail());
-        Toast.makeText(MainActivity.this, "You're now signed in. Welcome to FriendlyChat.",
-            Toast.LENGTH_SHORT).show();
+        onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getUid());
       } else {
         onSignedOutCleanup();
         // Choose authentication providers
@@ -215,11 +217,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
   }
 
-  private void onSignedInInitialize(String username, String userEmail) {
+  private void onSignedInInitialize(String username, String userEmail, String userID) {
     mUsername = username;
     mUserEmail = userEmail;
+    mUserId = userID;
     tvUserName.setText(mUsername);
     tvUserEmail.setText(mUserEmail);
+    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
+    User user = new User(mUsername, mUserEmail, mUserId);
+    mDatabase.child(mUserId).setValue(user);
+
   }
 
   private void onSignedOutCleanup() {

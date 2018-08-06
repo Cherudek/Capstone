@@ -28,6 +28,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -47,6 +49,7 @@ public class FavouritesFragment extends Fragment implements
   private static final String LOG_TAG = FavouritesFragment.class.getSimpleName();
   private static final String FIREBASE_ROOT_NODE = "checkouts";
   private static final String FIREBASE_FAVOURITES_NODE = "Favourites";
+  private static final String FIREBASE_USERS_NODE = "users";
   public static final String WIDGET_INTENT_TAG = "Favourite List";
 
 
@@ -59,7 +62,8 @@ public class FavouritesFragment extends Fragment implements
   private List<Result> mResultList;
   private OnFavouritesFragmentInteractionListener mListener;
   private Context context;
-
+  private FirebaseAuth mAuth;
+  private String userID;
   public FavouritesFragment() {
   }
 
@@ -68,6 +72,7 @@ public class FavouritesFragment extends Fragment implements
     super.onCreate(savedInstanceState);
     sharedModel = ViewModelProviders.of(getActivity()).get(FavouriteDetailSharedViewModel.class);
     context = getContext();
+    mAuth = FirebaseAuth.getInstance();
   }
 
   @Nullable
@@ -77,8 +82,12 @@ public class FavouritesFragment extends Fragment implements
     View rootView = inflater.inflate(R.layout.fragment_favourites, container, false);
     String apiKey = getContext().getResources().getString(R.string.google_api_key);
     ButterKnife.bind(this, rootView);
-    favouriteDbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
-    int dbSize = favouriteDbRef.getRoot().child(FIREBASE_ROOT_NODE).child(FIREBASE_FAVOURITES_NODE)
+    FirebaseUser currentUser = mAuth.getCurrentUser();
+    userID = currentUser.getUid();
+    favouriteDbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_USERS_NODE);
+    int dbSize = favouriteDbRef.getRoot()
+        .child(userID)
+        .child(FIREBASE_FAVOURITES_NODE)
         .getKey().length();
     favouritesAdapter = new FavouritesAdapter(this, dbSize, apiKey);
     return rootView;
@@ -94,7 +103,8 @@ public class FavouritesFragment extends Fragment implements
     rvFavourites
         .addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
     // Firebase Database query to fetch data for the Favorite Adapter
-    favouriteDbRef.child(FIREBASE_FAVOURITES_NODE).addValueEventListener(new ValueEventListener() {
+    favouriteDbRef.child(userID)
+        .child(FIREBASE_FAVOURITES_NODE).addValueEventListener(new ValueEventListener() {
       @Override
       public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
         mResultList = new ArrayList<>();
@@ -155,7 +165,8 @@ public class FavouritesFragment extends Fragment implements
           // remove the item from recycler view
           favouritesAdapter.removeItem(viewHolder.getAdapterPosition());
           // remove item from the firebase db
-          favouriteDbRef.child(FIREBASE_FAVOURITES_NODE).child(firebaseChildKey).removeValue();
+          favouriteDbRef.child(FIREBASE_USERS_NODE).child(userID)
+              .child(FIREBASE_FAVOURITES_NODE).child(firebaseChildKey).removeValue();
           // showing snack bar with Undo option
           Snackbar snackbar = Snackbar
               .make(getView(), name + " " + getString(R.string.removed_from_favourites2),
@@ -164,7 +175,9 @@ public class FavouritesFragment extends Fragment implements
 
             // undo is selected, restore the deleted item on the adapter and back on the firebase
             favouritesAdapter.restoreItem(deletedItem, deletedIndex);
-            DatabaseReference pushedPostRef = favouriteDbRef.child(FIREBASE_FAVOURITES_NODE).push();
+            DatabaseReference pushedPostRef = favouriteDbRef.child(FIREBASE_USERS_NODE)
+                .child(userID)
+                .child(FIREBASE_FAVOURITES_NODE).push();
             pushedPostRef.setValue(deletedItem);
           });
           snackbar.setActionTextColor(Color.YELLOW);

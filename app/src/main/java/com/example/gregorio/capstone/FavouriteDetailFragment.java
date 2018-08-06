@@ -31,6 +31,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import java.util.List;
@@ -80,10 +81,13 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
   @BindView(R.id.map_favourite_detail)
   MapView detailMap;
   private OnMarkerClickListener onMarkerClickListener;
+  private static final String FIREBASE_USERS_NODE = "users";
+  private FirebaseAuth mAuth;
 
   private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
   private static final String FIREBASE_ROOT_NODE = "checkouts";
   private static final String FIREBASE_FAVOURITES_NODE = "Favourites";
+  private String userID;
   private DatabaseReference mPlacesDatabaseReference;
 
   @BindView(R.id.favourite_detail_image)ImageView ivPhotoView;
@@ -117,6 +121,7 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
     // Initialize FireBase components
     FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
     mPlacesDatabaseReference = mFirebaseDatabase.getReference().child(FIREBASE_ROOT_NODE);
+    mAuth = FirebaseAuth.getInstance();
   }
 
   @Nullable
@@ -155,7 +160,9 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
     removeFavourite.setOnClickListener(v -> {
       String childKey = resultFromFavourites.getFavourite_node_key();
       String name = resultFromFavourites.getName();
-      mPlacesDatabaseReference.child(FIREBASE_FAVOURITES_NODE).child(childKey).removeValue();
+      userID = mAuth.getUid();
+      mPlacesDatabaseReference.child(FIREBASE_USERS_NODE).child(userID)
+          .child(FIREBASE_FAVOURITES_NODE).child(childKey).removeValue();
       Snackbar snackbar = Snackbar
           .make(getView(), name + getString(R.string.removed_from_favourites),
               Snackbar.LENGTH_SHORT);
