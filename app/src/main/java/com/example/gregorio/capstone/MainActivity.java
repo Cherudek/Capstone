@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,8 +29,11 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import java.util.Arrays;
 import java.util.List;
 import pojos.User;
@@ -184,6 +188,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             RC_SIGN_IN);
       }
     };
+
+    // Check wheter or not a use is already present in the db before adding it.
+    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
+    if (mUserId != null) {
+      mDatabase.child(mUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+          if (dataSnapshot.exists()) {
+            // if the user exist do nothing
+
+          } else {
+            // if the user doesn't exist add it to the db
+            User user = new User(mUsername, mUserEmail, mUserId);
+            mDatabase.child(mUserId).setValue(user);
+          }
+
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+      });
+    }
+
+
   }
 
   @Override
@@ -223,10 +253,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     mUserId = userID;
     tvUserName.setText(mUsername);
     tvUserEmail.setText(mUserEmail);
-    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
-    User user = new User(mUsername, mUserEmail, mUserId);
-    mDatabase.child(mUserId).setValue(user);
-
   }
 
   private void onSignedOutCleanup() {
