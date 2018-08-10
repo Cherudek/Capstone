@@ -165,7 +165,7 @@ public class FavouritesFragment extends Fragment implements
           // remove the item from recycler view
           favouritesAdapter.removeItem(viewHolder.getAdapterPosition());
           // remove item from the firebase db
-          favouriteDbRef.child(FIREBASE_USERS_NODE).child(userID)
+          favouriteDbRef.child(userID)
               .child(FIREBASE_FAVOURITES_NODE).child(firebaseChildKey).removeValue();
           // showing snack bar with Undo option
           Snackbar snackbar = Snackbar
@@ -175,7 +175,7 @@ public class FavouritesFragment extends Fragment implements
 
             // undo is selected, restore the deleted item on the adapter and back on the firebase
             favouritesAdapter.restoreItem(deletedItem, deletedIndex);
-            DatabaseReference pushedPostRef = favouriteDbRef.child(FIREBASE_USERS_NODE)
+            DatabaseReference pushedPostRef = favouriteDbRef
                 .child(userID)
                 .child(FIREBASE_FAVOURITES_NODE).push();
             pushedPostRef.setValue(deletedItem);

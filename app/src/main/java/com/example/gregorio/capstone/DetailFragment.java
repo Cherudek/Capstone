@@ -110,8 +110,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
   private static final String FIREBASE_FAVOURITE_CHILD_NODE_FOOD = "food";
   private static final String FIREBASE_FAVOURITE_CHILD_NODE_NIGHTLIFE = "nightlife";
   private static final String FIREBASE_FAVOURITE_CHILD_NODE_DRINKS = "drinks";
-  @BindView(R.id.map_detail)
-  MapView mapView;
+  @BindView(R.id.map_detail)MapView mapView;
 
   private String photoReference = "";
 

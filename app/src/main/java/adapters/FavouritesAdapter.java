@@ -112,14 +112,14 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
     public final TextView mFavouriteName;
     public final TextView mFavouriteAddress;
     public final CardView viewForeground;
-    public final RelativeLayout viewBackground;
+   // public final RelativeLayout viewBackground;
 
     public FavouriteViewHolder(View itemView){
       super(itemView);
       mFavouriteImage = itemView.findViewById(R.id.favourite_photo_place_id);
       mFavouriteName = itemView.findViewById(R.id.favourite_place_name);
       mFavouriteAddress = itemView.findViewById(R.id.favourite_place_address);
-      viewBackground = itemView.findViewById(R.id.view_background);
+     // viewBackground = itemView.findViewById(R.id.view_background);
       viewForeground = itemView.findViewById(R.id.favourite_card_view);
       itemView.setOnClickListener(this);
 

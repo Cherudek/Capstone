@@ -14,11 +14,10 @@
       android:id="@+id/bars_card_view"
       android:layout_width="match_parent"
       android:layout_height="100dp"
-      android:layout_margin="@dimen/margin_1x"
-      android:layout_gravity="center"
+      android:layout_margin="@dimen/margin_2x"
       android:elevation="@dimen/cv_elevation"
       app:cardBackgroundColor="@color/white"
-      app:cardElevation="16dp"
+      app:cardElevation="3dp"
       app:contentPadding="@dimen/margin_1x"
       app:layout_constraintTop_toTopOf="parent">
 

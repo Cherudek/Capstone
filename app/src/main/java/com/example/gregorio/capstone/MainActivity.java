@@ -39,7 +39,8 @@ import java.util.List;
 import pojos.User;
 import pojosplaceid.Result;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+public class MainActivity extends AppCompatActivity implements
+    NavigationView.OnNavigationItemSelectedListener,
     MapFragment.OnFragmentInteractionListener,
     DetailFragment.OnFragmentInteractionListener,
     FavouritesFragment.OnFavouritesFragmentInteractionListener,
@@ -75,7 +76,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   private TextView tvUserEmail;
 
 
-
   public MainActivity() {
   }
 
@@ -98,16 +98,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Intent intent = getIntent();
     Bundle extras = intent.getExtras();
 
-    if(savedInstanceState!=null){
+    if (savedInstanceState != null) {
       // If the fragment is not null retain the fragment state
-      if(mFragment instanceof MapFragment){
+      if (mFragment instanceof MapFragment) {
         mFragment = getSupportFragmentManager().getFragment(savedInstanceState, MAP_FRAGMENT_TAG);
-      } else if (mFragment instanceof DetailFragment){
-        mFragment = getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_FRAGMENT_TAG);
-      } else if (mFragment instanceof FavouritesFragment){
-        mFragment = getSupportFragmentManager().getFragment(savedInstanceState, FAVOURITE_FRAGMENT_TAG);
-      } else if (mFragment instanceof FavouriteDetailFragment){
-        mFragment = getSupportFragmentManager().getFragment(savedInstanceState, FAVOURITE_DETAIL_FRAGMENT_TAG);
+      } else if (mFragment instanceof DetailFragment) {
+        mFragment = getSupportFragmentManager()
+            .getFragment(savedInstanceState, DETAIL_FRAGMENT_TAG);
+      } else if (mFragment instanceof FavouritesFragment) {
+        mFragment = getSupportFragmentManager()
+            .getFragment(savedInstanceState, FAVOURITE_FRAGMENT_TAG);
+      } else if (mFragment instanceof FavouriteDetailFragment) {
+        mFragment = getSupportFragmentManager()
+            .getFragment(savedInstanceState, FAVOURITE_DETAIL_FRAGMENT_TAG);
       } else if (mFragment instanceof SightsFragment) {
         mFragment = getSupportFragmentManager()
             .getFragment(savedInstanceState, SIGHTS_FRAGMENT_TAG);
@@ -122,99 +125,112 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mFragment = getSupportFragmentManager().getFragment(savedInstanceState, CLUBS_FRAGMENT_TAG);
       }
 
-    } else {
-      if (extras == null) {
-        // If the fragment is not null retain the fragment state
-        MapFragment mapFragment = new MapFragment();
+    } else if (extras != null) {
+      String widgetIntent = (String) extras.get(INTENT_TO_FAVOURITE_LIST_KEY);
+      if (widgetIntent != null) {
+        FavouritesFragment favouritesFragment = new FavouritesFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
-            .addToBackStack(MAP_FRAGMENT_TAG)
+        fragmentManager.beginTransaction().replace(R.id.fragment_container, favouritesFragment)
+            .addToBackStack(FAVOURITE_FRAGMENT_TAG)
             .commit();
-        mapFragment.setRetainInstance(true);
-      } else {
-        String widgetIntent = (String) extras.get(INTENT_TO_FAVOURITE_LIST_KEY);
-        if (widgetIntent.matches("Favourite")) {
-          FavouritesFragment favouritesFragment = new FavouritesFragment();
-          FragmentManager fragmentManager = getSupportFragmentManager();
-          fragmentManager.beginTransaction().replace(R.id.fragment_container, favouritesFragment)
-              .addToBackStack(FAVOURITE_FRAGMENT_TAG)
-              .commit();
-        }
       }
+    } else {
+      // If the fragment is not null retain the fragment state
+      MapFragment mapFragment = new MapFragment();
+      FragmentManager fragmentManager = getSupportFragmentManager();
+      fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
+          .addToBackStack(MAP_FRAGMENT_TAG)
+          .commit();
+      mapFragment.setRetainInstance(true);
+
     }
 
-    DrawerLayout drawer = findViewById(R.id.drawer_layout);
-    toggle = new ActionBarDrawerToggle(
-        this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+
+
+  DrawerLayout drawer = findViewById(R.id.drawer_layout);
+  toggle =new
+
+  ActionBarDrawerToggle(
+        this,drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
     drawer.addDrawerListener(toggle);
     toggle.syncState();
 
     navigationView.setNavigationItemSelectedListener(this);
 
-    // Listener to check when the Drawer is in STATE_IDLE so we can perform UI operation such as
-    // fragment replacement.
-    drawerListener = new SimpleDrawerListener() {
-      @Override
-      public void onDrawerStateChanged(int newState) {
-        super.onDrawerStateChanged(newState);
-        if (runnable != null && newState == DrawerLayout.STATE_IDLE) {
-          runnable.run();
-          runnable = null;
-        }
+  // Listener to check when the Drawer is in STATE_IDLE so we can perform UI operation such as
+  // fragment replacement.
+  drawerListener =new
+
+  SimpleDrawerListener() {
+    @Override
+    public void onDrawerStateChanged ( int newState){
+      super.onDrawerStateChanged(newState);
+      if (runnable != null && newState == DrawerLayout.STATE_IDLE) {
+        runnable.run();
+        runnable = null;
       }
-    };
+    }
+  }
+
+  ;
     drawer.addDrawerListener(drawerListener);
 
-    // Firebase Authentication
-    mAuthStateListener = firebaseAuth -> {
-      FirebaseUser user = firebaseAuth.getCurrentUser();
-      if (user != null) {
-        // User is signed in
-        onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getUid());
-      } else {
-        onSignedOutCleanup();
-        // Choose authentication providers
-        List<IdpConfig> providers = Arrays.asList(
-            new IdpConfig.EmailBuilder().build(),
-            new IdpConfig.GoogleBuilder().build());
+  // Firebase Authentication
+  mAuthStateListener =firebaseAuth ->
 
-        // User is signed out
-        startActivityForResult(
-            AuthUI.getInstance()
-                .createSignInIntentBuilder()
-                .setIsSmartLockEnabled(false)
-                .setAvailableProviders(providers)
-                .build(),
-            RC_SIGN_IN);
-      }
-    };
+  {
+    FirebaseUser user = firebaseAuth.getCurrentUser();
+    if (user != null) {
+      // User is signed in
+      onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getUid());
+    } else {
+      onSignedOutCleanup();
+      // Choose authentication providers
+      List<IdpConfig> providers = Arrays.asList(
+          new IdpConfig.EmailBuilder().build(),
+          new IdpConfig.GoogleBuilder().build());
 
-    // Check wheter or not a use is already present in the db before adding it.
-    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
-    if (mUserId != null) {
-      mDatabase.child(mUserId).addListenerForSingleValueEvent(new ValueEventListener() {
-        @Override
-        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-          if (dataSnapshot.exists()) {
-            // if the user exist do nothing
-
-          } else {
-            // if the user doesn't exist add it to the db
-            User user = new User(mUsername, mUserEmail, mUserId);
-            mDatabase.child(mUserId).setValue(user);
-          }
-
-        }
-
-        @Override
-        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-        }
-      });
+      // User is signed out
+      startActivityForResult(
+          AuthUI.getInstance()
+              .createSignInIntentBuilder()
+              .setIsSmartLockEnabled(false)
+              .setAvailableProviders(providers)
+              .build(),
+          RC_SIGN_IN);
     }
-
-
   }
+
+  ;
+
+  // Check wheter or not a use is already present in the db before adding it.
+  DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
+    if(mUserId !=null)
+
+  {
+    mDatabase.child(mUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+      @Override
+      public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        if (dataSnapshot.exists()) {
+          // if the user exist do nothing
+
+        } else {
+          // if the user doesn't exist add it to the db
+          User user = new User(mUsername, mUserEmail, mUserId);
+          mDatabase.child(mUserId).setValue(user);
+        }
+
+      }
+
+      @Override
+      public void onCancelled(@NonNull DatabaseError databaseError) {
+
+      }
+    });
+  }
+
+
+}
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -260,7 +276,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   }
 
 
-
   public void runWhenIdle(Runnable runnable) {
     this.runnable = runnable;
   }
@@ -286,13 +301,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
     super.onSaveInstanceState(outState, outPersistentState);
     Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-    if(fragment instanceof MapFragment){
+    if (fragment instanceof MapFragment) {
       getSupportFragmentManager().putFragment(outState, MAP_FRAGMENT_TAG, mFragment);
-    } else if(fragment instanceof DetailFragment) {
+    } else if (fragment instanceof DetailFragment) {
       getSupportFragmentManager().putFragment(outState, DETAIL_FRAGMENT_TAG, mFragment);
-    } else if (fragment instanceof FavouritesFragment){
+    } else if (fragment instanceof FavouritesFragment) {
       getSupportFragmentManager().putFragment(outState, FAVOURITE_FRAGMENT_TAG, mFragment);
-    } else if (fragment instanceof FavouriteDetailFragment){
+    } else if (fragment instanceof FavouriteDetailFragment) {
       getSupportFragmentManager().putFragment(outState, FAVOURITE_DETAIL_FRAGMENT_TAG, mFragment);
     } else if (fragment instanceof SightsFragment) {
       getSupportFragmentManager().putFragment(outState, SIGHTS_FRAGMENT_TAG, mFragment);
