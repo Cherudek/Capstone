@@ -20,10 +20,18 @@
       app:popupTheme="@style/AppTheme.PopupOverlay"/>
   </android.support.design.widget.AppBarLayout>
 
+  <com.airbnb.lottie.LottieAnimationView
+    android:id="@+id/lottie_favourite_backd_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:lottie_autoPlay="true"
+    android:scaleType="centerCrop"
+    app:lottie_fileName="gradient_animated_background.json"
+    app:lottie_loop="true"/>
+
 
   <FrameLayout
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    android:background="@drawable/mole_colors_primary_bkgnd"
     android:id="@+id/fragment_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"/>

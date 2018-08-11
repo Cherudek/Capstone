@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -222,7 +223,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
 
     // Add to favourites FAB
     addFavourites.setContentDescription(getString(R.string.add_to_favourite_tn));
-    // Add Place to favourites (Room Database)
+    // Add Place to favourites (Firebase Db)
     addFavourites.setOnClickListener(v -> {
       // Object to be passed to the firebase db reference.
       // Generate a reference to a new location and add some data using push()
