@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.airbnb.lottie.LottieAnimationView;
@@ -57,6 +58,10 @@ public class FavouritesFragment extends Fragment implements
   private FavouriteDetailSharedViewModel sharedModel;
   @BindView(R.id.favourites_rv)RecyclerView rvFavourites;
   @BindView(R.id.lottie_loading)LottieAnimationView progressBar;
+  @BindView(R.id.empty_favourites)
+  LottieAnimationView emptyFavourites;
+  @BindView(R.id.add_some_favourites)
+  TextView tvAddSomeFavorites;
   private FavouritesAdapter favouritesAdapter;
   private DatabaseReference favouriteDbRef;
   private List<Result> mResultList;
@@ -124,7 +129,8 @@ public class FavouritesFragment extends Fragment implements
           progressBar.setVisibility(View.GONE);
         } else {
           progressBar.setVisibility(View.GONE);
-
+          emptyFavourites.setVisibility(View.VISIBLE);
+          tvAddSomeFavorites.setVisibility(View.VISIBLE);
         }
 
         // Method that fetches a list of favourites

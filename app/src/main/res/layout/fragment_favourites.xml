@@ -25,6 +25,44 @@
     app:lottie_fileName="loading.json"
     app:lottie_loop="true"/>
 
+  <TextView
+    android:id="@+id/add_some_favourites"
+    android:textStyle="bold"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="50dp"
+    android:layout_marginBottom="300dp"
+    android:layout_marginStart="50dp"
+    android:layout_marginEnd="50dp"
+    android:fontFamily="@font/quicksand_medium"
+    android:gravity="center"
+    android:text="@string/add_some_favourites"
+    android:textAlignment="center"
+    android:textAllCaps="false"
+    android:textColor="@color/white"
+    android:textSize="30sp"
+    android:visibility="gone"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintVertical_bias="0.07999998"/>
+
+  <com.airbnb.lottie.LottieAnimationView
+    android:id="@+id/empty_favourites"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="100dp"
+    android:scaleType="centerCrop"
+    android:visibility="gone"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:lottie_autoPlay="true"
+    app:lottie_fileName="animated_indonesian_first_president.json"
+    app:lottie_loop="true"/>
+
   <android.support.v7.widget.RecyclerView
     android:id="@+id/favourites_rv"
     android:layout_width="match_parent"
