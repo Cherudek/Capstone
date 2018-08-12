@@ -86,6 +86,9 @@ public class FavouritesFragment extends Fragment implements
       @Nullable Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_favourites, container, false);
     String apiKey = getContext().getResources().getString(R.string.google_api_key);
+    LinearLayoutManager favouritesLayoutManager = new LinearLayoutManager(getContext());
+    rvFavourites.setLayoutManager(favouritesLayoutManager);
+    rvFavourites.setHasFixedSize(true);
     ButterKnife.bind(this, rootView);
     FirebaseUser currentUser = mAuth.getCurrentUser();
     userID = currentUser.getUid();
@@ -101,9 +104,6 @@ public class FavouritesFragment extends Fragment implements
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    LinearLayoutManager favouritesLayoutManager = new LinearLayoutManager(getContext());
-    rvFavourites.setLayoutManager(favouritesLayoutManager);
-    rvFavourites.setHasFixedSize(true);
     rvFavourites.setItemAnimator(new DefaultItemAnimator());
     rvFavourites
         .addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
