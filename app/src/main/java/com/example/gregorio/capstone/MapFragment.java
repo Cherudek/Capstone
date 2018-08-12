@@ -474,7 +474,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     if (mapViewBundle == null) {
       mapViewBundle = new Bundle();
       outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
-
     }
     mapView.onSaveInstanceState(mapViewBundle);
   }

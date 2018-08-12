@@ -350,11 +350,8 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback{
     outState.putString(ADDRESS_TAG, mAddress);
     outState.putString(API_KEY_TAG, apiKey);
     outState.putString(PLACE_ID_TAG, mPlaceId);
-    Bundle mapViewBundle = outState.getBundle(MAPVIEW_DETAIL_BUNDLE_KEY);
-    if (mapViewBundle == null) {
-      mapViewBundle = new Bundle();
+    Bundle mapViewBundle = new Bundle();
       outState.putBundle(MAPVIEW_DETAIL_BUNDLE_KEY, mapViewBundle);
-    }
     mapView.onSaveInstanceState(mapViewBundle);
   }
 
