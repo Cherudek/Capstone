@@ -53,7 +53,6 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
     }
     String address = currentPlaceId.getVicinity();
     String name = currentPlaceId.getName();
-    String placeId = currentPlaceId.getPlaceId();
     String photoUrl = PHOTO_PLACE_URL + "maxwidth=100&photoreference=" + photoReference + "&key=" + mApiKey;
     Glide.with(context)
         .load(photoUrl)

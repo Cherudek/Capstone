@@ -99,7 +99,7 @@ public class BarsFragment extends Fragment implements AdapterOnClickHandler {
     }
   }
 
-  // Intent to launch the favorite detail fragment
+  // Intent to launch the detail fragment
   @Override
   public void onClick(Result result) {
     BarsFragment.this.onBarsPressedIntent(result);

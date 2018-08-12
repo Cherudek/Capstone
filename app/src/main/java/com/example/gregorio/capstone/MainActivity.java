@@ -3,6 +3,7 @@ package com.example.gregorio.capstone;
 import static com.example.gregorio.capstone.FavouritesFragment.WIDGET_INTENT_TAG;
 import static widget.FavouriteWidgetProvider.INTENT_TO_FAVOURITE_LIST_KEY;
 
+import adapters.PhotoAdapter;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Arrays;
 import java.util.List;
 import pojos.User;
+import pojosplaceid.Photo;
 import pojosplaceid.Result;
 
 public class MainActivity extends AppCompatActivity implements
@@ -44,7 +46,8 @@ public class MainActivity extends AppCompatActivity implements
     MapFragment.OnFragmentInteractionListener,
     DetailFragment.OnFragmentInteractionListener,
     FavouritesFragment.OnFavouritesFragmentInteractionListener,
-    OnFragmentInteractionListener {
+    PhotoFragment.OnFragmentInteractionListener,
+    OnFragmentInteractionListener{
 
   private final static String LOG_TAG = MainActivity.class.getSimpleName();
   private final static String MAP_FRAGMENT_TAG = "Map Fragment Tag";
@@ -56,11 +59,14 @@ public class MainActivity extends AppCompatActivity implements
   private final static String FOOD_FRAGMENT_TAG = "Food Fragment Tag";
   private final static String BARS_FRAGMENT_TAG = "Bars Fragment Tag";
   private final static String CLUBS_FRAGMENT_TAG = "Clubs Fragment Tag";
+  private final static String PHOTO_FRAGMENT_TAG = "Photo Fragment Tag";
   private final static int RC_SIGN_IN = 1;
   public static final String ANONYMOUS = "anonymous";
   public static final String UNKNOWN = "unknown";
   public final static String PLACE_PICKER_PLACE_ID_TAG = "PLACE PICKER PLACE ID";
   public final static String FIREBASE_CHILD_NODE_TAG = "Firebase Child Node Tag";
+  public final static String PHOTO_REFERENCE_TAG = "Photo Reference Tag";
+
 
   private Fragment mFragment;
   private DrawerLayout.SimpleDrawerListener drawerListener;
@@ -490,8 +496,21 @@ public class MainActivity extends AppCompatActivity implements
   }
 
 
+  // Detail View Photo Gallery to Large Photo Fragment
   @Override
-  public void onFragmentInteraction(Uri uri) {
+  public void onFragmentInteraction(Photo photo) {
+    Bundle bundle = new Bundle();
+    String photoReference = photo.getPhotoReference();
+    bundle.putString(PHOTO_REFERENCE_TAG, photoReference);
+    PhotoFragment photoFragment = new PhotoFragment();
+    photoFragment.setArguments(bundle);
+    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+    transaction
+        .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right,
+            R.anim.exit_to_right);
+    transaction.replace(R.id.fragment_container, photoFragment);
+    transaction.addToBackStack(PHOTO_FRAGMENT_TAG);
+    transaction.commit();
 
   }
 
@@ -525,5 +544,10 @@ public class MainActivity extends AppCompatActivity implements
     transaction.replace(R.id.fragment_container, detailFragment);
     transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
     transaction.commit();
+  }
+
+  @Override
+  public void onFragmentInteraction(Uri uri) {
+
   }
 }

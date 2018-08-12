@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.bumptech.glide.Glide;
+import com.example.gregorio.capstone.DetailFragment.OnFragmentInteractionListener;
 import com.example.gregorio.capstone.R;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +21,15 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
   private String mApiKey;
   private Context context;
+  private OnFragmentInteractionListener mClickHandler;
 
-  public PhotoAdapter(int numberOfItems, String apiKey){
-    mApiKey = apiKey;
+  public PhotoAdapter(int numberOfPhotos, String apiKey,
+      OnFragmentInteractionListener mClickHandler){
+    this.mApiKey = apiKey;
+    this.mClickHandler = mClickHandler;
   }
+
+
 
   @NonNull
   @Override
@@ -59,15 +65,20 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     return mPhotoId.size();
   }
 
-  static class PhotoViewHolder extends RecyclerView.ViewHolder {
-
+  class PhotoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     private final ImageView mImageView;
-
     private PhotoViewHolder(View imageView) {
       super(imageView);
       mImageView = imageView.findViewById(R.id.photo_place_id);
+      itemView.setOnClickListener(this::onClick);
+
     }
 
-
+    @Override
+    public void onClick(View v) {
+      int adapterPosition = getAdapterPosition();
+      Photo photo = mPhotoId.get(adapterPosition);
+      mClickHandler.onFragmentInteraction(photo);
+    }
   }
 }

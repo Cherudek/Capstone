@@ -6,7 +6,6 @@ import adapters.PhotoAdapter;
 import adapters.ReviewAdapter;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,7 +25,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -45,14 +43,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import java.util.List;
 import permissions.Connectivity;
-import pojos.Photo;
 import pojosplaceid.PlaceId;
 import pojosplaceid.Result;
 import pojosplaceid.Review;
 import repository.NearbyPlacesRepository;
 import viewmodel.DetailViewModel;
 import viewmodel.DetailViewModelFactory;
-import viewmodel.FavouriteDetailSharedViewModel;
 import viewmodel.MapDetailSharedViewHolder;
 
 /**
@@ -63,7 +59,7 @@ import viewmodel.MapDetailSharedViewHolder;
  * Use the {@link DetailFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DetailFragment extends Fragment implements OnMapReadyCallback {
+public class DetailFragment extends Fragment implements OnMapReadyCallback{
 
   private static final String LOG_TAG = DetailFragment.class.getSimpleName();
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
@@ -81,12 +77,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
   private String mName;
   private String mAddress;
   private Double mRating;
-  private String mPhoneNumber;
-  private String mOpeningHours;
   private List<String> mOpeningWeekDays;
-  private String mTelephone;
-  private Integer mPriceLevel;
-  private List<Photo> photoHeader;
   private List<pojosplaceid.Photo> photoList;
   private List<Review> reviewsList;
 
@@ -100,17 +91,9 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
   private static final String MAPVIEW_DETAIL_BUNDLE_KEY = "Map View Bundle Key";
 
   private Result result;
-  private FavouriteDetailSharedViewModel favouriteDetailSharedViewModel;
-
-  private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
-  private static final String FIREBASE_ROOT_NODE = "checkouts";
   private static final String FIREBASE_USERS_NODE = "users";
   private static final String FIREBASE_FAVOURITE_CHILD_NODE = "Favourites";
-  private static final String FIREBASE_FAVOURITE_CHILD_NODE_SIGHTS = "sights";
-  private static final String FIREBASE_FAVOURITE_CHILD_NODE_MUSEUM = "museums";
-  private static final String FIREBASE_FAVOURITE_CHILD_NODE_FOOD = "food";
-  private static final String FIREBASE_FAVOURITE_CHILD_NODE_NIGHTLIFE = "nightlife";
-  private static final String FIREBASE_FAVOURITE_CHILD_NODE_DRINKS = "drinks";
+
   @BindView(R.id.map_detail)MapView mapView;
 
   private String photoReference = "";
@@ -130,7 +113,6 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
   @BindView(R.id.photo_gallery)RecyclerView rvPhotoGallery;
   @BindView(R.id.reviews)RecyclerView rvReviews;
   private LatLng latLng;
-
 
   private OnFragmentInteractionListener mListener;
 
@@ -315,10 +297,10 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         if (result.getPhotos() != null) {
           numberOfPhotos = result.getPhotos().size();
           photoList = result.getPhotos();
-          mPhotoAdapter = new PhotoAdapter(numberOfPhotos, apiKey);
+          mPhotoAdapter = new PhotoAdapter(numberOfPhotos, apiKey, mListener);
           mPhotoAdapter.addAll(photoList);
         } else {
-          mPhotoAdapter = new PhotoAdapter(2, apiKey);
+          mPhotoAdapter = new PhotoAdapter(2, apiKey, mListener);
         }
         rvPhotoGallery.setAdapter(mPhotoAdapter);
 
@@ -377,11 +359,9 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
   }
 
 
-
-  // TODO: Rename method, update argument and hook method into UI event
-  public void onButtonPressed(Uri uri) {
+  public void onPhotoSelected(pojosplaceid.Photo photo) {
     if (mListener != null) {
-      mListener.onFragmentInteraction(uri);
+      mListener.onFragmentInteraction(photo);
     }
   }
 
@@ -440,8 +420,8 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     mapView.onLowMemory();
   }
 
+
   public interface OnFragmentInteractionListener {
-    // TODO: Update argument type and name
-    void onFragmentInteraction(Uri uri);
+    void onFragmentInteraction(pojosplaceid.Photo photo);
   }
 }

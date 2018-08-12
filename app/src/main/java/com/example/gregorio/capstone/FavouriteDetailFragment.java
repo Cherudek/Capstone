@@ -47,48 +47,24 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
 
   public static final String LOG_TAG = FavouriteDetailFragment.class.getSimpleName();
   private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
-  // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-  private static final String ARG_TITLE = "TITLE";
-  private static final String ARG_ID = "ID";
-  private static final String ARG_WEB_URL = "PLACE WEB URL";
   private static final String MAPVIEW_DETAIL_BUNDLE_KEY = "MapViewDetailBundle";
-  private static final String NAME_TAG = "NameTag";
-  private static final String ADDRESS_TAG = "AddressTag";
-  private static final String API_KEY_TAG = "ApiKeyTag";
-  private static final String PLACE_ID_TAG = "PlaceIdTag";
-
-  private String mPlaceId;
   private String mName;
   private String mAddress;
-  private String mPhoneNumber;
-  private String mOpeningHours;
-  private String mTelephone;
   private Double mPriceLevel;
-  private List<Photo> photoHeader;
-  private int height;
-  private int width;
   private String photoReference = "";
   private String apiKey;
-  private DetailViewModelFactory detailViewModelFactory;
-  private DetailViewModel detailViewModel;
-  private MapDetailSharedViewHolder detailModel;
-  private int numberOfReviews;
-  private double numberOfStars;
-  private Result favouriteResult;
-  private Result mapResult;
   private Result resultFromFavourites;
-  private Result result;
-  @BindView(R.id.map_favourite_detail)
-  MapView detailMap;
+  @BindView(R.id.map_favourite_detail)MapView detailMap;
   private OnMarkerClickListener onMarkerClickListener;
   private static final String FIREBASE_USERS_NODE = "users";
   private FirebaseAuth mAuth;
-
   private static final String FIREBASE_URL = "https://turin-guide-1526861835739.firebaseio.com/";
   private static final String FIREBASE_ROOT_NODE = "checkouts";
   private static final String FIREBASE_FAVOURITES_NODE = "Favourites";
   private String userID;
   private DatabaseReference mPlacesDatabaseReference;
+  private LatLng latLng;
+
 
   @BindView(R.id.favourite_detail_image)ImageView ivPhotoView;
   @BindView(R.id.favourite_place_address)TextView tvAddress;
@@ -100,7 +76,6 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
   @BindView(R.id.favourite_telephone_no)TextView tvTelephone;
   @BindView(R.id.favourite_photo_gallery)RecyclerView rvPhotoGallery;
   @BindView(R.id.favourite_reviews)RecyclerView rvReviews;
-  private LatLng latLng;
 
   public FavouriteDetailFragment() {
     // Required empty public constructor
@@ -314,4 +289,6 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
     }
     detailMap.onSaveInstanceState(mapViewBundle);
   }
+
+
 }

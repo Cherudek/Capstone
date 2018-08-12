@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -47,16 +48,15 @@ public class FavouritesFragment extends Fragment implements
     RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
 
   private static final String LOG_TAG = FavouritesFragment.class.getSimpleName();
-  private static final String FIREBASE_ROOT_NODE = "checkouts";
   private static final String FIREBASE_FAVOURITES_NODE = "Favourites";
   private static final String FIREBASE_USERS_NODE = "users";
   public static final String WIDGET_INTENT_TAG = "Favourite List";
-
 
   @BindView(R.id.favourites_constraint_layout)
   ConstraintLayout constraintLayout;
   private FavouriteDetailSharedViewModel sharedModel;
   @BindView(R.id.favourites_rv)RecyclerView rvFavourites;
+  @BindView(R.id.lottie_loading)LottieAnimationView progressBar;
   private FavouritesAdapter favouritesAdapter;
   private DatabaseReference favouriteDbRef;
   private List<Result> mResultList;
@@ -115,13 +115,22 @@ public class FavouritesFragment extends Fragment implements
           result.setFavourite_node_key(key);
           Log.d(LOG_TAG, "Firebase Location key: " + key);
           mResultList.add(result);
+
         }
         favouritesAdapter.addAll(mResultList);
         rvFavourites.setAdapter(favouritesAdapter);
 
+        if(mResultList.size() >= 1){
+          progressBar.setVisibility(View.GONE);
+        } else {
+          progressBar.setVisibility(View.GONE);
+
+        }
+
+        // Method that fetches a list of favourites
         ArrayList<String> favourites = getFavouritesNames();
         Log.i(LOG_TAG, "getFavouritesNames: " + favourites);
-        //Intent to pass recipe data (ingredient list) to the Widget Layout
+        // Intent to pass recipe data (ingredient list) to the Widget Layout
         Intent widgetIntent = new Intent(context, FavouriteWidgetProvider.class);
         widgetIntent.putExtra(WIDGET_INTENT_TAG, favourites);
         widgetIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
@@ -228,7 +237,6 @@ public class FavouritesFragment extends Fragment implements
   }
 
   public interface OnFavouritesFragmentInteractionListener {
-
     void onFavouritesFragmentInteraction(Result result, View view);
   }
 
