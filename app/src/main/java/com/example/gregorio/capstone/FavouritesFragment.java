@@ -86,9 +86,6 @@ public class FavouritesFragment extends Fragment implements
       @Nullable Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_favourites, container, false);
     String apiKey = getContext().getResources().getString(R.string.google_api_key);
-    LinearLayoutManager favouritesLayoutManager = new LinearLayoutManager(getContext());
-    rvFavourites.setLayoutManager(favouritesLayoutManager);
-    rvFavourites.setHasFixedSize(true);
     ButterKnife.bind(this, rootView);
     FirebaseUser currentUser = mAuth.getCurrentUser();
     userID = currentUser.getUid();
@@ -104,6 +101,9 @@ public class FavouritesFragment extends Fragment implements
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
+    LinearLayoutManager favouritesLayoutManager = new LinearLayoutManager(getContext());
+    rvFavourites.setLayoutManager(favouritesLayoutManager);
+    rvFavourites.setHasFixedSize(true);
     rvFavourites.setItemAnimator(new DefaultItemAnimator());
     rvFavourites
         .addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
@@ -120,11 +120,11 @@ public class FavouritesFragment extends Fragment implements
           result.setFavourite_node_key(key);
           Log.d(LOG_TAG, "Firebase Location key: " + key);
           mResultList.add(result);
-
         }
         favouritesAdapter.addAll(mResultList);
         rvFavourites.setAdapter(favouritesAdapter);
 
+        // Progress Bar And Empty Favourite Animation
         if(mResultList.size() >= 1){
           progressBar.setVisibility(View.GONE);
         } else {
@@ -194,11 +194,17 @@ public class FavouritesFragment extends Fragment implements
                 .child(userID)
                 .child(FIREBASE_FAVOURITES_NODE).push();
             pushedPostRef.setValue(deletedItem);
+
+            // Progress Bar And Empty Favourite Animation
+            emptyFavourites.setVisibility(View.GONE);
+            tvAddSomeFavorites.setVisibility(View.GONE);
+
           });
           snackbar.setActionTextColor(Color.YELLOW);
           snackbar.show();
         }
       }
+
 
       @Override
       public void onChildDraw(Canvas c, RecyclerView recyclerView, ViewHolder viewHolder, float dX,
