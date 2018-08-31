@@ -3,7 +3,6 @@ package com.example.gregorio.capstone;
 import static com.example.gregorio.capstone.FavouritesFragment.WIDGET_INTENT_TAG;
 import static widget.FavouriteWidgetProvider.INTENT_TO_FAVOURITE_LIST_KEY;
 
-import adapters.PhotoAdapter;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -64,14 +63,11 @@ public class MainActivity extends AppCompatActivity implements
   public static final String ANONYMOUS = "anonymous";
   public static final String UNKNOWN = "unknown";
   public final static String PLACE_PICKER_PLACE_ID_TAG = "PLACE PICKER PLACE ID";
-  public final static String FIREBASE_CHILD_NODE_TAG = "Firebase Child Node Tag";
   public final static String PHOTO_REFERENCE_TAG = "Photo Reference Tag";
 
 
   private Fragment mFragment;
-  private DrawerLayout.SimpleDrawerListener drawerListener;
   private Runnable runnable;
-  private ActionBarDrawerToggle toggle;
 
   private FirebaseAuth mFirebaseAuth;
   private FirebaseAuth.AuthStateListener mAuthStateListener;
@@ -154,10 +150,10 @@ public class MainActivity extends AppCompatActivity implements
 
 
   DrawerLayout drawer = findViewById(R.id.drawer_layout);
-  toggle =new
+    ActionBarDrawerToggle toggle = new
 
-  ActionBarDrawerToggle(
-        this,drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle(
+        this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
     drawer.addDrawerListener(toggle);
     toggle.syncState();
 
@@ -165,20 +161,18 @@ public class MainActivity extends AppCompatActivity implements
 
   // Listener to check when the Drawer is in STATE_IDLE so we can perform UI operation such as
   // fragment replacement.
-  drawerListener =new
+    SimpleDrawerListener drawerListener = new
 
-  SimpleDrawerListener() {
-    @Override
-    public void onDrawerStateChanged ( int newState){
-      super.onDrawerStateChanged(newState);
-      if (runnable != null && newState == DrawerLayout.STATE_IDLE) {
-        runnable.run();
-        runnable = null;
-      }
-    }
-  }
-
-  ;
+        SimpleDrawerListener() {
+          @Override
+          public void onDrawerStateChanged(int newState) {
+            super.onDrawerStateChanged(newState);
+            if (runnable != null && newState == DrawerLayout.STATE_IDLE) {
+              runnable.run();
+              runnable = null;
+            }
+          }
+        };
     drawer.addDrawerListener(drawerListener);
 
   // Firebase Authentication

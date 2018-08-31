@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
+
 
 android {
 
@@ -50,6 +52,10 @@ android {
     }
 }
 
+realm {
+    syncEnabled = true
+}
+
 ext {
     supportLibrary = '27.1.1'
     playServices = '15.0.1'
@@ -89,7 +95,7 @@ dependencies {
 
     // Firease UI for Firebase Realtime Database
     implementation 'com.firebaseui:firebase-ui-database:3.3.1'
-    implementation 'com.google.firebase:firebase-auth:16.0.2'
+    implementation 'com.google.firebase:firebase-auth:16.0.3'
     implementation 'com.firebaseui:firebase-ui-auth:4.0.0'
 
     // Test
@@ -105,9 +111,11 @@ dependencies {
     // Glide Library
     implementation 'com.github.bumptech.glide:glide:4.7.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
-
     // Lottie
     implementation 'com.airbnb.android:lottie:2.5.1'
+    // Leak Canary
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.1'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.1'
 
 }
 

@@ -1,8 +1,10 @@
 package firebase;
 
 import android.app.Application;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.squareup.leakcanary.LeakCanary;
 
 public class LostInTurin extends Application {
 
@@ -18,9 +20,16 @@ public class LostInTurin extends Application {
   @Override
   public void onCreate() {
     super.onCreate();
-
+    if (LeakCanary.isInAnalyzerProcess(this)) {
+      // This process is dedicated to LeakCanary for heap analysis.
+      // You should not init your app in this process.
+      return;
+    }
+    LeakCanary.install(this);
+    // Normal app init code...
     // Enable disk persistence only once at the start of the app
     // and before any other Firebase instances
+    FirebaseApp.initializeApp(this);
     FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     DatabaseReference favouritesRef = FirebaseDatabase.getInstance()
         .getReference(FIREBASE_ROOT_NODE);
