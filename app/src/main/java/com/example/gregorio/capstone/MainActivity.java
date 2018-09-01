@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -21,8 +22,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.AuthUI.IdpConfig;
 import com.google.android.gms.location.places.Place;
@@ -59,16 +62,13 @@ public class MainActivity extends AppCompatActivity implements
   private final static String BARS_FRAGMENT_TAG = "Bars Fragment Tag";
   private final static String CLUBS_FRAGMENT_TAG = "Clubs Fragment Tag";
   private final static String PHOTO_FRAGMENT_TAG = "Photo Fragment Tag";
-  private final static int RC_SIGN_IN = 1;
+  public final static int RC_SIGN_IN = 1;
   public static final String ANONYMOUS = "anonymous";
   public static final String UNKNOWN = "unknown";
   public final static String PLACE_PICKER_PLACE_ID_TAG = "PLACE PICKER PLACE ID";
   public final static String PHOTO_REFERENCE_TAG = "Photo Reference Tag";
-
-
   private Fragment mFragment;
   private Runnable runnable;
-
   private FirebaseAuth mFirebaseAuth;
   private FirebaseAuth.AuthStateListener mAuthStateListener;
   private String mUsername;
@@ -76,7 +76,9 @@ public class MainActivity extends AppCompatActivity implements
   private String mUserId;
   private TextView tvUserName;
   private TextView tvUserEmail;
-
+  private ImageView ivUserImage;
+  private FirebaseUser user;
+  private FragmentManager fragmentManager;
 
   public MainActivity() {
   }
@@ -95,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements
     getSupportActionBar().setDisplayShowTitleEnabled(false);
     tvUserName = headerView.findViewById(R.id.user_name);
     tvUserEmail = headerView.findViewById(R.id.user_email);
+    ivUserImage = headerView.findViewById(R.id.user_image);
     mFirebaseAuth = FirebaseAuth.getInstance();
 
     Intent intent = getIntent();
@@ -144,25 +147,19 @@ public class MainActivity extends AppCompatActivity implements
           .addToBackStack(MAP_FRAGMENT_TAG)
           .commit();
       mapFragment.setRetainInstance(true);
-
     }
 
-
-
-  DrawerLayout drawer = findViewById(R.id.drawer_layout);
+    DrawerLayout drawer = findViewById(R.id.drawer_layout);
     ActionBarDrawerToggle toggle = new
-
         ActionBarDrawerToggle(
         this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
     drawer.addDrawerListener(toggle);
     toggle.syncState();
-
     navigationView.setNavigationItemSelectedListener(this);
 
-  // Listener to check when the Drawer is in STATE_IDLE so we can perform UI operation such as
-  // fragment replacement.
+    // Listener to check when the Drawer is in STATE_IDLE so we can perform UI operation such as
+    // fragment replacement.
     SimpleDrawerListener drawerListener = new
-
         SimpleDrawerListener() {
           @Override
           public void onDrawerStateChanged(int newState) {
@@ -175,23 +172,52 @@ public class MainActivity extends AppCompatActivity implements
         };
     drawer.addDrawerListener(drawerListener);
 
-  // Firebase Authentication
-  mAuthStateListener =firebaseAuth ->
+    // Firebase Authentication
+    mAuthStateListener = firebaseAuth -> {
+      user = firebaseAuth.getCurrentUser();
+      if (user != null) {
+        // User is signed in
+        String userUrl = "";
+        MainActivity.this
+            .onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getUid(), userUrl);
+      } else {
+        MainActivity.this.onSignedOutCleanup();
+        // SignIn();
+      }
+    };
 
-  {
-    FirebaseUser user = firebaseAuth.getCurrentUser();
-    if (user != null) {
-      // User is signed in
-      onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getUid());
-    } else {
-      onSignedOutCleanup();
+    // Check whether or not a use is already present in the db before adding it.
+    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
+    if (mUserId != null) {
+      mDatabase.child(mUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+          if (dataSnapshot.exists()) {
+            // if the user exist do nothing
+
+          } else {
+            // if the user doesn't exist add it to the db
+            User user = new User(mUsername, mUserEmail, mUserId);
+            mDatabase.child(mUserId).setValue(user);
+          }
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+          Log.i(LOG_TAG, "Database Error: " + databaseError.getMessage());
+        }
+      });
+    }
+  }
+
+  public void SignIn() {
+    if (user == null || user.isAnonymous()) {
       // Choose authentication providers
       List<IdpConfig> providers = Arrays.asList(
           new IdpConfig.EmailBuilder().build(),
           new IdpConfig.GoogleBuilder().build());
-
       // User is signed out
-      startActivityForResult(
+      MainActivity.this.startActivityForResult(
           AuthUI.getInstance()
               .createSignInIntentBuilder()
               .setIsSmartLockEnabled(false)
@@ -201,48 +227,29 @@ public class MainActivity extends AppCompatActivity implements
     }
   }
 
-  ;
-
-  // Check wheter or not a use is already present in the db before adding it.
-  DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
-    if(mUserId !=null)
-
-  {
-    mDatabase.child(mUserId).addListenerForSingleValueEvent(new ValueEventListener() {
-      @Override
-      public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-        if (dataSnapshot.exists()) {
-          // if the user exist do nothing
-
-        } else {
-          // if the user doesn't exist add it to the db
-          User user = new User(mUsername, mUserEmail, mUserId);
-          mDatabase.child(mUserId).setValue(user);
-        }
-
-      }
-
-      @Override
-      public void onCancelled(@NonNull DatabaseError databaseError) {
-
-      }
-    });
-  }
-
-
-}
-
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == RC_SIGN_IN) {
       if (resultCode == RESULT_OK) {
         // Sign-in succeeded, set up the UI
+        Snackbar snackbar = Snackbar
+            .make(findViewById(R.id.drawer_layout), "Signed In!", Snackbar.LENGTH_LONG);
+        snackbar.show();
         Toast.makeText(this, "Signed in!", Toast.LENGTH_SHORT).show();
+        FavouritesFragment favouritesFragment = new FavouritesFragment();
+        FragmentTransaction ft1 = fragmentManager.beginTransaction();
+        ft1.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right,
+            R.anim.enter_from_right, R.anim.exit_to_right);
+        ft1.replace(R.id.fragment_container, favouritesFragment, FAVOURITE_FRAGMENT_TAG)
+            .addToBackStack(FAVOURITE_FRAGMENT_TAG)
+            .commit();
       } else if (resultCode == RESULT_CANCELED) {
         // Sign in was canceled by the user, finish the activity
         Toast.makeText(this, "Sign in canceled", Toast.LENGTH_SHORT).show();
-        finish();
+        Snackbar snackbar = Snackbar
+            .make(findViewById(R.id.drawer_layout), "Sign in canceled.", Snackbar.LENGTH_LONG);
+        snackbar.show();
       }
     }
   }
@@ -263,16 +270,20 @@ public class MainActivity extends AppCompatActivity implements
 
   }
 
-  private void onSignedInInitialize(String username, String userEmail, String userID) {
+  private void onSignedInInitialize(String username, String userEmail, String userID,
+      String imageUrl) {
     mUsername = username;
     mUserEmail = userEmail;
     mUserId = userID;
+    String mImage = imageUrl;
     tvUserName.setText(mUsername);
     tvUserEmail.setText(mUserEmail);
+    Glide.with(this).load(mImage).into(ivUserImage);
   }
 
   private void onSignedOutCleanup() {
     mUsername = ANONYMOUS;
+    mUserEmail = UNKNOWN;
   }
 
 
@@ -338,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements
   @Override
   public boolean onNavigationItemSelected(MenuItem item) {
     // Handle navigation view item clicks here.
-    FragmentManager fragmentManager = getSupportFragmentManager();
+    fragmentManager = getSupportFragmentManager();
 //    FragmentTransaction ft = fragmentManager.beginTransaction();
 //    ft.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right,
 //        R.anim.enter_from_right, R.anim.exit_to_right);
@@ -440,10 +451,24 @@ public class MainActivity extends AppCompatActivity implements
         break;
 
       case R.id.sign_out:
-        runWhenIdle(() -> {
-          AuthUI.getInstance()
-              .signOut(this);
-        });
+        runWhenIdle(() -> AuthUI.getInstance().signOut(this));
+        Toast.makeText(this, "Logged Out", Toast.LENGTH_LONG).show();
+        MapFragment mapFragment = new MapFragment();
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        ft.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right,
+            R.anim.enter_from_right, R.anim.exit_to_right);
+        ft.replace(R.id.fragment_container, mapFragment, MAP_FRAGMENT_TAG)
+            .addToBackStack(MAP_FRAGMENT_TAG)
+            .commit();
+        mapFragment.setRetainInstance(true);
+
+        tvUserEmail.setText(UNKNOWN);
+        tvUserName.setText(ANONYMOUS);
+
+        break;
+
+      case R.id.sign_in:
+        runWhenIdle(() -> SignIn());
         break;
 
     }
@@ -544,4 +569,5 @@ public class MainActivity extends AppCompatActivity implements
   public void onFragmentInteraction(Uri uri) {
 
   }
+
 }

@@ -18,6 +18,10 @@ import com.google.android.gms.location.places.Places;
 public class GoogleMapsApi extends AppCompatActivity {
 
   private static final int REQUEST_PLACE_PICKER = 1;
+  private GoogleApiClient mGoogleApiClient;
+  private PlaceDetectionClient mPlaceDetectionClient;
+  private FusedLocationProviderClient mFusedLocationProviderClient;
+  private String locationProvider;
 
 
   public GoogleMapsApi() {
@@ -42,17 +46,25 @@ public class GoogleMapsApi extends AppCompatActivity {
 
   public void GoogleApiClient(Context context) {
     // Construct a PlaceDetectionClient.
-    PlaceDetectionClient mPlaceDetectionClient = getPlaceDetectionClient(context);
+    mPlaceDetectionClient = getPlaceDetectionClient(context);
     // Construct a FusedLocationProviderClient.
-    FusedLocationProviderClient mFusedLocationProviderClient = LocationServices
+    mFusedLocationProviderClient = LocationServices
         .getFusedLocationProviderClient(context);
     // Set up the API client for Places API
-    GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(context)
+    mGoogleApiClient = new GoogleApiClient.Builder(context)
         .addApi(Places.GEO_DATA_API)
         .addApi(LocationServices.API)
         .build();
     mGoogleApiClient.connect();
   }
 
+  public void DisconnectGoogleApiClient(Context context) {
+    // Construct a PlaceDetectionClient.
+    mPlaceDetectionClient = getPlaceDetectionClient(context);
+    // Construct a FusedLocationProviderClient.
+    mFusedLocationProviderClient = LocationServices
+        .getFusedLocationProviderClient(context);
+    mGoogleApiClient.disconnect();
+  }
 
 }

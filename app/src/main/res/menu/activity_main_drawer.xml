@@ -46,7 +46,11 @@
       <item
         android:id="@+id/sign_out"
         android:icon="@drawable/ic_cancel_black_24dp"
-        android:title="Sign Out"/>
+        android:title="@string/sign_out"/>
+      <item
+        android:id="@+id/sign_in"
+        android:icon="@drawable/ic_account_circle_black_24dp"
+        android:title="@string/sign_in"/>
     </menu>
   </item>
 

@@ -1,5 +1,9 @@
 package com.example.gregorio.capstone;
 
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
+import static com.example.gregorio.capstone.MainActivity.RC_SIGN_IN;
+
 import adapters.FavouritesAdapter;
 import adapters.FavouritesAdapter.FavouriteViewHolder;
 import android.appwidget.AppWidgetManager;
@@ -27,9 +31,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.airbnb.lottie.LottieAnimationView;
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.AuthUI.IdpConfig;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -38,6 +45,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import pojosplaceid.Result;
 import utils.RecyclerItemTouchHelper;
@@ -88,13 +96,18 @@ public class FavouritesFragment extends Fragment implements
     String apiKey = getContext().getResources().getString(R.string.google_api_key);
     ButterKnife.bind(this, rootView);
     FirebaseUser currentUser = mAuth.getCurrentUser();
-    userID = currentUser.getUid();
-    favouriteDbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_USERS_NODE);
-    int dbSize = favouriteDbRef.getRoot()
-        .child(userID)
-        .child(FIREBASE_FAVOURITES_NODE)
-        .getKey().length();
-    favouritesAdapter = new FavouritesAdapter(this, dbSize, apiKey);
+    if (currentUser != null) {
+      userID = currentUser.getUid();
+      favouriteDbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_USERS_NODE);
+      int dbSize = favouriteDbRef.getRoot()
+          .child(userID)
+          .child(FIREBASE_FAVOURITES_NODE)
+          .getKey().length();
+      favouritesAdapter = new FavouritesAdapter(this, dbSize, apiKey);
+    } else {
+      Toast.makeText(getContext(), "You Need to Sign In to See Your Favourites!", Toast.LENGTH_LONG)
+          .show();
+    }
     return rootView;
   }
 
@@ -107,52 +120,11 @@ public class FavouritesFragment extends Fragment implements
     rvFavourites.setItemAnimator(new DefaultItemAnimator());
     rvFavourites
         .addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-    // Firebase Database query to fetch data for the Favorite Adapter
-    favouriteDbRef.child(userID)
-        .child(FIREBASE_FAVOURITES_NODE).addValueEventListener(new ValueEventListener() {
-      @Override
-      public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-        mResultList = new ArrayList<>();
-        Log.i(LOG_TAG, "DataSnapshot = " + dataSnapshot.getValue(Result.class));
-        for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {
-          String key = locationSnapshot.getKey();
-          Result result = locationSnapshot.getValue(Result.class);
-          result.setFavourite_node_key(key);
-          Log.d(LOG_TAG, "Firebase Location key: " + key);
-          mResultList.add(result);
-        }
-        favouritesAdapter.addAll(mResultList);
-        rvFavourites.setAdapter(favouritesAdapter);
-
-        // Progress Bar And Empty Favourite Animation
-        if(mResultList.size() >= 1){
-          progressBar.setVisibility(View.GONE);
-        } else {
-          progressBar.setVisibility(View.GONE);
-          emptyFavourites.setVisibility(View.VISIBLE);
-          tvAddSomeFavorites.setVisibility(View.VISIBLE);
-        }
-
-        // Method that fetches a list of favourites
-        ArrayList<String> favourites = getFavouritesNames();
-        Log.i(LOG_TAG, "getFavouritesNames: " + favourites);
-        // Intent to pass recipe data (ingredient list) to the Widget Layout
-        Intent widgetIntent = new Intent(context, FavouriteWidgetProvider.class);
-        widgetIntent.putExtra(WIDGET_INTENT_TAG, favourites);
-        widgetIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
-        int ids[] = AppWidgetManager.getInstance(context)
-            .getAppWidgetIds(new ComponentName(context, FavouriteWidgetProvider.class));
-        widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-        context.sendBroadcast(widgetIntent);
-
-      }
-
-      @Override
-      public void onCancelled(@NonNull DatabaseError databaseError) {
-
-      }
-    });
-
+    if (userID != null) {
+      LoadFavourites();
+    } else {
+      SignIn();
+    }
     // Swipe to Delete Favourite from recycler View and Firebase db.
     ItemTouchHelper.SimpleCallback itemTouchHelperCallback1 = new SimpleCallback(0,
         ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -216,6 +188,83 @@ public class FavouritesFragment extends Fragment implements
     new ItemTouchHelper(itemTouchHelperCallback1).attachToRecyclerView(rvFavourites);
   }
 
+  private void LoadFavourites() {
+    // Firebase Database query to fetch data for the Favorite Adapter
+    favouriteDbRef.child(userID).child(FIREBASE_FAVOURITES_NODE)
+        .addValueEventListener(new ValueEventListener() {
+          @Override
+          public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            mResultList = new ArrayList<>();
+            progressBar.setVisibility(View.VISIBLE);
+            Log.i(LOG_TAG, "DataSnapshot = " + dataSnapshot.getValue(Result.class));
+            for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {
+              String key = locationSnapshot.getKey();
+              Result result = locationSnapshot.getValue(Result.class);
+              result.setFavourite_node_key(key);
+              Log.d(LOG_TAG, "Firebase Location key: " + key);
+              mResultList.add(result);
+            }
+            favouritesAdapter.addAll(mResultList);
+            rvFavourites.setAdapter(favouritesAdapter);
+            // Progress Bar And Empty Favourite Animation
+            if (mResultList.size() >= 1) {
+              progressBar.setVisibility(View.GONE);
+            } else {
+              progressBar.setVisibility(View.GONE);
+              emptyFavourites.setVisibility(View.VISIBLE);
+              tvAddSomeFavorites.setVisibility(View.VISIBLE);
+            }
+
+            // Method that fetches a list of favourites
+            ArrayList<String> favourites = getFavouritesNames();
+            Log.i(LOG_TAG, "getFavouritesNames: " + favourites);
+            // Intent to pass recipe data (ingredient list) to the Widget Layout
+            Intent widgetIntent = new Intent(context, FavouriteWidgetProvider.class);
+            widgetIntent.putExtra(WIDGET_INTENT_TAG, favourites);
+            widgetIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
+            int ids[] = AppWidgetManager.getInstance(context)
+                .getAppWidgetIds(new ComponentName(context, FavouriteWidgetProvider.class));
+            widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+            context.sendBroadcast(widgetIntent);
+          }
+
+          @Override
+          public void onCancelled(@NonNull DatabaseError databaseError) {
+          }
+        });
+  }
+
+  private void SignIn() {
+    // Choose authentication providers
+    List<IdpConfig> providers = Arrays.asList(
+        new IdpConfig.EmailBuilder().build(),
+        new IdpConfig.GoogleBuilder().build());
+    // User is signed out
+    startActivityForResult(
+        AuthUI.getInstance()
+            .createSignInIntentBuilder()
+            .setIsSmartLockEnabled(false)
+            .setAvailableProviders(providers)
+            .build(),
+        RC_SIGN_IN);
+  }
+
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == RC_SIGN_IN) {
+      if (resultCode == RESULT_OK) {
+        // Sign-in succeeded, set up the UI
+        Snackbar snackbar = Snackbar.make(getView(), "Signed in!", Snackbar.LENGTH_LONG);
+        snackbar.show();
+        SignIn();
+      } else if (resultCode == RESULT_CANCELED) {
+        // Sign in was canceled by the user, finish the activity
+        Snackbar snackbar = Snackbar.make(getView(), "Signed in cancelled!", Snackbar.LENGTH_LONG);
+        snackbar.show();
+      }
+    }
+  }
 
   @Override
   public void onSwiped(ViewHolder viewHolder, int direction, int position) {

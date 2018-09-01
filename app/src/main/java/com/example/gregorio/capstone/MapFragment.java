@@ -97,6 +97,11 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private int placeIdInt;
   private HashMap<Marker, Integer> eventMarkerMap;
   private Activity activity;
+  private GoogleMapsApi googleMapsApi;
+  private Task<Location> locationTask;
+
+
+
 
 
   public MapFragment() {
@@ -222,12 +227,12 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mContext = getActivity();
+    mContext = getContext();
     activity = getActivity();
     setHasOptionsMenu(true);
     // Check if the Google Play Services are available or not and set Up Map
-    GoogleMapsApi googleMapsApi = new GoogleMapsApi();
-    googleMapsApi.CheckGooglePlayServices(mContext, getActivity());
+    googleMapsApi = new GoogleMapsApi();
+    googleMapsApi.CheckGooglePlayServices(mContext, activity);
     googleMapsApi.GoogleApiClient(mContext);
     // Check if the user has granted permission to use Location Services
     locationPermission = new LocationPermission();
@@ -270,7 +275,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     Log.i(LOG_TAG, "The Search Query is: " + query);
     // MVVM Retrofit Call Via ViewModel Factory
     int DEFAULT_ZOOM = 1500;
-    if(mNearbyPlaces==null){
+    if (mNearbyPlaces == null) {
       NearbyPlacesListViewModelFactory factory = new NearbyPlacesListViewModelFactory(
           NearbyPlacesRepository.getInstance(),
           mQuery, latitude.toString(), longitude.toString(), DEFAULT_ZOOM, apiKey);
@@ -353,38 +358,35 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public void getLastLocation() {
     // Get last known recent location using new Google Play Services SDK (v11+)
     if (locationPermission.checkLocalPermission(mContext, getActivity())) {
-      Task<Location> location1 = LocationServices.getFusedLocationProviderClient(mContext)
-          .getLastLocation();
-      location1
-          .addOnSuccessListener(location -> {
-            // GPS location can be null if GPS is switched off
-            if (location != null) {
-              latitude = location.getLatitude();
-              longitude = location.getLongitude();
-              mCurrentLocation = new LatLng(latitude, longitude);
-              Log.i(LOG_TAG,
-                  "The Last location is: Latitude: " + latitude + " Longitude: " + longitude);
-            } else {
-              latitude = PiazzaCastello.latitude;
-              longitude = PiazzaCastello.longitude;
-              mCurrentLocation = PiazzaCastello;
-              Log.i(LOG_TAG,
-                  "Could not fetch the GPS location, we set to the default one: "
-                      + PiazzaCastello);
-              Snackbar snackbar = Snackbar.make(rootView,
-                  mContext.getResources().getString(R.string.check_internet_gps_msg),
-                  Snackbar.LENGTH_LONG);
-              snackbar.show();
-            }
-          })
-          .addOnFailureListener(e -> {
-            Log.d(LOG_TAG, "Error trying to get last GPS location");
-            e.printStackTrace();
-            Snackbar snackbar = Snackbar
-                .make(rootView, com.example.gregorio.capstone.R.string.check_internet_gps_msg,
-                    Snackbar.LENGTH_LONG);
-            snackbar.show();
-          });
+      locationTask = LocationServices.getFusedLocationProviderClient(mContext).getLastLocation();
+      locationTask.addOnSuccessListener(location -> {
+        // GPS location can be null if GPS is switched off
+        if (location != null) {
+          latitude = location.getLatitude();
+          longitude = location.getLongitude();
+          mCurrentLocation = new LatLng(latitude, longitude);
+          Log.i(LOG_TAG,
+              "The Last location is: Latitude: " + latitude + " Longitude: " + longitude);
+        } else {
+          latitude = PiazzaCastello.latitude;
+          longitude = PiazzaCastello.longitude;
+          mCurrentLocation = PiazzaCastello;
+          Log.i(LOG_TAG, "Could not fetch the GPS location, we set to the default one: "
+              + PiazzaCastello);
+          Snackbar snackbar = Snackbar.make(rootView,
+              mContext.getResources().getString(R.string.check_internet_gps_msg),
+              Snackbar.LENGTH_LONG);
+          snackbar.show();
+        }
+      });
+      locationTask.addOnFailureListener(e -> {
+        Log.d(LOG_TAG, "Error trying to get last GPS location");
+        e.printStackTrace();
+        Snackbar snackbar = Snackbar
+            .make(rootView, R.string.check_internet_gps_msg,
+                Snackbar.LENGTH_LONG);
+        snackbar.show();
+      });
     }
   }
 
@@ -406,6 +408,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public void onStop() {
     super.onStop();
     mapView.onStop();
+
   }
 
   @Override
@@ -431,7 +434,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         // Construct a CameraPosition focusing on Piazza Castello, Turin Italy and animate the camera to that position.
         CameraPosition cameraPosition = new CameraPosition.Builder()
             .target(mCurrentLocation)      // Sets the center of the map to Piazza Castello
-            .zoom(14)                   // Sets the zoom
+            .zoom(13)                   // Sets the zoom
             .bearing(0)                // Sets the orientation of the camera to east
             .tilt(30)                   // Sets the tilt of the camera to 30 degrees
             .build();
@@ -456,6 +459,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   public void onDestroy() {
     super.onDestroy();
     mapView.onDestroy();
+    googleMapsApi.DisconnectGoogleApiClient(mContext);
+    googleMapsApi = null;
   }
 
   @Override
@@ -477,6 +482,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     }
     mapView.onSaveInstanceState(mapViewBundle);
   }
+
 
   /**
    * This interface must be implemented by activities that contain this
