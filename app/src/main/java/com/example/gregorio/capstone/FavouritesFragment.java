@@ -76,6 +76,7 @@ public class FavouritesFragment extends Fragment implements
   private Context context;
   private FirebaseAuth mAuth;
   private String userID;
+  private String apiKey;
   public FavouritesFragment() {
   }
 
@@ -92,7 +93,7 @@ public class FavouritesFragment extends Fragment implements
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_favourites, container, false);
-    String apiKey = getContext().getResources().getString(R.string.google_api_key);
+    apiKey = getContext().getResources().getString(R.string.google_api_key);
     ButterKnife.bind(this, rootView);
     FirebaseUser currentUser = mAuth.getCurrentUser();
     if (currentUser != null) {
@@ -103,9 +104,6 @@ public class FavouritesFragment extends Fragment implements
           .child(FIREBASE_FAVOURITES_NODE)
           .getKey().length();
       favouritesAdapter = new FavouritesAdapter(this, dbSize, apiKey);
-    } else {
-      Snackbar.make(getView(), "Sign In to See Your Favourite Places!", Snackbar.LENGTH_LONG)
-          .show();
     }
     return rootView;
   }
@@ -122,6 +120,8 @@ public class FavouritesFragment extends Fragment implements
     if (userID != null) {
       LoadFavourites();
     } else {
+      Snackbar.make(getView(), "Sign In to See Your Favourite Places!", Snackbar.LENGTH_LONG)
+          .show();
       SignIn();
     }
     // Swipe to Delete Favourite from recycler View and Firebase db.
@@ -188,49 +188,59 @@ public class FavouritesFragment extends Fragment implements
   }
 
   private void LoadFavourites() {
-    // Firebase Database query to fetch data for the Favorite Adapter
-    favouriteDbRef.child(userID).child(FIREBASE_FAVOURITES_NODE)
-        .addValueEventListener(new ValueEventListener() {
-          @Override
-          public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            mResultList = new ArrayList<>();
-            progressBar.setVisibility(View.VISIBLE);
-            Log.i(LOG_TAG, "DataSnapshot = " + dataSnapshot.getValue(Result.class));
-            for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {
-              String key = locationSnapshot.getKey();
-              Result result = locationSnapshot.getValue(Result.class);
-              result.setFavourite_node_key(key);
-              Log.d(LOG_TAG, "Firebase Location key: " + key);
-              mResultList.add(result);
-            }
-            favouritesAdapter.addAll(mResultList);
-            rvFavourites.setAdapter(favouritesAdapter);
-            // Progress Bar And Empty Favourite Animation
-            if (mResultList.size() >= 1) {
-              progressBar.setVisibility(View.GONE);
-            } else {
-              progressBar.setVisibility(View.GONE);
-              emptyFavourites.setVisibility(View.VISIBLE);
-              tvAddSomeFavorites.setVisibility(View.VISIBLE);
+    FirebaseUser currentUser = mAuth.getCurrentUser();
+    favouriteDbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_USERS_NODE);
+    if (currentUser != null) {
+      userID = currentUser.getUid();
+      int dbSize = favouriteDbRef.getRoot()
+          .child(userID)
+          .child(FIREBASE_FAVOURITES_NODE)
+          .getKey().length();
+      favouritesAdapter = new FavouritesAdapter(this, dbSize, apiKey);
+      // Firebase Database query to fetch data for the Favorite Adapter
+      favouriteDbRef.child(userID).child(FIREBASE_FAVOURITES_NODE)
+          .addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+              mResultList = new ArrayList<>();
+              progressBar.setVisibility(View.VISIBLE);
+              Log.i(LOG_TAG, "DataSnapshot = " + dataSnapshot.getValue(Result.class));
+              for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {
+                String key = locationSnapshot.getKey();
+                Result result = locationSnapshot.getValue(Result.class);
+                result.setFavourite_node_key(key);
+                Log.d(LOG_TAG, "Firebase Location key: " + key);
+                mResultList.add(result);
+              }
+              favouritesAdapter.addAll(mResultList);
+              rvFavourites.setAdapter(favouritesAdapter);
+              // Progress Bar And Empty Favourite Animation
+              if (mResultList.size() >= 1) {
+                progressBar.setVisibility(View.GONE);
+              } else {
+                progressBar.setVisibility(View.GONE);
+                emptyFavourites.setVisibility(View.VISIBLE);
+                tvAddSomeFavorites.setVisibility(View.VISIBLE);
+              }
+
+              // Method that fetches a list of favourites
+              ArrayList<String> favourites = getFavouritesNames();
+              Log.i(LOG_TAG, "getFavouritesNames: " + favourites);
+              // Intent to pass recipe data (ingredient list) to the Widget Layout
+              Intent widgetIntent = new Intent(context, FavouriteWidgetProvider.class);
+              widgetIntent.putExtra(WIDGET_INTENT_TAG, favourites);
+              widgetIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
+              int ids[] = AppWidgetManager.getInstance(context)
+                  .getAppWidgetIds(new ComponentName(context, FavouriteWidgetProvider.class));
+              widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+              context.sendBroadcast(widgetIntent);
             }
 
-            // Method that fetches a list of favourites
-            ArrayList<String> favourites = getFavouritesNames();
-            Log.i(LOG_TAG, "getFavouritesNames: " + favourites);
-            // Intent to pass recipe data (ingredient list) to the Widget Layout
-            Intent widgetIntent = new Intent(context, FavouriteWidgetProvider.class);
-            widgetIntent.putExtra(WIDGET_INTENT_TAG, favourites);
-            widgetIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
-            int ids[] = AppWidgetManager.getInstance(context)
-                .getAppWidgetIds(new ComponentName(context, FavouriteWidgetProvider.class));
-            widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-            context.sendBroadcast(widgetIntent);
-          }
-
-          @Override
-          public void onCancelled(@NonNull DatabaseError databaseError) {
-          }
-        });
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+          });
+    }
   }
 
   private void SignIn() {
@@ -254,7 +264,8 @@ public class FavouritesFragment extends Fragment implements
     if (requestCode == RC_SIGN_IN) {
       if (resultCode == RESULT_OK) {
         // Sign-in succeeded, set up the UI
-        Snackbar snackbar = Snackbar.make(getView(), "Signed in!", Snackbar.LENGTH_LONG);
+        Snackbar snackbar = Snackbar
+            .make(getView(), "Signed in to your favourite places!", Snackbar.LENGTH_LONG);
         snackbar.show();
         LoadFavourites();
       } else if (resultCode == RESULT_CANCELED) {
