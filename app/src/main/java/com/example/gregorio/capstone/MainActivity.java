@@ -24,7 +24,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.AuthUI.IdpConfig;
@@ -63,8 +62,8 @@ public class MainActivity extends AppCompatActivity implements
   private final static String CLUBS_FRAGMENT_TAG = "Clubs Fragment Tag";
   private final static String PHOTO_FRAGMENT_TAG = "Photo Fragment Tag";
   public final static int RC_SIGN_IN = 1;
-  public static final String ANONYMOUS = "anonymous";
-  public static final String UNKNOWN = "unknown";
+  public static final String ANONYMOUS = "anonymous guest";
+  public static final String UNKNOWN = "pls sign in to access or add your favourite places!";
   public final static String PLACE_PICKER_PLACE_ID_TAG = "PLACE PICKER PLACE ID";
   public final static String PHOTO_REFERENCE_TAG = "Photo Reference Tag";
   private Fragment mFragment;
@@ -129,8 +128,15 @@ public class MainActivity extends AppCompatActivity implements
       } else if (mFragment instanceof ClubsFragment) {
         mFragment = getSupportFragmentManager().getFragment(savedInstanceState, CLUBS_FRAGMENT_TAG);
       }
-
-    } else if (extras != null) {
+    } else {
+      MapFragment mapFragment = new MapFragment();
+      FragmentManager fragmentManager = getSupportFragmentManager();
+      fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
+          .addToBackStack(MAP_FRAGMENT_TAG)
+          .commit();
+      mapFragment.setRetainInstance(true);
+    }
+    if (extras != null) {
       String widgetIntent = (String) extras.get(INTENT_TO_FAVOURITE_LIST_KEY);
       if (widgetIntent != null) {
         FavouritesFragment favouritesFragment = new FavouritesFragment();
@@ -139,14 +145,6 @@ public class MainActivity extends AppCompatActivity implements
             .addToBackStack(FAVOURITE_FRAGMENT_TAG)
             .commit();
       }
-    } else {
-      // If the fragment is not null retain the fragment state
-      MapFragment mapFragment = new MapFragment();
-      FragmentManager fragmentManager = getSupportFragmentManager();
-      fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
-          .addToBackStack(MAP_FRAGMENT_TAG)
-          .commit();
-      mapFragment.setRetainInstance(true);
     }
 
     DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -236,7 +234,6 @@ public class MainActivity extends AppCompatActivity implements
         Snackbar snackbar = Snackbar
             .make(findViewById(R.id.drawer_layout), "Signed In!", Snackbar.LENGTH_LONG);
         snackbar.show();
-        Toast.makeText(this, "Signed in!", Toast.LENGTH_SHORT).show();
         FavouritesFragment favouritesFragment = new FavouritesFragment();
         FragmentTransaction ft1 = fragmentManager.beginTransaction();
         ft1.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right,
@@ -246,7 +243,6 @@ public class MainActivity extends AppCompatActivity implements
             .commit();
       } else if (resultCode == RESULT_CANCELED) {
         // Sign in was canceled by the user, finish the activity
-        Toast.makeText(this, "Sign in canceled", Toast.LENGTH_SHORT).show();
         Snackbar snackbar = Snackbar
             .make(findViewById(R.id.drawer_layout), "Sign in canceled.", Snackbar.LENGTH_LONG);
         snackbar.show();
@@ -294,7 +290,6 @@ public class MainActivity extends AppCompatActivity implements
   @Override
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
-
     Bundle extras = intent.getExtras();
     if (extras != null) {
       String value = (String) extras.get(WIDGET_INTENT_TAG);
@@ -452,7 +447,10 @@ public class MainActivity extends AppCompatActivity implements
 
       case R.id.sign_out:
         runWhenIdle(() -> AuthUI.getInstance().signOut(this));
-        Toast.makeText(this, "Logged Out", Toast.LENGTH_LONG).show();
+        Snackbar snackbar = Snackbar
+            .make(findViewById(R.id.drawer_layout), "Logged Out", Snackbar.LENGTH_LONG);
+        snackbar.show();
+
         MapFragment mapFragment = new MapFragment();
         FragmentTransaction ft = fragmentManager.beginTransaction();
         ft.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right,

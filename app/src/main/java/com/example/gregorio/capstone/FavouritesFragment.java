@@ -31,7 +31,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.airbnb.lottie.LottieAnimationView;
@@ -105,7 +104,7 @@ public class FavouritesFragment extends Fragment implements
           .getKey().length();
       favouritesAdapter = new FavouritesAdapter(this, dbSize, apiKey);
     } else {
-      Toast.makeText(getContext(), "You Need to Sign In to See Your Favourites!", Toast.LENGTH_LONG)
+      Snackbar.make(getView(), "Sign In to See Your Favourite Places!", Snackbar.LENGTH_LONG)
           .show();
     }
     return rootView;
@@ -257,7 +256,7 @@ public class FavouritesFragment extends Fragment implements
         // Sign-in succeeded, set up the UI
         Snackbar snackbar = Snackbar.make(getView(), "Signed in!", Snackbar.LENGTH_LONG);
         snackbar.show();
-        SignIn();
+        LoadFavourites();
       } else if (resultCode == RESULT_CANCELED) {
         // Sign in was canceled by the user, finish the activity
         Snackbar snackbar = Snackbar.make(getView(), "Signed in cancelled!", Snackbar.LENGTH_LONG);

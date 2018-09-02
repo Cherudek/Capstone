@@ -29,12 +29,13 @@
     android:layout_height="wrap_content"
     android:paddingTop="@dimen/nav_header_vertical_spacing"
     tools:text="@string/user_name"
+    android:text="@string/anonymous_guest"
     android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
   <TextView
     android:id="@+id/user_email"
+    android:text="@string/sign_in_to_add_and_read_your_favourite_places"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     tools:text="@string/nav_header_subtitle"/>
-
 </LinearLayout>
