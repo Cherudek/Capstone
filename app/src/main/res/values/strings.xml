@@ -96,4 +96,6 @@
   <string name="sign_out">Sign Out</string>
   <string name="anonymous_guest">anonymous guest</string>
   <string name="sign_in_to_add_and_read_your_favourite_places">sign in to add and read your favourite places!</string>
+  <string name="signedin_to_favourite">Signed in to your favourite places!</string>
+  <string name="signin_cancelled">Signed in cancelled!</string>
 </resources>

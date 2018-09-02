@@ -265,12 +265,13 @@ public class FavouritesFragment extends Fragment implements
       if (resultCode == RESULT_OK) {
         // Sign-in succeeded, set up the UI
         Snackbar snackbar = Snackbar
-            .make(getView(), "Signed in to your favourite places!", Snackbar.LENGTH_LONG);
+            .make(getView(), R.string.signedin_to_favourite, Snackbar.LENGTH_LONG);
         snackbar.show();
         LoadFavourites();
       } else if (resultCode == RESULT_CANCELED) {
         // Sign in was canceled by the user, finish the activity
-        Snackbar snackbar = Snackbar.make(getView(), "Signed in cancelled!", Snackbar.LENGTH_LONG);
+        Snackbar snackbar = Snackbar
+            .make(getView(), R.string.signin_cancelled, Snackbar.LENGTH_LONG);
         snackbar.show();
       }
     }
