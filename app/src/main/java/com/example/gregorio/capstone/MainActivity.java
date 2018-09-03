@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements
   private final static String PHOTO_FRAGMENT_TAG = "Photo Fragment Tag";
   public final static int RC_SIGN_IN = 1;
   public static final String ANONYMOUS = "anonymous guest";
-  public static final String UNKNOWN = "pls sign in to access or add your favourite places!";
+  public static final String UNKNOWN = "Sign in to read your favourite places!";
   public final static String PLACE_PICKER_PLACE_ID_TAG = "PLACE PICKER PLACE ID";
   public final static String PHOTO_REFERENCE_TAG = "Photo Reference Tag";
   private Fragment mFragment;

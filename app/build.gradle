@@ -116,6 +116,8 @@ dependencies {
     // Leak Canary
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.1'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.1'
+    //Facebook Login
+    implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
 
 }
 

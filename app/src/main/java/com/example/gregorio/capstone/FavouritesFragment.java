@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -43,6 +44,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import firebase.LostInTurin;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -120,9 +122,14 @@ public class FavouritesFragment extends Fragment implements
     if (userID != null) {
       LoadFavourites();
     } else {
-      Snackbar.make(getView(), "Sign In to See Your Favourite Places!", Snackbar.LENGTH_LONG)
+      Snackbar.make(getView(), getString(R.string.sign_in_to_add_and_read_your_favourite_places),
+          Snackbar.LENGTH_LONG)
           .show();
-      SignIn();
+      final Handler handler = new Handler();
+      handler.postDelayed(() -> {
+        // Sign In  after 3s = 3000ms
+        SignIn();
+      }, 3000);
     }
     // Swipe to Delete Favourite from recycler View and Firebase db.
     ItemTouchHelper.SimpleCallback itemTouchHelperCallback1 = new SimpleCallback(0,
@@ -227,13 +234,13 @@ public class FavouritesFragment extends Fragment implements
               ArrayList<String> favourites = getFavouritesNames();
               Log.i(LOG_TAG, "getFavouritesNames: " + favourites);
               // Intent to pass recipe data (ingredient list) to the Widget Layout
-              Intent widgetIntent = new Intent(context, FavouriteWidgetProvider.class);
+              Intent widgetIntent = new Intent(getActivity(), FavouriteWidgetProvider.class);
               widgetIntent.putExtra(WIDGET_INTENT_TAG, favourites);
               widgetIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
-              int ids[] = AppWidgetManager.getInstance(context)
-                  .getAppWidgetIds(new ComponentName(context, FavouriteWidgetProvider.class));
+              int ids[] = AppWidgetManager.getInstance(getActivity())
+                  .getAppWidgetIds(new ComponentName(getActivity(), FavouriteWidgetProvider.class));
               widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-              context.sendBroadcast(widgetIntent);
+              getActivity().sendBroadcast(widgetIntent);
             }
 
             @Override
@@ -247,11 +254,13 @@ public class FavouritesFragment extends Fragment implements
     // Choose authentication providers
     List<IdpConfig> providers = Arrays.asList(
         new IdpConfig.EmailBuilder().build(),
-        new IdpConfig.GoogleBuilder().build());
+        new IdpConfig.FacebookBuilder().build());
     // User is signed out
     startActivityForResult(
         AuthUI.getInstance()
             .createSignInIntentBuilder()
+            .setLogo(R.drawable.ic_logo)
+            .setTheme(R.style.AppTheme)
             .setIsSmartLockEnabled(false)
             .setAvailableProviders(providers)
             .build(),
@@ -327,5 +336,11 @@ public class FavouritesFragment extends Fragment implements
       strings.add(name);
     }
     return strings;
+  }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+    LostInTurin.getRefWatcher(getActivity()).watch(this);
   }
 }

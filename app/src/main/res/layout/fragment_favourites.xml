@@ -9,7 +9,7 @@
   tools:context=".FavouritesFragment">
 
   <com.airbnb.lottie.LottieAnimationView
-    android:visibility="invisible"
+    android:visibility="visible"
     android:id="@+id/lottie_loading"
     android:layout_width="96dp"
     android:layout_height="96dp"

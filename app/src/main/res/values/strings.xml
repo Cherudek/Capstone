@@ -88,8 +88,9 @@
   <string name="one_week_ago">One Week Ago</string>
   <string name="add_to_favourite_tn">Add to Favourite Button</string>
   <string name="user_name">User Name</string>
+  <string name="facebook_app_id">330730777486064</string>
+  <string name="fb_login_protocol_scheme">fb330730777486064</string>
 
-  <!-- TODO: Remove or change this placeholder text -->
   <string name="hello_blank_fragment">Hello blank fragment</string>
   <string name="add_some_favourites">Add Some Favourites !</string>
   <string name="sign_in">Sign In</string>
