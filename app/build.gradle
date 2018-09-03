@@ -88,7 +88,7 @@ dependencies {
     implementation "android.arch.lifecycle:extensions:$lifecycle_version"
 
     // FireBase dependencies
-    implementation "com.google.firebase:firebase-core:$firebase"
+    implementation "com.google.firebase:firebase-core:16.0.3"
 
     // FireBase Real Time database dependency
     implementation "com.google.firebase:firebase-database:$firebase"
@@ -96,7 +96,7 @@ dependencies {
     // Firease UI for Firebase Realtime Database
     implementation 'com.firebaseui:firebase-ui-database:3.3.1'
     implementation 'com.google.firebase:firebase-auth:16.0.3'
-    implementation 'com.firebaseui:firebase-ui-auth:4.0.0'
+    implementation 'com.firebaseui:firebase-ui-auth:4.0.1'
 
     // Test
     implementation 'com.android.support:support-v4:27.1.1'
@@ -117,7 +117,9 @@ dependencies {
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.1'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.1'
     //Facebook Login
-    implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
+    implementation 'com.facebook.android:facebook-android-sdk:4.36.0'
+    implementation 'com.facebook.android:facebook-login:4.36.0'
+
 
 }
 

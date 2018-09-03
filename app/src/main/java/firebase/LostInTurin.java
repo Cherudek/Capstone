@@ -2,6 +2,8 @@ package firebase;
 
 import android.app.Application;
 import android.content.Context;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -43,5 +45,7 @@ public class LostInTurin extends Application {
     DatabaseReference favouritesRef = FirebaseDatabase.getInstance()
         .getReference(FIREBASE_ROOT_NODE);
     favouritesRef.keepSynced(true);
+    FacebookSdk.sdkInitialize(getApplicationContext());
+    AppEventsLogger.activateApp(this);
   }
 }
