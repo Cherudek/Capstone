@@ -37,6 +37,7 @@ import butterknife.ButterKnife;
 import com.airbnb.lottie.LottieAnimationView;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.AuthUI.IdpConfig;
+import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -245,6 +246,7 @@ public class FavouritesFragment extends Fragment implements
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
+              Log.i(LOG_TAG, "Firebase Database Error: " + databaseError.getMessage());
             }
           });
     }
@@ -271,12 +273,14 @@ public class FavouritesFragment extends Fragment implements
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == RC_SIGN_IN) {
+      IdpResponse response = IdpResponse.fromResultIntent(data);
       if (resultCode == RESULT_OK) {
         // Sign-in succeeded, set up the UI
         Snackbar snackbar = Snackbar
             .make(getView(), R.string.signedin_to_favourite, Snackbar.LENGTH_LONG);
         snackbar.show();
         LoadFavourites();
+
       } else if (resultCode == RESULT_CANCELED) {
         // Sign in was canceled by the user, finish the activity
         Snackbar snackbar = Snackbar

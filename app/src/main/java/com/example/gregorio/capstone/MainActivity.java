@@ -175,7 +175,13 @@ public class MainActivity extends AppCompatActivity implements
       user = firebaseAuth.getCurrentUser();
       if (user != null) {
         // User is signed in
-        String userUrl = "";
+        Uri userUri = user.getPhotoUrl();
+        String userUrl;
+        if (userUri != null) {
+          userUrl = userUri.toString();
+        } else {
+          userUrl = "";
+        }
         MainActivity.this
             .onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getUid(), userUrl);
       } else {
@@ -213,12 +219,14 @@ public class MainActivity extends AppCompatActivity implements
       // Choose authentication providers
       List<IdpConfig> providers = Arrays.asList(
           new IdpConfig.EmailBuilder().build(),
-          new IdpConfig.GoogleBuilder().build());
+          new IdpConfig.FacebookBuilder().build());
       // User is signed out
       MainActivity.this.startActivityForResult(
           AuthUI.getInstance()
               .createSignInIntentBuilder()
               .setIsSmartLockEnabled(false)
+              .setLogo(R.drawable.ic_logo)
+              .setTheme(R.style.AppTheme)
               .setAvailableProviders(providers)
               .build(),
           RC_SIGN_IN);
