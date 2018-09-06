@@ -119,7 +119,8 @@ dependencies {
     //Facebook Login
     implementation 'com.facebook.android:facebook-android-sdk:4.36.0'
     implementation 'com.facebook.android:facebook-login:4.36.0'
-
+    // Circle View Image plugIn
+    compile 'de.hdodenhof:circleimageview:2.2.0'
 
 }
 
