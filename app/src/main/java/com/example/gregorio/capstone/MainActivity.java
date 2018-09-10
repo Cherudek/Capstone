@@ -467,10 +467,9 @@ public class MainActivity extends AppCompatActivity implements
             .addToBackStack(MAP_FRAGMENT_TAG)
             .commit();
         mapFragment.setRetainInstance(true);
-
         tvUserEmail.setText(UNKNOWN);
         tvUserName.setText(ANONYMOUS);
-
+        Glide.with(this).load(R.drawable.mole_small_25).into(ivUserImage);
         break;
 
       case R.id.sign_in:
