@@ -216,7 +216,9 @@ public class FavouritesFragment extends Fragment implements
               for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {
                 String key = locationSnapshot.getKey();
                 Result result = locationSnapshot.getValue(Result.class);
-                result.setFavourite_node_key(key);
+                if (result != null) {
+                  result.setFavourite_node_key(key);
+                }
                 Log.d(LOG_TAG, "Firebase Location key: " + key);
                 mResultList.add(result);
               }
@@ -231,17 +233,20 @@ public class FavouritesFragment extends Fragment implements
                 tvAddSomeFavorites.setVisibility(View.VISIBLE);
               }
 
-              // Method that fetches a list of favourites
-              ArrayList<String> favourites = getFavouritesNames();
-              Log.i(LOG_TAG, "getFavouritesNames: " + favourites);
-              // Intent to pass recipe data (ingredient list) to the Widget Layout
-              Intent widgetIntent = new Intent(getActivity(), FavouriteWidgetProvider.class);
-              widgetIntent.putExtra(WIDGET_INTENT_TAG, favourites);
-              widgetIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
-              int ids[] = AppWidgetManager.getInstance(getActivity())
-                  .getAppWidgetIds(new ComponentName(getActivity(), FavouriteWidgetProvider.class));
-              widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-              getActivity().sendBroadcast(widgetIntent);
+              Context context = getContext();
+              if (context != null) {
+                // Method that fetches a list of favourites
+                ArrayList<String> favourites = getFavouritesNames();
+                Log.i(LOG_TAG, "getFavouritesNames: " + favourites);
+                // Intent to pass recipe data (ingredient list) to the Widget Layout
+                Intent widgetIntent = new Intent(context, FavouriteWidgetProvider.class);
+                widgetIntent.putExtra(WIDGET_INTENT_TAG, favourites);
+                widgetIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
+                int ids[] = AppWidgetManager.getInstance(context)
+                    .getAppWidgetIds(new ComponentName(context, FavouriteWidgetProvider.class));
+                widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+                context.sendBroadcast(widgetIntent);
+              }
             }
 
             @Override

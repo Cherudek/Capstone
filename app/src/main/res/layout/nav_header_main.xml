@@ -28,9 +28,9 @@
   <de.hdodenhof.circleimageview.CircleImageView
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/user_image"
-    android:layout_width="@dimen/user_image_6x"
-    android:layout_height="@dimen/user_image_6x"
-    android:src="@drawable/ic_launcher_web"
+    android:layout_width="@dimen/user_image_8x"
+    android:layout_height="@dimen/user_image_8x"
+    android:src="@drawable/mole_small_25"
     android:contentDescription="@string/nav_header_desc"
     app:civ_border_color="#FF000000"/>
 
