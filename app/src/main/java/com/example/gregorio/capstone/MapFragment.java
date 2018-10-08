@@ -23,8 +23,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -45,10 +44,14 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
-import googleplacesapi.GoogleMapsApi;
-import googleplacesapi.GoogleNearbyPlacesParser;
+
 import java.util.HashMap;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import googleplacesapi.GoogleMapsApi;
+import googleplacesapi.GoogleNearbyPlacesParser;
 import permissions.Connectivity;
 import permissions.LocationPermission;
 import pojos.NearbyPlaces;
@@ -99,10 +102,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
   private Activity activity;
   private GoogleMapsApi googleMapsApi;
   private Task<Location> locationTask;
-
-
-
-
 
   public MapFragment() {
   }

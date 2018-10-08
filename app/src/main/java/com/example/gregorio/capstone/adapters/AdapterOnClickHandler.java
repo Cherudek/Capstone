@@ -1,4 +1,4 @@
-package adapters;
+package com.example.gregorio.capstone.adapters;
 
 import pojosplaceid.Result;
 

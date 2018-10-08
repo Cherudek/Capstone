@@ -1,7 +1,5 @@
 package com.example.gregorio.capstone;
 
-import adapters.AdapterOnClickHandler;
-import adapters.BarsAdapter;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,22 +7,26 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
+import com.example.gregorio.capstone.adapters.AdapterOnClickHandler;
+import com.example.gregorio.capstone.adapters.BarsAdapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import pojosplaceid.Result;
 
 public class BarsFragment extends Fragment implements AdapterOnClickHandler {
@@ -66,8 +68,7 @@ public class BarsFragment extends Fragment implements AdapterOnClickHandler {
     rvBars.setLayoutManager(layoutManager);
     rvBars.setHasFixedSize(true);
     rvBars.setItemAnimator(new DefaultItemAnimator());
-    rvBars
-        .addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+//    rvBars.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
     // Firebase Database query to fetch data for the Favorite Adapter
     dbRef.child(FIREBASE_ROOT_NODE_BARS).addValueEventListener(new ValueEventListener() {
       @Override

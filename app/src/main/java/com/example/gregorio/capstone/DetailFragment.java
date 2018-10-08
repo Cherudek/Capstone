@@ -1,9 +1,5 @@
 package com.example.gregorio.capstone;
 
-import static com.example.gregorio.capstone.MainActivity.PLACE_PICKER_PLACE_ID_TAG;
-
-import adapters.PhotoAdapter;
-import adapters.ReviewAdapter;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
@@ -23,9 +19,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
 import com.bumptech.glide.Glide;
+import com.example.gregorio.capstone.adapters.PhotoAdapter;
+import com.example.gregorio.capstone.adapters.ReviewAdapter;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -41,7 +38,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import permissions.Connectivity;
 import pojosplaceid.PlaceId;
 import pojosplaceid.Result;
@@ -50,6 +51,8 @@ import repository.NearbyPlacesRepository;
 import viewmodel.DetailViewModel;
 import viewmodel.DetailViewModelFactory;
 import viewmodel.MapDetailSharedViewHolder;
+
+import static com.example.gregorio.capstone.MainActivity.PLACE_PICKER_PLACE_ID_TAG;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -302,17 +305,17 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback{
         if (result.getPhotos() != null) {
           numberOfPhotos = result.getPhotos().size();
           photoList = result.getPhotos();
-          mPhotoAdapter = new PhotoAdapter(numberOfPhotos, apiKey, mListener);
+          mPhotoAdapter = new PhotoAdapter(apiKey, mListener);
           mPhotoAdapter.addAll(photoList);
         } else {
-          mPhotoAdapter = new PhotoAdapter(2, apiKey, mListener);
+          mPhotoAdapter = new PhotoAdapter(apiKey, mListener);
         }
         rvPhotoGallery.setAdapter(mPhotoAdapter);
 
         if (result.getReviews() != null) {
           int reviewSize = result.getReviews().size();
           reviewsList = result.getReviews();
-          mReviewsAdapter = new ReviewAdapter(reviewSize);
+          mReviewsAdapter = new ReviewAdapter();
           mReviewsAdapter.addAll(reviewsList);
           rvReviews.setAdapter(mReviewsAdapter);
         }

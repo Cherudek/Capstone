@@ -1,11 +1,12 @@
 package utils;
 
-import adapters.FavouritesAdapter.FavouriteViewHolder;
 import android.graphics.Canvas;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
+
+import com.example.gregorio.capstone.adapters.FavouritesAdapter.FavouriteViewHolder;
 
 public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
