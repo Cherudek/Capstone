@@ -11,11 +11,10 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.example.gregorio.capstone.R;
+import com.example.gregorio.capstone.model.placeId.Photo;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import pojosplaceid.Photo;
 
 public class FavouritePhotoAdapter extends RecyclerView.Adapter<FavouritePhotoAdapter.FavouritePhotoViewHolder> {
 

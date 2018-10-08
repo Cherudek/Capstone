@@ -10,11 +10,10 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.example.gregorio.capstone.R;
+import com.example.gregorio.capstone.model.placeId.Review;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import pojosplaceid.Review;
 
 public class FavouriteReviewAdapter extends RecyclerView.Adapter<FavouriteReviewAdapter.FavouriteReviewViewHold> {
 

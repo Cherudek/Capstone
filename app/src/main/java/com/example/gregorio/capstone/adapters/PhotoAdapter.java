@@ -9,13 +9,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.example.gregorio.capstone.DetailFragment.OnFragmentInteractionListener;
 import com.example.gregorio.capstone.R;
+import com.example.gregorio.capstone.model.placeId.Photo;
+import com.example.gregorio.capstone.ui.DetailFragment.OnFragmentInteractionListener;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import pojosplaceid.Photo;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
 

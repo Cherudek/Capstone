@@ -22,7 +22,7 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:configChanges="orientation|keyboardHidden"
             android:theme="@style/HiddenTitleTheme">
             <intent-filter>
@@ -56,15 +56,15 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-        <activity android:name="permissions.Connectivity" />
-        <activity android:name="googleplacesapi.GoogleMapsApi" />
-        <activity android:name="permissions.LocationPermission" />
+        <activity android:name=".permissions.Connectivity" />
+        <activity android:name=".googleplacesapi.GoogleMapsApi" />
+        <activity android:name=".permissions.LocationPermission" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <receiver android:name="widget.FavouriteWidgetProvider">
+        <receiver android:name=".widget.FavouriteWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -75,9 +75,9 @@
         </receiver>
 
         <service
-            android:name="widget.ListWidgetService"
+            android:name=".widget.ListWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
-        <service android:name="widget.FirebaseToWidgetService" />
+        <service android:name=".widget.FirebaseToWidgetService" />
 
     </application>
 

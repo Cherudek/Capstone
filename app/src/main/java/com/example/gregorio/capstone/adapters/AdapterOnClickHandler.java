@@ -1,6 +1,6 @@
 package com.example.gregorio.capstone.adapters;
 
-import pojosplaceid.Result;
+import com.example.gregorio.capstone.model.placeId.Result;
 
 public interface AdapterOnClickHandler {
   void onClick(Result result);

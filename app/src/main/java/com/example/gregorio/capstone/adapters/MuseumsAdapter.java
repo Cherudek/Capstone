@@ -11,11 +11,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.gregorio.capstone.R;
+import com.example.gregorio.capstone.model.placeId.Result;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import pojosplaceid.Result;
 
 public class MuseumsAdapter extends
         RecyclerView.Adapter<MuseumsAdapter.ViewHolder> {
