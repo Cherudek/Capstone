@@ -9,26 +9,25 @@ import com.example.gregorio.capstone.network.NearbyPlacesRepository;
 
 public class DetailViewModel extends ViewModel {
 
-  public LiveData<PlaceId> mPlaceDetails;
-  public NearbyPlacesRepository mNearbyPlacesRepository;
-  public String mPlaceId;
-  public String mApiKey;
+    public LiveData<PlaceId> placeDetails;
+    public NearbyPlacesRepository nearbyPlacesRepository;
+    public String placeId;
+    public String apiKey;
 
   public DetailViewModel(
       NearbyPlacesRepository nearbyPlacesRepository , String placeID, String mApiKey) {
-      mPlaceDetails = nearbyPlacesRepository.getPlacesId(placeID, mApiKey);
+      placeDetails = nearbyPlacesRepository.getPlacesId(placeID, mApiKey);
   }
 
   public LiveData<PlaceId> getPlaceDetails(){
-    return mPlaceDetails;
+      return placeDetails;
   }
 
-
   public LiveData<PlaceId> getNewPlaceDetails(){
-    if(mPlaceDetails!=null){
-      mPlaceDetails = new MutableLiveData<>();
-      mPlaceDetails = mNearbyPlacesRepository.getPlacesId(mPlaceId, mApiKey);
+      if (placeDetails != null) {
+          placeDetails = new MutableLiveData<>();
+          placeDetails = nearbyPlacesRepository.getPlacesId(placeId, apiKey);
     }
-    return mPlaceDetails;
+      return placeDetails;
   }
 }

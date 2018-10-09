@@ -19,22 +19,18 @@ import java.util.List;
 public class FirebaseToWidgetService extends IntentService {
 
   private static final String LOG_TAG = FirebaseToWidgetService.class.getSimpleName();
-  private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
   private static final String FIREBASE_ROOT_NODE = "checkouts";
   private static final String FIREBASE_FAVOURITES_NODE = "Favourites";
-  private List<Result> mResultList;
+  private List<Result> resultList;
 
   public FirebaseToWidgetService() {
     super("FirebaseToWidgetService");
   }
 
-
   @Override
   protected void onHandleIntent(@Nullable Intent intent) {
-
     buildUpdate();
-    new ListRemoteViewFactory(getApplicationContext(), mResultList);
-
+    new ListRemoteViewFactory(getApplicationContext(), resultList);
   }
 
   public List<Result> buildUpdate() {
@@ -44,26 +40,22 @@ public class FirebaseToWidgetService extends IntentService {
     favouriteDbRef.child(FIREBASE_FAVOURITES_NODE).addValueEventListener(new ValueEventListener() {
       @Override
       public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-        mResultList = new ArrayList<>();
+        resultList = new ArrayList<>();
         Log.i(LOG_TAG, "DataSnapshot = " + dataSnapshot.getValue(Result.class));
         for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {
           String key = locationSnapshot.getKey();
           Result result = locationSnapshot.getValue(Result.class);
           result.setFavourite_node_key(key);
           Log.d(LOG_TAG, "FireBase Location key: " + key);
-          mResultList.add(result);
-          Log.d(LOG_TAG, "Result List: " + mResultList);
+          resultList.add(result);
+          Log.d(LOG_TAG, "Result List: " + resultList);
         }
       }
 
       @Override
       public void onCancelled(@NonNull DatabaseError databaseError) {
-
       }
     });
-
-    return mResultList;
+    return resultList;
   }
-
-
 }

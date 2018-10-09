@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements
     MapFragment.OnFragmentInteractionListener,
     DetailFragment.OnFragmentInteractionListener,
     FavouritesFragment.OnFavouritesFragmentInteractionListener,
-    PhotoFragment.OnFragmentInteractionListener,
     OnFragmentInteractionListener{
 
   private final static String LOG_TAG = MainActivity.class.getSimpleName();
@@ -69,16 +68,16 @@ public class MainActivity extends AppCompatActivity implements
   public static final String UNKNOWN = "Sign in to read your favourite places!";
   public final static String PLACE_PICKER_PLACE_ID_TAG = "PLACE PICKER PLACE ID";
   public final static String PHOTO_REFERENCE_TAG = "Photo Reference Tag";
-  private Fragment mFragment;
+  private Fragment fragment;
   private Runnable runnable;
-  private FirebaseAuth mFirebaseAuth;
-  private FirebaseAuth.AuthStateListener mAuthStateListener;
-  private String mUsername;
-  private String mUserEmail;
-  private String mUserId;
-  private TextView tvUserName;
-  private TextView tvUserEmail;
-  private ImageView ivUserImage;
+  private FirebaseAuth firebaseAuth;
+  private FirebaseAuth.AuthStateListener authStateListener;
+  private String name;
+  private String email;
+  private String id;
+  private TextView userName;
+  private TextView userEmail;
+  private ImageView userImage;
   private FirebaseUser user;
   private FragmentManager fragmentManager;
 
@@ -89,47 +88,47 @@ public class MainActivity extends AppCompatActivity implements
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    mUsername = ANONYMOUS;
-    mUserEmail = UNKNOWN;
+    name = ANONYMOUS;
+    email = UNKNOWN;
     NavigationView navigationView = findViewById(R.id.nav_view);
     View headerView = navigationView.getHeaderView(0);
     Toolbar toolbar = findViewById(R.id.toolbar);
     toolbar.setLogo(R.drawable.ic_logo);
     setSupportActionBar(toolbar);
     getSupportActionBar().setDisplayShowTitleEnabled(false);
-    tvUserName = headerView.findViewById(R.id.user_name);
-    tvUserEmail = headerView.findViewById(R.id.user_email);
-    ivUserImage = headerView.findViewById(R.id.user_image);
-    mFirebaseAuth = FirebaseAuth.getInstance();
+    userName = headerView.findViewById(R.id.user_name);
+    userEmail = headerView.findViewById(R.id.user_email);
+    userImage = headerView.findViewById(R.id.user_image);
+    firebaseAuth = FirebaseAuth.getInstance();
 
     Intent intent = getIntent();
     Bundle extras = intent.getExtras();
 
     if (savedInstanceState != null) {
       // If the fragment is not null retain the fragment state
-      if (mFragment instanceof MapFragment) {
-        mFragment = getSupportFragmentManager().getFragment(savedInstanceState, MAP_FRAGMENT_TAG);
-      } else if (mFragment instanceof DetailFragment) {
-        mFragment = getSupportFragmentManager()
+      if (fragment instanceof MapFragment) {
+        fragment = getSupportFragmentManager().getFragment(savedInstanceState, MAP_FRAGMENT_TAG);
+      } else if (fragment instanceof DetailFragment) {
+        fragment = getSupportFragmentManager()
             .getFragment(savedInstanceState, DETAIL_FRAGMENT_TAG);
-      } else if (mFragment instanceof FavouritesFragment) {
-        mFragment = getSupportFragmentManager()
+      } else if (fragment instanceof FavouritesFragment) {
+        fragment = getSupportFragmentManager()
             .getFragment(savedInstanceState, FAVOURITE_FRAGMENT_TAG);
-      } else if (mFragment instanceof FavouriteDetailFragment) {
-        mFragment = getSupportFragmentManager()
+      } else if (fragment instanceof FavouriteDetailFragment) {
+        fragment = getSupportFragmentManager()
             .getFragment(savedInstanceState, FAVOURITE_DETAIL_FRAGMENT_TAG);
-      } else if (mFragment instanceof SightsFragment) {
-        mFragment = getSupportFragmentManager()
+      } else if (fragment instanceof SightsFragment) {
+        fragment = getSupportFragmentManager()
             .getFragment(savedInstanceState, SIGHTS_FRAGMENT_TAG);
-      } else if (mFragment instanceof MuseumsFragment) {
-        mFragment = getSupportFragmentManager()
+      } else if (fragment instanceof MuseumsFragment) {
+        fragment = getSupportFragmentManager()
             .getFragment(savedInstanceState, MUSEUMS_FRAGMENT_TAG);
-      } else if (mFragment instanceof FoodFragment) {
-        mFragment = getSupportFragmentManager().getFragment(savedInstanceState, FOOD_FRAGMENT_TAG);
-      } else if (mFragment instanceof BarsFragment) {
-        mFragment = getSupportFragmentManager().getFragment(savedInstanceState, BARS_FRAGMENT_TAG);
-      } else if (mFragment instanceof ClubsFragment) {
-        mFragment = getSupportFragmentManager().getFragment(savedInstanceState, CLUBS_FRAGMENT_TAG);
+      } else if (fragment instanceof FoodFragment) {
+        fragment = getSupportFragmentManager().getFragment(savedInstanceState, FOOD_FRAGMENT_TAG);
+      } else if (fragment instanceof BarsFragment) {
+        fragment = getSupportFragmentManager().getFragment(savedInstanceState, BARS_FRAGMENT_TAG);
+      } else if (fragment instanceof ClubsFragment) {
+        fragment = getSupportFragmentManager().getFragment(savedInstanceState, CLUBS_FRAGMENT_TAG);
       }
     } else {
       MapFragment mapFragment = new MapFragment();
@@ -174,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements
     drawer.addDrawerListener(drawerListener);
 
     // Firebase Authentication
-    mAuthStateListener = firebaseAuth -> {
+    authStateListener = firebaseAuth -> {
       user = firebaseAuth.getCurrentUser();
       if (user != null) {
         // User is signed in
@@ -189,14 +188,13 @@ public class MainActivity extends AppCompatActivity implements
             .onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getUid(), userUrl);
       } else {
         MainActivity.this.onSignedOutCleanup();
-        // SignIn();
       }
     };
 
     // Check whether or not a use is already present in the db before adding it.
     DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
-    if (mUserId != null) {
-      mDatabase.child(mUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+    if (id != null) {
+      mDatabase.child(id).addListenerForSingleValueEvent(new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
           if (dataSnapshot.exists()) {
@@ -204,14 +202,14 @@ public class MainActivity extends AppCompatActivity implements
 
           } else {
             // if the user doesn't exist add it to the db
-            User user = new User(mUsername, mUserEmail, mUserId);
-            mDatabase.child(mUserId).setValue(user);
+            User user = new User(name, email, id);
+            mDatabase.child(id).setValue(user);
           }
         }
 
         @Override
         public void onCancelled(@NonNull DatabaseError databaseError) {
-          Log.i(LOG_TAG, "Database Error: " + databaseError.getMessage());
+          Log.d(LOG_TAG, "Database Error: " + databaseError.getMessage());
         }
       });
     }
@@ -261,36 +259,35 @@ public class MainActivity extends AppCompatActivity implements
     }
   }
 
-
   @Override
   protected void onPause() {
     super.onPause();
-    if (mAuthStateListener != null) {
-      mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+    if (authStateListener != null) {
+      firebaseAuth.removeAuthStateListener(authStateListener);
     }
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-    mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+    firebaseAuth.addAuthStateListener(authStateListener);
 
   }
 
   private void onSignedInInitialize(String username, String userEmail, String userID,
       String imageUrl) {
-    mUsername = username;
-    mUserEmail = userEmail;
-    mUserId = userID;
+    this.name = username;
+    this.email = userEmail;
+    id = userID;
     String mImage = imageUrl;
-    tvUserName.setText(mUsername);
-    tvUserEmail.setText(mUserEmail);
-    Glide.with(this).load(mImage).into(ivUserImage);
+    userName.setText(this.name);
+    this.userEmail.setText(this.email);
+    Glide.with(this).load(mImage).into(userImage);
   }
 
   private void onSignedOutCleanup() {
-    mUsername = ANONYMOUS;
-    mUserEmail = UNKNOWN;
+    name = ANONYMOUS;
+    email = UNKNOWN;
   }
 
 
@@ -319,23 +316,23 @@ public class MainActivity extends AppCompatActivity implements
     super.onSaveInstanceState(outState, outPersistentState);
     Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
     if (fragment instanceof MapFragment) {
-      getSupportFragmentManager().putFragment(outState, MAP_FRAGMENT_TAG, mFragment);
+      getSupportFragmentManager().putFragment(outState, MAP_FRAGMENT_TAG, this.fragment);
     } else if (fragment instanceof DetailFragment) {
-      getSupportFragmentManager().putFragment(outState, DETAIL_FRAGMENT_TAG, mFragment);
+      getSupportFragmentManager().putFragment(outState, DETAIL_FRAGMENT_TAG, this.fragment);
     } else if (fragment instanceof FavouritesFragment) {
-      getSupportFragmentManager().putFragment(outState, FAVOURITE_FRAGMENT_TAG, mFragment);
+      getSupportFragmentManager().putFragment(outState, FAVOURITE_FRAGMENT_TAG, this.fragment);
     } else if (fragment instanceof FavouriteDetailFragment) {
-      getSupportFragmentManager().putFragment(outState, FAVOURITE_DETAIL_FRAGMENT_TAG, mFragment);
+      getSupportFragmentManager().putFragment(outState, FAVOURITE_DETAIL_FRAGMENT_TAG, this.fragment);
     } else if (fragment instanceof SightsFragment) {
-      getSupportFragmentManager().putFragment(outState, SIGHTS_FRAGMENT_TAG, mFragment);
+      getSupportFragmentManager().putFragment(outState, SIGHTS_FRAGMENT_TAG, this.fragment);
     } else if (fragment instanceof MuseumsFragment) {
-      getSupportFragmentManager().putFragment(outState, MUSEUMS_FRAGMENT_TAG, mFragment);
+      getSupportFragmentManager().putFragment(outState, MUSEUMS_FRAGMENT_TAG, this.fragment);
     } else if (fragment instanceof FoodFragment) {
-      getSupportFragmentManager().putFragment(outState, FOOD_FRAGMENT_TAG, mFragment);
+      getSupportFragmentManager().putFragment(outState, FOOD_FRAGMENT_TAG, this.fragment);
     } else if (fragment instanceof BarsFragment) {
-      getSupportFragmentManager().putFragment(outState, BARS_FRAGMENT_TAG, mFragment);
+      getSupportFragmentManager().putFragment(outState, BARS_FRAGMENT_TAG, this.fragment);
     } else if (fragment instanceof ClubsFragment) {
-      getSupportFragmentManager().putFragment(outState, CLUBS_FRAGMENT_TAG, mFragment);
+      getSupportFragmentManager().putFragment(outState, CLUBS_FRAGMENT_TAG, this.fragment);
     }
   }
 
@@ -356,9 +353,6 @@ public class MainActivity extends AppCompatActivity implements
   public boolean onNavigationItemSelected(MenuItem item) {
     // Handle navigation view item clicks here.
     fragmentManager = getSupportFragmentManager();
-//    FragmentTransaction ft = fragmentManager.beginTransaction();
-//    ft.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right,
-//        R.anim.enter_from_right, R.anim.exit_to_right);
 
     int id = item.getItemId();
 
@@ -470,9 +464,9 @@ public class MainActivity extends AppCompatActivity implements
             .addToBackStack(MAP_FRAGMENT_TAG)
             .commit();
         mapFragment.setRetainInstance(true);
-        tvUserEmail.setText(UNKNOWN);
-        tvUserName.setText(ANONYMOUS);
-        Glide.with(this).load(R.drawable.mole_small_25).into(ivUserImage);
+        userEmail.setText(UNKNOWN);
+        userName.setText(ANONYMOUS);
+        Glide.with(this).load(R.drawable.mole_small_25).into(userImage);
         break;
 
       case R.id.sign_in:
@@ -522,7 +516,6 @@ public class MainActivity extends AppCompatActivity implements
     ft.commit();
   }
 
-
   // Detail View Photo Gallery to Large Photo Fragment
   @Override
   public void onFragmentInteraction(Photo photo) {
@@ -538,7 +531,6 @@ public class MainActivity extends AppCompatActivity implements
     transaction.replace(R.id.fragment_container, photoFragment);
     transaction.addToBackStack(PHOTO_FRAGMENT_TAG);
     transaction.commit();
-
   }
 
   @Override
@@ -556,7 +548,6 @@ public class MainActivity extends AppCompatActivity implements
     transaction.commit();
   }
 
-
   @Override
   public void onFragmentInteraction(Result result) {
     Bundle bundle = new Bundle();
@@ -572,10 +563,4 @@ public class MainActivity extends AppCompatActivity implements
     transaction.addToBackStack(DETAIL_FRAGMENT_TAG);
     transaction.commit();
   }
-
-  @Override
-  public void onFragmentInteraction(Uri uri) {
-
-  }
-
 }
