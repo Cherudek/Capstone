@@ -19,7 +19,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.gregorio.capstone"
-        minSdkVersion 19
+        minSdkVersion 24
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -41,7 +41,7 @@ android {
     dataBinding {
         enabled true
     }
-    buildToolsVersion '28.0.2'
+    buildToolsVersion '28.0.3'
     compileOptions {
         targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -81,7 +81,7 @@ dependencies {
     implementation "com.google.firebase:firebase-core:16.0.4"
     implementation "com.google.firebase:firebase-database:$firebase"
     implementation 'com.firebaseui:firebase-ui-database:3.3.1'
-    implementation 'com.google.firebase:firebase-auth:16.0.4'
+    implementation 'com.google.firebase:firebase-auth:16.0.5'
     implementation 'com.firebaseui:firebase-ui-auth:4.0.1'
 
     implementation 'com.jakewharton:butterknife:8.8.1'

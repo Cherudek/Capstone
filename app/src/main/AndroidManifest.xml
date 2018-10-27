@@ -60,7 +60,7 @@
         </activity>
         <activity android:name=".permissions.Connectivity" />
         <activity android:name=".googleplacesapi.GoogleMapsApi" />
-        <activity android:name=".permissions.LocationPermission" />
+        <activity android:name=".permissions.Permissions" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
