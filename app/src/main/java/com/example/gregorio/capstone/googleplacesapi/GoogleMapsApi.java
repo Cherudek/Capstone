@@ -35,7 +35,6 @@ public class GoogleMapsApi extends AppCompatActivity {
     }
 
     public void GoogleApiClient(Context context) {
-
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Places.GEO_DATA_API)
                 .addApi(LocationServices.API)

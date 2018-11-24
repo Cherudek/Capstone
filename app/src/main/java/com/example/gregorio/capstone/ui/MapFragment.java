@@ -73,7 +73,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     private static final String MARKERS_TAG_KEY = "MarkerTagKey";
     private static final int REQUEST_PLACE_PICKER = 1;
     // A default location (Piazza Castello, Turin, Italy) and default zoom to use when location permission is
-    private static final LatLng PiazzaCastello = new LatLng(45.0710394, 7.6862986);
+    private static final LatLng PIAZZA_CASTELLO = new LatLng(45.0710394, 7.6862986);
     @BindView(R.id.map)
     MapView mapView;
     @BindView(R.id.checkout_button)
@@ -145,7 +145,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
             mSavedInstanceisNull = true;
             longitude = 7.6862986;
             latitude = 7.6862986;
-            mCurrentLocation = PiazzaCastello;
+            mCurrentLocation = PIAZZA_CASTELLO;
             mQuery = "";
         }
         eventMarkerMap = new HashMap<>();
@@ -188,7 +188,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         onInfoWindowClickListener = marker -> {
             searchView.isIconified();
             searchView.onActionViewCollapsed();
-            //TODO: FIX THE HASHMAP, MAP MARKERS CHANGE ID ON ROTATION AND BACK NAVIGATION.
             mPlaceIdTag = Integer.valueOf(marker.getSnippet());
             //   detailViewModel.getPlaceDetails().getValue().getResult();
             sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
@@ -372,11 +371,11 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
                     Log.i(LOG_TAG,
                             "The Last location is: Latitude: " + latitude + " Longitude: " + longitude);
                 } else {
-                    latitude = PiazzaCastello.latitude;
-                    longitude = PiazzaCastello.longitude;
-                    mCurrentLocation = PiazzaCastello;
+                    latitude = PIAZZA_CASTELLO.latitude;
+                    longitude = PIAZZA_CASTELLO.longitude;
+                    mCurrentLocation = PIAZZA_CASTELLO;
                     Log.i(LOG_TAG, "Could not fetch the GPS location, we set to the default one: "
-                            + PiazzaCastello);
+                            + PIAZZA_CASTELLO);
                     Snackbar snackbar = Snackbar.make(rootView,
                             context.getResources().getString(R.string.check_internet_gps_msg),
                             Snackbar.LENGTH_LONG);
@@ -465,7 +464,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         googleMapsApi.DisconnectGoogleApiClient();
         googleMapsApi = null;
         LostInTurin.getRefWatcher(context).watch(this);
-
     }
 
     @Override
@@ -488,10 +486,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         mapView.onSaveInstanceState(mapViewBundle);
     }
 
-
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Marker marker);
-
         void OnPlacePickerInteraction(Place place);
     }
 }

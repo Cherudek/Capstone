@@ -40,8 +40,8 @@ public class FoodFragment extends Fragment implements FoodAdapter.AdapterOnClick
     ConstraintLayout constraintLayout;
     private FoodAdapter adapter;
     private DatabaseReference dbRef;
-    private List<Result> mFoodList;
-    private OnFragmentInteractionListener mListener;
+    private List<Result> foodList;
+    private OnFragmentInteractionListener listener;
 
     public FoodFragment() {
     }
@@ -73,20 +73,19 @@ public class FoodFragment extends Fragment implements FoodAdapter.AdapterOnClick
     }
 
     private void checkFoodDb() {
-        // Firebase Database query to fetch data for the Favorite Adapter
         dbRef.child(FIREBASE_ROOT_NODE_FOOD).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mFoodList = new ArrayList<>();
+                foodList = new ArrayList<>();
                 Log.i(LOG_TAG, "DataSnapshot = " + dataSnapshot.getValue(Result.class));
                 for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {
                     String key = locationSnapshot.getKey();
                     Result result = locationSnapshot.getValue(Result.class);
                     result.setFavourite_node_key(key);
                     Log.d(LOG_TAG, "Firebase Location key: " + key);
-                    mFoodList.add(result);
+                    foodList.add(result);
                 }
-                adapter.addAll(mFoodList);
+                adapter.addAll(foodList);
                 rvFood.setAdapter(adapter);
             }
 
@@ -98,8 +97,8 @@ public class FoodFragment extends Fragment implements FoodAdapter.AdapterOnClick
     }
 
     private void onFoodPressedIntent(Result result) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(result);
+        if (listener != null) {
+            listener.onFragmentInteraction(result);
         }
     }
 
@@ -112,7 +111,7 @@ public class FoodFragment extends Fragment implements FoodAdapter.AdapterOnClick
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mListener = (OnFragmentInteractionListener) context;
+            listener = (OnFragmentInteractionListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
                     + context.getResources().getString(R.string.must_implement_on_frag_list));
@@ -122,7 +121,7 @@ public class FoodFragment extends Fragment implements FoodAdapter.AdapterOnClick
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        listener = null;
     }
 }
 

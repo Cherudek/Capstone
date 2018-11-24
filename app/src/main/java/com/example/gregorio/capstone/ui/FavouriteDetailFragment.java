@@ -1,6 +1,7 @@
 package com.example.gregorio.capstone.ui;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -86,6 +87,7 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
     private String userID;
     private DatabaseReference placesDatabaseReference;
     private LatLng latLng;
+    private Context context;
 
     public FavouriteDetailFragment() {
     }
@@ -102,6 +104,7 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
             Log.i(LOG_TAG, "Name: " + name);
         });
 
+        context = getContext();
         // Initialize FireBase components
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         placesDatabaseReference = mFirebaseDatabase.getReference().child(FIREBASE_ROOT_NODE);
@@ -133,7 +136,6 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
             marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
             return false;
         };
-        // Inflate the layout for this fragment
         return rootView;
     }
 
@@ -251,9 +253,9 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        MapsInitializer.initialize(getContext());
+        MapsInitializer.initialize(context);
         MapStyleOptions style = MapStyleOptions
-                .loadRawResourceStyle(getContext(), R.raw.mapstyle_retro);
+                .loadRawResourceStyle(context, R.raw.mapstyle_retro);
         googleMap.setMapStyle(style);
         googleMap.setBuildingsEnabled(true);
         MarkerOptions options = new MarkerOptions();
@@ -296,6 +298,4 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
         }
         detailMap.onSaveInstanceState(mapViewBundle);
     }
-
-
 }

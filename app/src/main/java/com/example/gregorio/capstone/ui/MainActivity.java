@@ -1,7 +1,6 @@
 package com.example.gregorio.capstone.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
@@ -177,14 +176,10 @@ public class MainActivity extends AppCompatActivity implements
         authStateListener = firebaseAuth -> {
             user = firebaseAuth.getCurrentUser();
             if (user != null) {
-                // User is signed in
-                Uri userUri = user.getPhotoUrl();
-                String userUrl;
-                if (userUri != null) {
-                    userUrl = userUri.toString();
-                } else {
-                    userUrl = "";
-                }
+                id = user.getProviderId();
+                Log.d(LOG_TAG, "USer getEncodedQuery: " + user.getPhotoUrl());
+                Log.d(LOG_TAG, "User Provider ID: " + id);
+                String userUrl = "http://graph.facebook.com/" + id + "/picture?type=large";
                 MainActivity.this
                         .onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getUid(), userUrl);
             } else {
@@ -199,10 +194,9 @@ public class MainActivity extends AppCompatActivity implements
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
-                        //TODO  if the user exist confirm the user who is logged in
-                        // if the user exist confirm the user who is logged in
-
-
+                        Snackbar snackbar = Snackbar
+                                .make(findViewById(R.id.drawer_layout), "User Already Signed In: " + user.getDisplayName(), Snackbar.LENGTH_LONG);
+                        snackbar.show();
                     } else {
                         // if the user doesn't exist add it to the db
                         User user = new User(name, email, id);
@@ -281,11 +275,12 @@ public class MainActivity extends AppCompatActivity implements
                                       String imageUrl) {
         this.name = username;
         this.email = userEmail;
-        id = userID;
-        String mImage = imageUrl;
-        userName.setText(this.name);
+        this.id = userID;
+        Log.d(LOG_TAG, "User Id: " + userID);
+        this.userName.setText(this.name);
         this.userEmail.setText(this.email);
-        Glide.with(this).load(mImage).into(userImage);
+        Log.d(LOG_TAG, "User Image url: " + imageUrl);
+        Glide.with(this).load(imageUrl).into(userImage);
     }
 
     private void onSignedOutCleanup() {

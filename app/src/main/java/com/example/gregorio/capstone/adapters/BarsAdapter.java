@@ -54,7 +54,6 @@ public class BarsAdapter extends RecyclerView.Adapter<BarsAdapter.BarsViewHolder
                 .into(holder.imageView);
         holder.name.setText(name);
         holder.address.setText(address);
-        // Enable dynamic content description
         holder.imageView.setContentDescription(context.getString(R.string.the_image_view_cd) + name);
         holder.address.setContentDescription(context.getString(R.string.the_address_is_cd) + address);
         holder.name.setContentDescription(context.getString(R.string.the_name_is_cd) + name);
@@ -92,7 +91,7 @@ public class BarsAdapter extends RecyclerView.Adapter<BarsAdapter.BarsViewHolder
             int adapterPosition = getAdapterPosition();
             Result result = barPlaceId.get(adapterPosition);
             String placeId = result.getPlaceId();
-            Log.i(LOG_TAG, "The Place id clicked is" + placeId);
+            Log.d(LOG_TAG, "The Place id clicked is" + placeId);
             clickHandler.onClick(result);
         }
     }

@@ -6,8 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -70,10 +68,8 @@ public class SightsFragment extends Fragment implements AdapterOnClickHandler {
     LinearLayoutManager sightsLayoutManager = new LinearLayoutManager(getContext());
     rvSights.setLayoutManager(sightsLayoutManager);
     rvSights.setHasFixedSize(true);
-    rvSights.setItemAnimator(new DefaultItemAnimator());
-    rvSights
-        .addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-    // Firebase Database query to fetch data for the Favorite Adapter
+      // rvSights.setItemAnimator(new DefaultItemAnimator());
+
     sightsDbRef.child(FIREBASE_ROOT_NODE_SIGHTS).addValueEventListener(new ValueEventListener() {
       @Override
       public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

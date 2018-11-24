@@ -44,6 +44,7 @@ public class NearbyPlacesRepository {
                                                   String key) {
         this.key = key;
         this.location = location;
+        data = new MutableLiveData<>();
 
         retrofitMapsApi.getNearbyPlaces(keyword, location, radius, key).enqueue(
                 new Callback<NearbyPlaces>() {
@@ -60,7 +61,6 @@ public class NearbyPlacesRepository {
                         data.setValue(null);
                     }
                 });
-        data = new MutableLiveData<>();
         return data;
     }
 

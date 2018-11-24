@@ -62,13 +62,18 @@ public class ClubsFragment extends Fragment implements AdapterOnClickHandler {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setUpView();
+        loadClubsFromDb();
+    }
 
+    private void setUpView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvClubs.setLayoutManager(layoutManager);
         rvClubs.setHasFixedSize(true);
         rvClubs.setItemAnimator(new DefaultItemAnimator());
-        //  rvClubs.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        // Firebase Database query to fetch data for the Favorite Adapter
+    }
+
+    private void loadClubsFromDb() {
         dbRef.child(FIREBASE_ROOT_NODE_CLUB).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -95,8 +100,6 @@ public class ClubsFragment extends Fragment implements AdapterOnClickHandler {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        // This makes sure that the host activity has implemented the callback interface
-        // If not, it throws an exception
         try {
             listener = (OnFragmentInteractionListener) context;
         } catch (ClassCastException e) {

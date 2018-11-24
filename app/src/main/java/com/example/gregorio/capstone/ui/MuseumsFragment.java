@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -39,9 +38,6 @@ import butterknife.ButterKnife;
  */
 public class MuseumsFragment extends Fragment implements AdapterOnClickHandler {
 
-  // TODO: Customize parameter argument names
-  private static final String ARG_COLUMN_COUNT = "column-count";
-  // TODO: Customize parameters
   private static final String LOG_TAG = MuseumsFragment.class.getSimpleName();
   private static final String FIREBASE_ROOT_NODE = "checkouts";
   private static final String FIREBASE_MUSEUMS_NODE = "museums";
@@ -49,26 +45,13 @@ public class MuseumsFragment extends Fragment implements AdapterOnClickHandler {
   ConstraintLayout constraintLayout;
 
   @BindView(R.id.museums_rv)
-  RecyclerView rvMuseums;
+  RecyclerView museumsRecyclerView;
   private MuseumsAdapter adapter;
   private DatabaseReference museumsDbRef;
   private List<Result> mMueseumsList;
-  private int mColumnCount = 1;
-  private OnFragmentInteractionListener mListener;
+    private OnFragmentInteractionListener listener;
 
-
-  /**
-   * Mandatory empty constructor for the fragment manager to instantiate the
-   * fragment (e.g. upon screen orientation changes).
-   */
   public MuseumsFragment() {
-  }
-
-
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-
   }
 
   @Override
@@ -79,23 +62,25 @@ public class MuseumsFragment extends Fragment implements AdapterOnClickHandler {
 
     ButterKnife.bind(this, view);
     museumsDbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
-    int dbSize = museumsDbRef.getRoot().child(FIREBASE_ROOT_NODE).child(FIREBASE_MUSEUMS_NODE)
-        .getKey().length();
     adapter = new MuseumsAdapter(this::onClick, apiKey);
     return view;
   }
 
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
+      super.onViewCreated(view, savedInstanceState);
+      viewSetUp();
+      loadMuseumsFromDb();
+  }
 
-    LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-    rvMuseums.setLayoutManager(layoutManager);
-    rvMuseums.setHasFixedSize(true);
-    rvMuseums.setItemAnimator(new DefaultItemAnimator());
-    rvMuseums
-        .addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-    // Firebase Database query to fetch data for the Favorite Adapter
+    private void viewSetUp() {
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        museumsRecyclerView.setLayoutManager(layoutManager);
+        museumsRecyclerView.setHasFixedSize(true);
+        museumsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+    }
+
+    private void loadMuseumsFromDb() {
     museumsDbRef.child(FIREBASE_MUSEUMS_NODE).addValueEventListener(new ValueEventListener() {
       @Override
       public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -109,12 +94,11 @@ public class MuseumsFragment extends Fragment implements AdapterOnClickHandler {
           mMueseumsList.add(result);
         }
         adapter.addAll(mMueseumsList);
-        rvMuseums.setAdapter(adapter);
+          museumsRecyclerView.setAdapter(adapter);
       }
-
       @Override
       public void onCancelled(@NonNull DatabaseError databaseError) {
-
+          Log.d(LOG_TAG, "Museums Firebase Database Error: " + databaseError.getMessage());
       }
     });
   }
@@ -122,10 +106,8 @@ public class MuseumsFragment extends Fragment implements AdapterOnClickHandler {
   @Override
   public void onAttach(Context context) {
     super.onAttach(context);
-    // This makes sure that the host activity has implemented the callback interface
-    // If not, it throws an exception
     try {
-      mListener = (OnFragmentInteractionListener) context;
+        listener = (OnFragmentInteractionListener) context;
     } catch (ClassCastException e) {
       throw new ClassCastException(context.toString()
           + " must implement OnFragmentInteractionListener");
@@ -133,15 +115,15 @@ public class MuseumsFragment extends Fragment implements AdapterOnClickHandler {
   }
 
   public void onMuseumsPressedIntent(Result result) {
-    if (mListener != null) {
-      mListener.onFragmentInteraction(result);
+      if (listener != null) {
+          listener.onFragmentInteraction(result);
     }
   }
 
   @Override
   public void onDetach() {
     super.onDetach();
-    mListener = null;
+      listener = null;
   }
 
   @Override
