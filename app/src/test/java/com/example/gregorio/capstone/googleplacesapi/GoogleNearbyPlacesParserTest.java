@@ -1,6 +1,7 @@
 package com.example.gregorio.capstone.googleplacesapi;
 
 import com.example.gregorio.capstone.model.NearbyPlaces;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -26,18 +27,24 @@ public class GoogleNearbyPlacesParserTest {
     GoogleMap googleMap;
     LatLng latLng;
     HashMap<Marker, Integer> hashMap;
+    CameraUpdateFactory cameraUpdateFactory;
+    CameraUpdate cameraUpdate;
 
     @Before
     public void setUp() throws Exception {
         SUT = new GoogleNearbyPlacesParser();
         nearbyPlaces = mock(NearbyPlaces.class);
         googleMap = mock(GoogleMap.class);
+        cameraUpdate = mock(CameraUpdate.class);
+        latLng = new LatLng(45.071, 7.6863);
+        cameraUpdateFactory = mock(CameraUpdateFactory.class);
+        cameraUpdateFactory.newCameraPosition(createNewCameraPosition());
+
     }
 
     @Test
     public void drawMap_NearbyPlacePresent_markerDrawn() {
-        latLng = new LatLng(45.071, 7.6863);
-        when(CameraUpdateFactory.newCameraPosition(createNewCameraPosition())).getMock();
+        when(CameraUpdateFactory.newCameraPosition(createNewCameraPosition())).thenReturn(cameraUpdate);
         List<MarkerOptions> result = SUT.drawLocationMap(nearbyPlaces, googleMap, latLng, hashMap);
         assertThat(result, isNotNull());
     }
