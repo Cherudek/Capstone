@@ -2,6 +2,7 @@ package com.example.gregorio.capstone.ui;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,6 +25,7 @@ import com.bumptech.glide.Glide;
 import com.example.gregorio.capstone.R;
 import com.example.gregorio.capstone.adapters.PhotoAdapter;
 import com.example.gregorio.capstone.adapters.ReviewAdapter;
+import com.example.gregorio.capstone.model.Results;
 import com.example.gregorio.capstone.model.placeId.Location;
 import com.example.gregorio.capstone.model.placeId.Photo;
 import com.example.gregorio.capstone.model.placeId.PlaceId;
@@ -51,25 +53,18 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.example.gregorio.capstone.ui.MainActivity.PLACE_PICKER_PLACE_ID_TAG;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link DetailFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link DetailFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class DetailFragment extends Fragment implements OnMapReadyCallback {
 
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
     private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String PHOTO_URL_TAG = "PhotoUrlTag";
     private static final String NAME_TAG = "NameTag";
     private static final String ADDRESS_TAG = "AddressTag";
@@ -89,7 +84,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     @BindView(R.id.place_url)
     TextView tvWebAddress;
     @BindView(R.id.add_to_favourites_button)
-    FloatingActionButton addFavourites;
+    FloatingActionButton addToFavouritePlaces;
     @BindView(R.id.weekday_opening_hours)
     TextView tvOpeningHours;
     @BindView(R.id.open_now)
@@ -136,10 +131,11 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
             apiKey = savedInstanceState.getString(API_KEY_TAG);
         }
 
-        // Initialize Firebase components
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = mFirebaseDatabase.getReference().child(FIREBASE_USERS_NODE);
         auth = FirebaseAuth.getInstance();
+        apiKey = getContext().getResources().getString(R.string.google_maps_key);
+        Log.i("Api Key :", apiKey);
     }
 
     @Override
@@ -153,7 +149,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         ButterKnife.bind(this, rootView);
-        apiKey = getContext().getResources().getString(R.string.google_api_key);
+        // apiKey = getContext().getResources().getString(R.string.google_api_key);
         LinearLayoutManager photosLayoutManager = new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, true);
         rvPhotoGallery.setLayoutManager(photosLayoutManager);
@@ -166,10 +162,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
             mapViewBundle = savedInstanceState.getBundle(MAPVIEW_DETAIL_BUNDLE_KEY);
         }
         mapView.onCreate(mapViewBundle);
-        markerClickListener = marker -> {
-            return false;
-        };
-        // Inflate the layout for this fragment
+        markerClickListener = marker -> false;
         return rootView;
     }
 
@@ -178,26 +171,15 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         super.onActivityCreated(savedInstanceState);
         Bundle bundle = getArguments();
         if (bundle != null) {
-            // Get the Data from the map object clicked in the Place Picker API
             placeId = bundle.getString(PLACE_PICKER_PLACE_ID_TAG);
-
         } else {
-            // Get the Data from the map object clicked in the Map API
-            MapDetailSharedViewHolder detailModel = ViewModelProviders.of(getActivity())
+            MapDetailSharedViewHolder detailModel = ViewModelProviders.of(Objects.requireNonNull(getActivity()))
                     .get(MapDetailSharedViewHolder.class);
-            detailModel.getSelected().observe(this, item -> {
-                // Extract the Pace ID
-                placeId = item.getPlaceId();
-            });
+            detailModel.getSelected().observe(this, this::onChanged);
         }
 
-        // Add to favourites FAB
-        addFavourites.setContentDescription(getString(R.string.add_to_favourite_tn));
-        // Add Place to favourites (Firebase Db)
-        addFavourites.setOnClickListener(v -> {
-
-            // Object to be passed to the firebase db reference.
-            // Generate a reference to a new location and add some data using push()
+        addToFavouritePlaces.setContentDescription(getString(R.string.add_to_favourite_tn));
+        addToFavouritePlaces.setOnClickListener(v -> {
             FirebaseUser currentUser = auth.getCurrentUser();
             if (currentUser != null) {
                 String userID = currentUser.getUid();
@@ -206,14 +188,13 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                         .child(userID).child(FIREBASE_FAVOURITE_CHILD_NODE).push();
                 pushedPostRef.setValue(favouriteResult);
                 String name = favouriteResult.getName();
-                // Get the unique ID generated by a push()
                 String postId = pushedPostRef.getKey();
                 Snackbar snackbar = Snackbar
-                        .make(getView(), name + " Saved to Your Favourites!", Snackbar.LENGTH_LONG);
+                        .make(Objects.requireNonNull(getView()), name + " Saved to Your Favourites!", Snackbar.LENGTH_LONG);
                 snackbar.show();
             } else {
                 Snackbar snackbar = Snackbar
-                        .make(getView(), "Log In to add a place to your favourites!", Snackbar.LENGTH_LONG);
+                        .make(Objects.requireNonNull(getView()), "Log In to add a place to your favourites!", Snackbar.LENGTH_LONG);
                 snackbar.show();
             }
         });
@@ -223,13 +204,12 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     public void onResume() {
         super.onResume();
         mapView.onResume();
-        // DetailViewModel Factory picks Api Key and Place Id to fetch data for a single Place
         DetailViewModelFactory detailViewModelFactory = new DetailViewModelFactory(
                 NearbyPlacesRepository.getInstance(), placeId, apiKey);
         DetailViewModel detailViewModel = ViewModelProviders.of(this, detailViewModelFactory)
                 .get(DetailViewModel.class);
         detailViewModel.getPlaceDetails().observe(this, (PlaceId placeIdMap) -> {
-            if (placeIdMap != null) {
+            if (placeIdMap != null && placeIdMap.getResult() != null) {
                 result = placeIdMap.getResult();
                 if (result.getGeometry() != null) {
                     Location scope = result.getGeometry().getLocation();
@@ -237,7 +217,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                     Double lon = scope.getLng();
                     latLng = new LatLng(lat, lon);
                 }
-                mapView.getMapAsync(this::onMapReady);
+                mapView.getMapAsync(this);
                 name = result.getName();
                 tvName.setText(name);
                 tvName.setContentDescription(getString(R.string.place_name_cd) + result.getName());
@@ -350,11 +330,11 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     }
 
 
-    public void onPhotoSelected(Photo photo) {
-        if (listener != null) {
-            listener.onFragmentInteraction(photo);
-        }
-    }
+//    public void onPhotoSelected(Photo photo) {
+//        if (listener != null) {
+//            listener.onFragmentInteraction(photo);
+//        }
+//    }
 
     @Override
     public void onAttach(Context context) {
@@ -375,7 +355,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        MapsInitializer.initialize(getContext());
+        MapsInitializer.initialize(Objects.requireNonNull(getContext()));
         MapStyleOptions style = MapStyleOptions
                 .loadRawResourceStyle(getContext(), R.raw.mapstyle_retro);
         googleMap.setMapStyle(style);
@@ -389,13 +369,11 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         marker.showInfoWindow();
         marker.isInfoWindowShown();
         googleMap.setOnMarkerClickListener(markerClickListener);
-        // Construct a CameraPosition focusing on the selected detail of the place and animate the camera to that position.
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(latLng)           // Sets the center of the map to the detail place location
                 .zoom(16)                 // Sets the zoom
                 .bearing(0)               // Sets the orientation of the camera to east
                 .build();
-        // Creates a CameraPosition from the builder
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
@@ -409,6 +387,10 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
+    }
+
+    private void onChanged(Results item) {
+        placeId = item.getPlaceId();
     }
 
     public interface OnFragmentInteractionListener {

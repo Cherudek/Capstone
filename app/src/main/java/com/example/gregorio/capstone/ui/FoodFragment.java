@@ -52,7 +52,7 @@ public class FoodFragment extends Fragment implements FoodAdapter.AdapterOnClick
                              @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_food, container, false);
         ButterKnife.bind(this, rootView);
-        String apiKey = getContext().getResources().getString(R.string.google_api_key);
+        String apiKey = getContext().getResources().getString(R.string.google_maps_key);
         dbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_ROOT_NODE);
         adapter = new FoodAdapter(this::onClick, apiKey);
         return rootView;

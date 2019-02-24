@@ -24,6 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.example.gregorio.capstone.BuildConfig;
 import com.example.gregorio.capstone.R;
 import com.example.gregorio.capstone.application.LostInTurin;
 import com.example.gregorio.capstone.googleplacesapi.GoogleMapsApi;
@@ -62,6 +63,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.example.gregorio.capstone.R.*;
+
 public class MapFragment extends Fragment implements SearchView.OnQueryTextListener,
         MenuItem.OnActionExpandListener, OnMapReadyCallback {
 
@@ -74,11 +77,11 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     private static final int REQUEST_PLACE_PICKER = 1;
     // A default location (Piazza Castello, Turin, Italy) and default zoom to use when location permission is
     private static final LatLng PIAZZA_CASTELLO = new LatLng(45.0710394, 7.6862986);
-    @BindView(R.id.map)
+    @BindView(id.map)
     MapView mapView;
-    @BindView(R.id.checkout_button)
-    FloatingActionButton checkoutFap;
-    @BindView(R.id.map_progress_bar)
+    @BindView(id.checkout_button)
+    FloatingActionButton placePicker;
+    @BindView(id.map_progress_bar)
     ProgressBar progressBar;
     private GoogleMap mMap;
     private OnMarkerClickListener onMarkerClickListener;
@@ -110,7 +113,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     }
 
     public static void hideKeyboard(Activity activity) {
-        View view = activity.findViewById(R.id.menu_search);
+        View view = activity.findViewById(id.menu_search);
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) activity
                     .getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -118,16 +121,18 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         }
     }
 
+    private static boolean onMarkerClick(Marker marker) {
+        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        return false;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable final Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_map, container, false);
+        rootView = inflater.inflate(layout.fragment_map, container, false);
         ButterKnife.bind(this, rootView);
-        apiKey = getString(com.example.gregorio.capstone.R.string.google_maps_key);
-        // *** IMPORTANT ***
-        // MapView requires that the Bundle you pass contain _ONLY_ MapView SDK
-        // objects or sub-Bundles.
+        apiKey = getString(string.google_maps_key);
         Bundle mapViewBundle = null;
         if (savedInstanceState != null) {
             mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
@@ -161,40 +166,20 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (savedInstanceState != null) {
-
-        }
 
         Connectivity connectivity = new Connectivity();
         if (!connectivity.isOnline(context)) {
             Snackbar snackbar = Snackbar
-                    .make(rootView, com.example.gregorio.capstone.R.string.no_internet_connection,
+                    .make(rootView, string.no_internet_connection,
                             Snackbar.LENGTH_LONG);
             snackbar.show();
         }
 
-        // Launches the Google Place Picker API
-        checkoutFap.setOnClickListener(v -> {
-            // launches the Place Picker Api
-            MapFragment.this.checkOut();
-        });
+        placePicker.setOnClickListener(this::onClick);
 
-        // OnMarkerClickListener added to the map
-        onMarkerClickListener = marker -> {
-            marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-            return false;
-        };
-        // On InfoClickListener to launch NearPlaces object details event
-        onInfoWindowClickListener = marker -> {
-            searchView.isIconified();
-            searchView.onActionViewCollapsed();
-            mPlaceIdTag = Integer.valueOf(marker.getSnippet());
-            //   detailViewModel.getPlaceDetails().getValue().getResult();
-            sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
-            // launch the detail fragment.
-            MapFragment.this.onMarkerPressedIntent(marker);
-            marker.hideInfoWindow();
-        };
+        onMarkerClickListener = MapFragment::onMarkerClick;
+
+        onInfoWindowClickListener = this::onInfoWindowClick;
     }
 
     private void onMarkerPressedIntent(Marker marker) {
@@ -217,7 +202,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 
         } else {
             throw new RuntimeException(context.toString()
-                    + getString(com.example.gregorio.capstone.R.string.must_implement_on_frag_list));
+                    + getString(string.must_implement_on_frag_list));
         }
     }
 
@@ -253,7 +238,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
             GoogleApiAvailability.getInstance().getErrorDialog(getActivity(), e.getConnectionStatusCode(),
                     REQUEST_PLACE_PICKER);
         } catch (GooglePlayServicesNotAvailableException e) {
-            Toast.makeText(context, R.string.install_google_play_services, Toast.LENGTH_LONG)
+            Toast.makeText(context, string.install_google_play_services, Toast.LENGTH_LONG)
                     .show();
         }
     }
@@ -264,10 +249,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         super.onCreateOptionsMenu(menu, inflater);
         menu.clear();
         inflater.inflate(R.menu.main, menu);
-        MenuItem menuItem = menu.findItem(R.id.menu_search);
+        MenuItem menuItem = menu.findItem(id.menu_search);
         searchView = (SearchView) menuItem.getActionView();
         searchView.setOnQueryTextListener(this);
-        searchView.setQueryHint(getString(R.string.search_nearby_places));
+        searchView.setQueryHint(getString(string.search_nearby_places));
         searchView.setIconified(true);
     }
 
@@ -302,7 +287,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
                     mNearbyPlaces = nearbyPlaces;
                     String status = nearbyPlaces.getStatus();
                     if (status.matches("ZERO_RESULTS")) {
-                        Snackbar snackbar = Snackbar.make(rootView, R.string.no_results, Snackbar.LENGTH_LONG);
+                        Snackbar snackbar = Snackbar.make(rootView, string.no_results, Snackbar.LENGTH_LONG);
                         snackbar.show();
                     }
                     mMarkerOptionsRetrieved = nearbyPlacesResponseParser.drawLocationMap(nearbyPlaces, mMap, mCurrentLocation, eventMarkerMap);
@@ -312,7 +297,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
                     Log.i(LOG_TAG, "queryViewModel markerOptions on Rotation is" + queryViewModel.markerOptions.size());
                     queryViewModel.getData().removeObserver(this);
                 } else {
-                    Snackbar snackbar = Snackbar.make(rootView, R.string.check_internet_connection, Snackbar.LENGTH_LONG);
+                    Snackbar snackbar = Snackbar.make(rootView, string.check_internet_connection, Snackbar.LENGTH_LONG);
                     snackbar.show();
                 }
             }
@@ -348,7 +333,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
             } else if (resultCode == PlacePicker.RESULT_ERROR) {
                 progressBar.setVisibility(View.INVISIBLE);
                 Toast.makeText(context,
-                        com.example.gregorio.capstone.R.string.places_api_failure_msg,
+                        string.places_api_failure_msg,
                         Toast.LENGTH_LONG).show();
             } else {
                 super.onActivityResult(requestCode, resultCode, data);
@@ -377,7 +362,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
                     Log.i(LOG_TAG, "Could not fetch the GPS location, we set to the default one: "
                             + PIAZZA_CASTELLO);
                     Snackbar snackbar = Snackbar.make(rootView,
-                            context.getResources().getString(R.string.check_internet_gps_msg),
+                            context.getResources().getString(string.check_internet_gps_msg),
                             Snackbar.LENGTH_LONG);
                     snackbar.show();
                 }
@@ -386,7 +371,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
                 Log.d(LOG_TAG, "Error trying to get last GPS location");
                 e.printStackTrace();
                 Snackbar snackbar = Snackbar
-                        .make(rootView, R.string.check_internet_gps_msg,
+                        .make(rootView, string.check_internet_gps_msg,
                                 Snackbar.LENGTH_LONG);
                 snackbar.show();
             });
@@ -423,7 +408,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     @Override
     public void onMapReady(GoogleMap googleMap) {
         MapsInitializer.initialize(context);
-        MapStyleOptions style = MapStyleOptions.loadRawResourceStyle(context, R.raw.mapstyle_retro);
+        MapStyleOptions style = MapStyleOptions.loadRawResourceStyle(context, raw.mapstyle_retro);
         googleMap.setMapStyle(style);
         //Once the Map is initialised we set Up an observer for changes to the Map
         // Check the Location permission is given before enabling setMyLocation to true.
@@ -484,6 +469,21 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
             outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
         }
         mapView.onSaveInstanceState(mapViewBundle);
+    }
+
+    private void onClick(View v) {
+        MapFragment.this.checkOut();
+    }
+
+    private void onInfoWindowClick(Marker marker) {
+        searchView.isIconified();
+        searchView.onActionViewCollapsed();
+        mPlaceIdTag = Integer.valueOf(marker.getSnippet());
+        //   detailViewModel.getPlaceDetails().getValue().getResult();
+        sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
+        // launch the detail fragment.
+        MapFragment.this.onMarkerPressedIntent(marker);
+        marker.hideInfoWindow();
     }
 
     public interface OnFragmentInteractionListener {

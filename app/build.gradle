@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'realm-android'
 
 android {
     signingConfigs {
@@ -16,6 +15,7 @@ android {
             storePassword 'Cherud3k'
         }
     }
+
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.gregorio.capstone"
@@ -27,20 +27,27 @@ android {
         signingConfig signingConfigs.config1
         multiDexEnabled true
     }
+
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config1
+            buildConfigField 'String', "API_KEY", GoogleMapsApiKey
+            resValue 'string', "api_key", GoogleMapsApiKey
+
         }
     }
+
     dataBinding {
         enabled true
     }
+
     buildToolsVersion '28.0.3'
     compileOptions {
         targetCompatibility JavaVersion.VERSION_1_8
