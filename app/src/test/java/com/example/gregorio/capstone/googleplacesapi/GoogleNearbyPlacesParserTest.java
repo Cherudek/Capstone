@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.isNotNull;
@@ -26,7 +27,7 @@ public class GoogleNearbyPlacesParserTest {
     NearbyPlaces nearbyPlaces;
     GoogleMap googleMap;
     LatLng latLng;
-    HashMap<Marker, Integer> hashMap;
+    TreeMap<Marker, Integer> hashMap;
     CameraUpdateFactory cameraUpdateFactory;
     CameraUpdate cameraUpdate;
 

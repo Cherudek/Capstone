@@ -149,7 +149,6 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         ButterKnife.bind(this, rootView);
-        // apiKey = getContext().getResources().getString(R.string.google_api_key);
         LinearLayoutManager photosLayoutManager = new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, true);
         rvPhotoGallery.setLayoutManager(photosLayoutManager);

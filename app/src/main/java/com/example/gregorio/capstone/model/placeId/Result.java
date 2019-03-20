@@ -47,6 +47,9 @@ public class Result {
     @SerializedName("rating")
     @Expose
     private Double rating;
+    @SerializedName("price_level")
+    @Expose
+    private Integer priceLevel;
     @SerializedName("reference")
     @Expose
     private String reference;
@@ -81,6 +84,10 @@ public class Result {
 
     public void setAddressComponents(List<AddressComponent> addressComponents) {
         this.addressComponents = addressComponents;
+    }
+
+    public Integer getPriceLevel() {
+        return priceLevel;
     }
 
     public String getAdrAddress() {

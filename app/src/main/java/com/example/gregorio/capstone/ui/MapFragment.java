@@ -59,6 +59,7 @@ import com.google.android.gms.tasks.Task;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -104,7 +105,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     private int mPlaceIdTag;
     private SearchView searchView;
     private int placeIdInt;
-    private HashMap<Marker, Integer> eventMarkerMap;
+    private TreeMap<Marker, Integer> eventMarkerMap;
     private Activity activity;
     private GoogleMapsApi googleMapsApi;
     private Task<Location> locationTask;
@@ -153,7 +154,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
             mCurrentLocation = PIAZZA_CASTELLO;
             mQuery = "";
         }
-        eventMarkerMap = new HashMap<>();
+        eventMarkerMap = new TreeMap<>();
         mapView.onCreate(mapViewBundle);
         // mapView.getMapAsync(this);
         // Instantiate the data parsing class
@@ -261,7 +262,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         mQuery = query;
         progressBar.setVisibility(View.VISIBLE);
         Log.i(LOG_TAG, "The Search Query is: " + query);
-        // MVVM Retrofit Call Via ViewModel Factory
         int DEFAULT_ZOOM = 1500;
         if (mNearbyPlaces == null) {
             NearbyPlacesListViewModelFactory factory = new NearbyPlacesListViewModelFactory(
@@ -302,7 +302,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
                 }
             }
         });
-
         return true;
     }
 
@@ -344,7 +343,6 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
 
     // Get the last known location of the device
     public void getLastLocation() {
-        // Get last known recent location using new Google Play Services SDK (v11+)
         if (permissions.checkLocalPermission(context, getActivity())) {
             locationTask = LocationServices.getFusedLocationProviderClient(context).getLastLocation();
             locationTask.addOnSuccessListener(location -> {
