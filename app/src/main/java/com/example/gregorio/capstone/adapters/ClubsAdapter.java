@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -48,6 +49,7 @@ public class ClubsAdapter extends RecyclerView.Adapter<ClubsAdapter.ViewHolder> 
         String photoReference = currentPlaceId.getPhotos().get(0).getPhotoReference();
         String address = currentPlaceId.getVicinity();
         String name = currentPlaceId.getName();
+        Double rating = currentPlaceId.getRating();
         String photoUrl =
                 PHOTO_PLACE_URL + "maxwidth=100&photoreference=" + photoReference + "&key=" + apiKey;
         Glide.with(context)
@@ -59,6 +61,7 @@ public class ClubsAdapter extends RecyclerView.Adapter<ClubsAdapter.ViewHolder> 
         holder.imageView.setContentDescription(context.getString(R.string.the_image_view_cd) + name);
         holder.address.setContentDescription(context.getString(R.string.the_address_is_cd) + address);
         holder.name.setContentDescription(context.getString(R.string.the_name_is_cd) + name);
+        holder.ratingBar.setRating(rating.floatValue());
     }
 
     @Override
@@ -79,12 +82,15 @@ public class ClubsAdapter extends RecyclerView.Adapter<ClubsAdapter.ViewHolder> 
         private final ImageView imageView;
         private final TextView name;
         private final TextView address;
+        private final RatingBar ratingBar;
+
 
         private ViewHolder(View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.clubs_photo_place_id);
             name = itemView.findViewById(R.id.club_place_name);
             address = itemView.findViewById(R.id.club_place_address);
+            ratingBar = itemView.findViewById(R.id.ratingClub);
             itemView.setOnClickListener(this::onClick);
         }
 

@@ -63,7 +63,7 @@ android {
 ext {
     supportLibrary = '28.0.0'
     playServices = '15.0.1'
-    firebase = '16.0.5'
+    firebase = '16.1.0'
 }
 
 dependencies {
@@ -90,8 +90,8 @@ dependencies {
 
     implementation "com.google.firebase:firebase-database:$firebase"
     implementation 'com.firebaseui:firebase-ui-database:3.3.1'
-    implementation "com.google.firebase:firebase-core:16.0.5"
-    implementation 'com.google.firebase:firebase-auth:16.0.5'
+    implementation "com.google.firebase:firebase-core:16.0.8"
+    implementation 'com.google.firebase:firebase-auth:16.2.0'
     implementation 'com.firebaseui:firebase-ui-auth:4.0.1'
 
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'

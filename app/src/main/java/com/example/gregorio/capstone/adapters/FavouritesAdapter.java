@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -52,6 +53,7 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
         }
         String address = currentPlaceId.getVicinity();
         String name = currentPlaceId.getName();
+        Double rating = currentPlaceId.getRating();
         String photoUrl = PHOTO_PLACE_URL + "maxwidth=100&photoreference=" + photoReference + "&key=" + apiKey;
         Glide.with(context)
                 .load(photoUrl)
@@ -61,12 +63,12 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
 
         holder.favouriteName.setText(name);
         holder.favouriteAddress.setText(address);
-        // Enable dynamic content description
         holder.favouriteImage
                 .setContentDescription(context.getString(R.string.the_image_view_cd) + name);
         holder.favouriteAddress
                 .setContentDescription(context.getString(R.string.the_address_is_cd) + address);
         holder.favouriteName.setContentDescription(context.getString(R.string.the_name_is_cd) + name);
+        holder.ratingBar.setRating(rating.floatValue());
     }
 
     public void addAll(List<Result> result) {
@@ -107,6 +109,8 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
         private final ImageView favouriteImage;
         private final TextView favouriteName;
         private final TextView favouriteAddress;
+        private final RatingBar ratingBar;
+
 
         private FavouriteViewHolder(View itemView) {
             super(itemView);
@@ -114,6 +118,7 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
             favouriteName = itemView.findViewById(R.id.favourite_place_name);
             favouriteAddress = itemView.findViewById(R.id.favourite_place_address);
             viewForeground = itemView.findViewById(R.id.favourite_card_view);
+            ratingBar = itemView.findViewById(R.id.ratingFavourites);
             itemView.setOnClickListener(this);
         }
 

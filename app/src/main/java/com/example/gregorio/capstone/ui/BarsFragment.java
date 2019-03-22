@@ -68,11 +68,9 @@ public class BarsFragment extends Fragment implements AdapterOnClickHandler {
         rvBars.setLayoutManager(layoutManager);
         rvBars.setHasFixedSize(true);
         rvBars.setItemAnimator(new DefaultItemAnimator());
-        // Firebase Database query to fetch data for the Favorite Adapter
         dbRef.child(FIREBASE_ROOT_NODE_BARS).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // barsList = new ArrayList<>();
                 Log.i(LOG_TAG, "DataSnapshot = " + dataSnapshot.getValue(Result.class));
                 barsList = new ArrayList<>();
                 for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {

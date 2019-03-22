@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -47,6 +48,7 @@ public class MuseumsAdapter extends
         String photoReference = currentPlaceId.getPhotos().get(0).getPhotoReference();
         String address = currentPlaceId.getVicinity();
         String name = currentPlaceId.getName();
+        Double rating = currentPlaceId.getRating();
         String photoUrl =
                 PHOTO_PLACE_URL + "maxwidth=100&photoreference=" + photoReference + "&key=" + apiKey;
         Glide.with(context)
@@ -54,10 +56,10 @@ public class MuseumsAdapter extends
                 .into(holder.imageView);
         holder.name.setText(name);
         holder.address.setText(address);
-        // Enable dynamic content description
         holder.imageView.setContentDescription(context.getString(R.string.the_image_view_cd) + name);
         holder.address.setContentDescription(context.getString(R.string.the_address_is_cd) + address);
         holder.name.setContentDescription(context.getString(R.string.the_name_is_cd) + name);
+        holder.ratingBar.setRating(rating.floatValue());
     }
 
     @Override
@@ -78,12 +80,15 @@ public class MuseumsAdapter extends
         public final ImageView imageView;
         public final TextView name;
         public final TextView address;
+        private final RatingBar ratingBar;
+
 
         public ViewHolder(View view) {
             super(view);
             imageView = view.findViewById(R.id.museums_photo_place_id);
             name = view.findViewById(R.id.museums_place_name);
             address = view.findViewById(R.id.museums_place_address);
+            ratingBar = view.findViewById(R.id.ratingMuseums);
             view.setOnClickListener(this::onClick);
         }
 

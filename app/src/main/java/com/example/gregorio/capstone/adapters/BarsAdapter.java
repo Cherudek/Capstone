@@ -17,6 +17,7 @@ import com.example.gregorio.capstone.model.placeId.Result;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class BarsAdapter extends RecyclerView.Adapter<BarsAdapter.BarsViewHolder> {
 
@@ -48,8 +49,7 @@ public class BarsAdapter extends RecyclerView.Adapter<BarsAdapter.BarsViewHolder
         String photoReference = currentPlaceId.getPhotos().get(0).getPhotoReference();
         String address = currentPlaceId.getVicinity();
         String name = currentPlaceId.getName();
-        Double rating = currentPlaceId.getRating();
-        Integer priceLevel = currentPlaceId.getPriceLevel();
+        Optional<Double> rating = Optional.ofNullable(currentPlaceId.getRating());
         String photoUrl =
                 PHOTO_PLACE_URL + "maxwidth=100&photoreference=" + photoReference + "&key=" + apiKey;
         Glide.with(context)
@@ -60,7 +60,7 @@ public class BarsAdapter extends RecyclerView.Adapter<BarsAdapter.BarsViewHolder
         holder.imageView.setContentDescription(context.getString(R.string.the_image_view_cd) + name);
         holder.address.setContentDescription(context.getString(R.string.the_address_is_cd) + address);
         holder.name.setContentDescription(context.getString(R.string.the_name_is_cd) + name);
-        holder.ratingBar.setRating(rating.floatValue());
+        rating.ifPresent(aDouble -> holder.ratingBar.setRating(aDouble.floatValue()));
     }
 
     @Override
