@@ -72,6 +72,7 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
         if (foodPlaceId != null) {
             foodPlaceId.clear();
         }
+        assert foodPlaceId != null;
         foodPlaceId.addAll(result);
         notifyDataSetChanged();
     }
