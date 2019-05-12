@@ -24,7 +24,6 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.example.gregorio.capstone.BuildConfig;
 import com.example.gregorio.capstone.R;
 import com.example.gregorio.capstone.application.LostInTurin;
 import com.example.gregorio.capstone.googleplacesapi.GoogleMapsApi;
@@ -57,14 +56,16 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.example.gregorio.capstone.R.*;
+import static com.example.gregorio.capstone.R.id;
+import static com.example.gregorio.capstone.R.layout;
+import static com.example.gregorio.capstone.R.raw;
+import static com.example.gregorio.capstone.R.string;
 
 public class MapFragment extends Fragment implements SearchView.OnQueryTextListener,
         MenuItem.OnActionExpandListener, OnMapReadyCallback {

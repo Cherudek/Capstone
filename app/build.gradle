@@ -1,4 +1,7 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     signingConfigs {
@@ -64,6 +67,8 @@ ext {
     supportLibrary = '28.0.0'
     playServices = '15.0.1'
     firebase = '16.1.0'
+    ext.dagger2_version = '2.17'
+
 }
 
 dependencies {
@@ -115,8 +120,19 @@ dependencies {
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.1'
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.1'
 
-    implementation 'com.google.dagger:dagger:2.21'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.21'
+
+    // Basic Dagger 2 (required)
+    implementation "com.google.dagger:dagger:2.22.1"
+    kapt "com.google.dagger:dagger-compiler:2.22.1"
+
+    // dagger.android package (optional)
+    implementation "com.google.dagger:dagger-android:$dagger2_version"
+    kapt "com.google.dagger:dagger-android-processor:2.22.1"
+
+    // Support library support (optional)
+    kapt "com.google.dagger:dagger-android-support:$dagger2_version"
+
+    provided 'javax.annotation:jsr250-api:1.0'
 
 }
 apply plugin: 'com.google.gms.google-services'
