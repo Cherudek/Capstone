@@ -23,6 +23,9 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.gregorio.capstone.R;
+import com.example.gregorio.capstone.dagger.AppComponent;
+import com.example.gregorio.capstone.dagger.DaggerAppComponent;
+import com.example.gregorio.capstone.dagger.MapFragmentModule;
 import com.example.gregorio.capstone.model.User;
 import com.example.gregorio.capstone.model.placeId.Photo;
 import com.example.gregorio.capstone.model.placeId.Result;
@@ -40,6 +43,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import static com.example.gregorio.capstone.ui.FavouritesFragment.WIDGET_INTENT_TAG;
 import static com.example.gregorio.capstone.widget.FavouriteWidgetProvider.INTENT_TO_FAVOURITE_LIST_KEY;
@@ -80,6 +85,9 @@ public class MainActivity extends AppCompatActivity implements
     private FirebaseUser user;
     private FragmentManager fragmentManager;
 
+    private AppComponent appComponent;
+    @Inject
+
     public MainActivity() {
     }
 
@@ -95,6 +103,11 @@ public class MainActivity extends AppCompatActivity implements
         toolbar.setLogo(R.drawable.ic_logo);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        appComponent = DaggerAppComponent.create();
+
+        MapFragment mapFragment = appComponent.inject(new MapFragment());
+
 
         userName = headerView.findViewById(R.id.user_name);
         userEmail = headerView.findViewById(R.id.user_email);
@@ -131,7 +144,9 @@ public class MainActivity extends AppCompatActivity implements
                 fragment = getSupportFragmentManager().getFragment(savedInstanceState, CLUBS_FRAGMENT_TAG);
             }
         } else {
-            MapFragment mapFragment = new MapFragment();
+
+
+          // MapFragment mapFragment = new MapFragment();
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
                     .addToBackStack(MAP_FRAGMENT_TAG)

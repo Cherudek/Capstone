@@ -59,6 +59,8 @@ import com.google.android.gms.tasks.Task;
 import java.util.List;
 import java.util.TreeMap;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -79,12 +81,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     private static final int REQUEST_PLACE_PICKER = 1;
     // A default location (Piazza Castello, Turin, Italy) and default zoom to use when location permission is
     private static final LatLng PIAZZA_CASTELLO = new LatLng(45.0710394, 7.6862986);
-    @BindView(id.map)
-    MapView mapView;
-    @BindView(id.checkout_button)
-    FloatingActionButton placePicker;
-    @BindView(id.map_progress_bar)
-    ProgressBar progressBar;
+    @BindView(id.map) MapView mapView;
+    @BindView(id.checkout_button) FloatingActionButton placePicker;
+    @BindView(id.map_progress_bar) ProgressBar progressBar;
     private GoogleMap mMap;
     private OnMarkerClickListener onMarkerClickListener;
     private OnInfoWindowClickListener onInfoWindowClickListener;
@@ -110,7 +109,10 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     private Activity activity;
     private GoogleMapsApi googleMapsApi;
     private Task<Location> locationTask;
+    Bundle mapViewBundle = null;
 
+
+    @Inject
     public MapFragment() {
     }
 
@@ -134,8 +136,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
                              @Nullable final Bundle savedInstanceState) {
         rootView = inflater.inflate(layout.fragment_map, container, false);
         ButterKnife.bind(this, rootView);
+        ButterKnife.setDebug(true);
+
         apiKey = getString(string.google_maps_key);
-        Bundle mapViewBundle = null;
         if (savedInstanceState != null) {
             mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
             latitude = savedInstanceState.getDouble(CURRENT_LATITUDE_TAG);
@@ -156,8 +159,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
             mQuery = "";
         }
         eventMarkerMap = new TreeMap<>();
-        mapView.onCreate(mapViewBundle);
-        // mapView.getMapAsync(this);
+       // mapView.getMapAsync(this);
         // Instantiate the data parsing class
         nearbyPlacesResponseParser = new GoogleNearbyPlacesParser();
         // Shared View Model to send Data from this fragment to the Detail one
@@ -176,6 +178,8 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
                             Snackbar.LENGTH_LONG);
             snackbar.show();
         }
+
+         mapView.onCreate(mapViewBundle);
 
         placePicker.setOnClickListener(this::onClick);
 
