@@ -81,9 +81,12 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     private static final int REQUEST_PLACE_PICKER = 1;
     // A default location (Piazza Castello, Turin, Italy) and default zoom to use when location permission is
     private static final LatLng PIAZZA_CASTELLO = new LatLng(45.0710394, 7.6862986);
-    @BindView(id.map) MapView mapView;
-    @BindView(id.checkout_button) FloatingActionButton placePicker;
-    @BindView(id.map_progress_bar) ProgressBar progressBar;
+    @BindView(id.map)
+    MapView mapView;
+    @BindView(id.checkout_button)
+    FloatingActionButton placePicker;
+    @BindView(id.map_progress_bar)
+    ProgressBar progressBar;
     private GoogleMap mMap;
     private OnMarkerClickListener onMarkerClickListener;
     private OnInfoWindowClickListener onInfoWindowClickListener;
@@ -102,13 +105,11 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     private View rootView;
     private List<MarkerOptions> mMarkerOptionsRetrieved;
     private MapDetailSharedViewHolder sharedModel;
-    private int mPlaceIdTag;
     private SearchView searchView;
     private int placeIdInt;
     private TreeMap<Marker, Integer> eventMarkerMap;
     private Activity activity;
     private GoogleMapsApi googleMapsApi;
-    private Task<Location> locationTask;
     Bundle mapViewBundle = null;
 
 
@@ -159,7 +160,7 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
             mQuery = "";
         }
         eventMarkerMap = new TreeMap<>();
-       // mapView.getMapAsync(this);
+        // mapView.getMapAsync(this);
         // Instantiate the data parsing class
         nearbyPlacesResponseParser = new GoogleNearbyPlacesParser();
         // Shared View Model to send Data from this fragment to the Detail one
@@ -179,12 +180,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
             snackbar.show();
         }
 
-         mapView.onCreate(mapViewBundle);
-
+        mapView.onCreate(mapViewBundle);
         placePicker.setOnClickListener(this::onClick);
-
         onMarkerClickListener = MapFragment::onMarkerClick;
-
         onInfoWindowClickListener = this::onInfoWindowClick;
     }
 
@@ -346,10 +344,9 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
         }
     }
 
-    // Get the last known location of the device
     public void getLastLocation() {
         if (permissions.checkLocalPermission(context, getActivity())) {
-            locationTask = LocationServices.getFusedLocationProviderClient(context).getLastLocation();
+            Task<Location> locationTask = LocationServices.getFusedLocationProviderClient(context).getLastLocation();
             locationTask.addOnSuccessListener(location -> {
                 // GPS location can be null if GPS is switched off
                 if (location != null) {
@@ -481,16 +478,15 @@ public class MapFragment extends Fragment implements SearchView.OnQueryTextListe
     private void onInfoWindowClick(Marker marker) {
         searchView.isIconified();
         searchView.onActionViewCollapsed();
-        mPlaceIdTag = Integer.valueOf(marker.getSnippet());
-        //   detailViewModel.getPlaceDetails().getValue().getResult();
+        int mPlaceIdTag = Integer.valueOf(marker.getSnippet());
         sharedModel.select(queryViewModel.getData().getValue().getResults().get(mPlaceIdTag));
-        // launch the detail fragment.
         MapFragment.this.onMarkerPressedIntent(marker);
         marker.hideInfoWindow();
     }
 
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Marker marker);
+
         void OnPlacePickerInteraction(Place place);
     }
 }

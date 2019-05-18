@@ -265,13 +265,11 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
         options.snippet(favouriteAddress);
         googleMap.addMarker(options);
         googleMap.setOnMarkerClickListener(onMarkerClickListener);
-        // Construct a CameraPosition focusing on Piazza Castello, Turin Italy and animate the camera to that position.
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(latLng)      // Sets the center of the map to Piazza Castello
-                .zoom(16)                   // Sets the zoom
-                .bearing(0)                // Sets the orientation of the camera to east
+                .target(latLng)
+                .zoom(16)
+                .bearing(0)
                 .build();
-        // Creates a CameraPosition from the builder
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
     }

@@ -46,9 +46,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import butterknife.BindView;
@@ -127,21 +130,16 @@ public class FavouritesFragment extends Fragment implements
                 signIn();
             }, 3000);
         }
-        // Swipe to Delete Favourite from recycler View and Firebase db.
-        ItemTouchHelper.SimpleCallback itemTouchHelperCallback1 = new SimpleCallback(0,
+        ItemTouchHelper.SimpleCallback swipeToDeleteCallback = new SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
-            public boolean onMove(RecyclerView recyclerView, ViewHolder viewHolder, ViewHolder target) {
+            public boolean onMove(@NotNull RecyclerView recyclerView, @NotNull ViewHolder viewHolder, @NotNull ViewHolder target) {
                 return false;
             }
 
-            /**
-             * callback when recycler view is swiped
-             * item will be removed on swiped
-             * undo option will be provided in snackbar to restore the item
-             */
+
             @Override
-            public void onSwiped(ViewHolder viewHolder, int direction) {
+            public void onSwiped(@NotNull ViewHolder viewHolder, int direction) {
                 // Row is swiped from recycler view
                 // remove it from adapter
                 if (viewHolder instanceof FavouriteViewHolder) {
@@ -158,7 +156,7 @@ public class FavouritesFragment extends Fragment implements
                             .child(FIREBASE_FAVOURITES_NODE).child(firebaseChildKey).removeValue();
                     // showing snack bar with Undo option
                     Snackbar snackbar = Snackbar
-                            .make(getView(), name + " " + getString(R.string.removed_from_favourites2),
+                            .make(Objects.requireNonNull(getView()), name + " " + getString(R.string.removed_from_favourites2),
                                     Snackbar.LENGTH_LONG);
                     snackbar.setAction("UNDO", view -> {
 
@@ -180,13 +178,13 @@ public class FavouritesFragment extends Fragment implements
             }
 
             @Override
-            public void onChildDraw(Canvas c, RecyclerView recyclerView, ViewHolder viewHolder, float dX,
+            public void onChildDraw(@NotNull Canvas c, @NotNull RecyclerView recyclerView, @NotNull ViewHolder viewHolder, float dX,
                                     float dY, int actionState, boolean isCurrentlyActive) {
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
         };
         // attaching the touch helper to recycler view
-        new ItemTouchHelper(itemTouchHelperCallback1).attachToRecyclerView(favouritesRecyclerView);
+        new ItemTouchHelper(swipeToDeleteCallback).attachToRecyclerView(favouritesRecyclerView);
     }
 
     private void checkCurrentUser() {
@@ -196,10 +194,10 @@ public class FavouritesFragment extends Fragment implements
 
     private void loadFavouritesDb() {
         favouriteDbRef = FirebaseDatabase.getInstance().getReference().child(FIREBASE_USERS_NODE);
-        int dbSize = favouriteDbRef.getRoot()
+        int dbSize = Objects.requireNonNull(favouriteDbRef.getRoot()
                 .child(userID)
                 .child(FIREBASE_FAVOURITES_NODE)
-                .getKey().length();
+                .getKey()).length();
         favouritesAdapter = new FavouritesAdapter(this, dbSize, apiKey);
         favouriteDbRef.child(userID).child(FIREBASE_FAVOURITES_NODE)
                 .addValueEventListener(new ValueEventListener() {
