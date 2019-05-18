@@ -1,6 +1,7 @@
 package com.example.gregorio.capstone.ui;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
@@ -25,24 +26,30 @@ import com.bumptech.glide.Glide;
 import com.example.gregorio.capstone.R;
 import com.example.gregorio.capstone.dagger.AppComponent;
 import com.example.gregorio.capstone.dagger.DaggerAppComponent;
-import com.example.gregorio.capstone.dagger.MapFragmentModule;
 import com.example.gregorio.capstone.model.User;
 import com.example.gregorio.capstone.model.placeId.Photo;
 import com.example.gregorio.capstone.model.placeId.Result;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.AuthUI.IdpConfig;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONObject;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -57,8 +64,8 @@ public class MainActivity extends AppCompatActivity implements
         OnFragmentInteractionListener {
 
     public final static int RC_SIGN_IN = 1;
-    public static final String ANONYMOUS = "anonymous guest";
-    public static final String UNKNOWN = "Sign in to read your favourite places!";
+    public static final String GUEST_USER = "Guest";
+    public static final String SIGN_IN = "Sign in to read your favourite places!";
     public final static String PLACE_PICKER_PLACE_ID_TAG = "PLACE PICKER PLACE ID";
     public final static String PHOTO_REFERENCE_TAG = "Photo Reference Tag";
     private final static String LOG_TAG = MainActivity.class.getSimpleName();
@@ -76,17 +83,17 @@ public class MainActivity extends AppCompatActivity implements
     private Runnable runnable;
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
-    private String name;
-    private String email;
+    @Inject
+    public AppComponent appComponent;
+    private String name = GUEST_USER;
+    ;
     private String id;
     private TextView userName;
     private TextView userEmail;
     private ImageView userImage;
     private FirebaseUser user;
     private FragmentManager fragmentManager;
-
-    private AppComponent appComponent;
-    @Inject
+    private String email = SIGN_IN;
 
     public MainActivity() {
     }
@@ -95,73 +102,31 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        name = ANONYMOUS;
-        email = UNKNOWN;
         NavigationView navigationView = findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setLogo(R.drawable.ic_logo);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        appComponent = DaggerAppComponent.create();
-
-        MapFragment mapFragment = appComponent.inject(new MapFragment());
-
-
         userName = headerView.findViewById(R.id.user_name);
         userEmail = headerView.findViewById(R.id.user_email);
         userImage = headerView.findViewById(R.id.user_image);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+
+        appComponent = DaggerAppComponent.create();
+        MapFragment mapFragment = appComponent.inject(new MapFragment());
+
         firebaseAuth = FirebaseAuth.getInstance();
 
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
 
         if (savedInstanceState != null) {
-            // If the fragment is not null retain the fragment state
-            if (fragment instanceof MapFragment) {
-                fragment = getSupportFragmentManager().getFragment(savedInstanceState, MAP_FRAGMENT_TAG);
-            } else if (fragment instanceof DetailFragment) {
-                fragment = getSupportFragmentManager()
-                        .getFragment(savedInstanceState, DETAIL_FRAGMENT_TAG);
-            } else if (fragment instanceof FavouritesFragment) {
-                fragment = getSupportFragmentManager()
-                        .getFragment(savedInstanceState, FAVOURITE_FRAGMENT_TAG);
-            } else if (fragment instanceof FavouriteDetailFragment) {
-                fragment = getSupportFragmentManager()
-                        .getFragment(savedInstanceState, FAVOURITE_DETAIL_FRAGMENT_TAG);
-            } else if (fragment instanceof SightsFragment) {
-                fragment = getSupportFragmentManager()
-                        .getFragment(savedInstanceState, SIGHTS_FRAGMENT_TAG);
-            } else if (fragment instanceof MuseumsFragment) {
-                fragment = getSupportFragmentManager()
-                        .getFragment(savedInstanceState, MUSEUMS_FRAGMENT_TAG);
-            } else if (fragment instanceof FoodFragment) {
-                fragment = getSupportFragmentManager().getFragment(savedInstanceState, FOOD_FRAGMENT_TAG);
-            } else if (fragment instanceof BarsFragment) {
-                fragment = getSupportFragmentManager().getFragment(savedInstanceState, BARS_FRAGMENT_TAG);
-            } else if (fragment instanceof ClubsFragment) {
-                fragment = getSupportFragmentManager().getFragment(savedInstanceState, CLUBS_FRAGMENT_TAG);
-            }
+            getFragmentSavedInstance(savedInstanceState);
         } else {
-
-
-          // MapFragment mapFragment = new MapFragment();
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
-                    .addToBackStack(MAP_FRAGMENT_TAG)
-                    .commit();
-            mapFragment.setRetainInstance(true);
+            mapFragmentSetUp(mapFragment);
         }
         if (extras != null) {
-            String widgetIntent = (String) extras.get(INTENT_TO_FAVOURITE_LIST_KEY);
-            if (widgetIntent != null) {
-                FavouritesFragment favouritesFragment = new FavouritesFragment();
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.fragment_container, favouritesFragment)
-                        .addToBackStack(FAVOURITE_FRAGMENT_TAG)
-                        .commit();
-            }
+            widgetSetUp(extras);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -187,14 +152,25 @@ public class MainActivity extends AppCompatActivity implements
                 };
         drawer.addDrawerListener(drawerListener);
 
-        // Firebase Authentication
         authStateListener = firebaseAuth -> {
+            Task<GetTokenResult> accessToken = firebaseAuth.getAccessToken(true);
             user = firebaseAuth.getCurrentUser();
             if (user != null) {
-                id = user.getProviderId();
-                Log.d(LOG_TAG, "USer getEncodedQuery: " + user.getPhotoUrl());
-                Log.d(LOG_TAG, "User Provider ID: " + id);
-                String userUrl = "http://graph.facebook.com/" + id + "/picture?type=large";
+                Uri photoUrl = user.getPhotoUrl();
+                id = photoUrl.getEncodedPath();
+
+                new GraphRequest.GraphJSONObjectCallback() {
+
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+
+                    }
+                };
+
+
+//                Log.d(LOG_TAG, "USer getEncodedQuery: " + user.getPhotoUrl());
+//                Log.d(LOG_TAG, "User Provider ID: " + id);
+                String userUrl = "http://graph.facebook.com/" + user.getUid() + "/picture?type=small";
                 MainActivity.this
                         .onSignedInInitialize(user.getDisplayName(), user.getEmail(), user.getUid(), userUrl);
             } else {
@@ -224,6 +200,51 @@ public class MainActivity extends AppCompatActivity implements
                     Log.d(LOG_TAG, "Database Error: " + databaseError.getMessage());
                 }
             });
+        }
+    }
+
+    private void widgetSetUp(Bundle extras) {
+        String widgetIntent = (String) extras.get(INTENT_TO_FAVOURITE_LIST_KEY);
+        if (widgetIntent != null) {
+            FavouritesFragment favouritesFragment = new FavouritesFragment();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.fragment_container, favouritesFragment)
+                    .addToBackStack(FAVOURITE_FRAGMENT_TAG)
+                    .commit();
+        }
+    }
+
+    private void mapFragmentSetUp(MapFragment mapFragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().add(R.id.fragment_container, mapFragment)
+                .addToBackStack(MAP_FRAGMENT_TAG)
+                .commit();
+    }
+
+    private void getFragmentSavedInstance(Bundle savedInstanceState) {
+        if (fragment instanceof MapFragment) {
+            fragment = getSupportFragmentManager().getFragment(savedInstanceState, MAP_FRAGMENT_TAG);
+        } else if (fragment instanceof DetailFragment) {
+            fragment = getSupportFragmentManager()
+                    .getFragment(savedInstanceState, DETAIL_FRAGMENT_TAG);
+        } else if (fragment instanceof FavouritesFragment) {
+            fragment = getSupportFragmentManager()
+                    .getFragment(savedInstanceState, FAVOURITE_FRAGMENT_TAG);
+        } else if (fragment instanceof FavouriteDetailFragment) {
+            fragment = getSupportFragmentManager()
+                    .getFragment(savedInstanceState, FAVOURITE_DETAIL_FRAGMENT_TAG);
+        } else if (fragment instanceof SightsFragment) {
+            fragment = getSupportFragmentManager()
+                    .getFragment(savedInstanceState, SIGHTS_FRAGMENT_TAG);
+        } else if (fragment instanceof MuseumsFragment) {
+            fragment = getSupportFragmentManager()
+                    .getFragment(savedInstanceState, MUSEUMS_FRAGMENT_TAG);
+        } else if (fragment instanceof FoodFragment) {
+            fragment = getSupportFragmentManager().getFragment(savedInstanceState, FOOD_FRAGMENT_TAG);
+        } else if (fragment instanceof BarsFragment) {
+            fragment = getSupportFragmentManager().getFragment(savedInstanceState, BARS_FRAGMENT_TAG);
+        } else if (fragment instanceof ClubsFragment) {
+            fragment = getSupportFragmentManager().getFragment(savedInstanceState, CLUBS_FRAGMENT_TAG);
         }
     }
 
@@ -291,16 +312,14 @@ public class MainActivity extends AppCompatActivity implements
         this.name = username;
         this.email = userEmail;
         this.id = userID;
-        Log.d(LOG_TAG, "User Id: " + userID);
         this.userName.setText(this.name);
         this.userEmail.setText(this.email);
-        Log.d(LOG_TAG, "User Image url: " + imageUrl);
         Glide.with(this).load(imageUrl).into(userImage);
     }
 
     private void onSignedOutCleanup() {
-        name = ANONYMOUS;
-        email = UNKNOWN;
+        name = GUEST_USER;
+        email = SIGN_IN;
     }
 
 
@@ -477,8 +496,8 @@ public class MainActivity extends AppCompatActivity implements
                         .addToBackStack(MAP_FRAGMENT_TAG)
                         .commit();
                 mapFragment.setRetainInstance(true);
-                userEmail.setText(UNKNOWN);
-                userName.setText(ANONYMOUS);
+                userEmail.setText(SIGN_IN);
+                userName.setText(GUEST_USER);
                 Glide.with(this).load(R.drawable.mole_small_25).into(userImage);
                 break;
 

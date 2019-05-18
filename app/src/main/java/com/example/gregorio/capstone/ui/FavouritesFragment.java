@@ -58,7 +58,7 @@ import static android.app.Activity.RESULT_OK;
 import static com.example.gregorio.capstone.ui.MainActivity.RC_SIGN_IN;
 
 public class FavouritesFragment extends Fragment implements
-        FavouritesAdapter.FavouriteAdapterOnClickHandler,
+        FavouritesAdapter.OnClickHandler,
         RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
 
     public static final String WIDGET_INTENT_TAG = "Favourite List";

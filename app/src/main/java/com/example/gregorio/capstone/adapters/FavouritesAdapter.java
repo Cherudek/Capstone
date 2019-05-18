@@ -19,20 +19,27 @@ import com.example.gregorio.capstone.model.placeId.Result;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.FavouriteViewHolder> {
 
     private static final String LOG_TAG = FavouritesAdapter.class.getSimpleName();
     private static final String PHOTO_PLACE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
-    private final FavouriteAdapterOnClickHandler mClickHandler;
+    private static final String MAX_WIDTH_100 = "maxwidth=100";
+    private static final String AND_PHOTO_REFERENCE = "&photoreference=";
+
+    private static final String KEY = "&key=";
+    private static String API_KEY;
     private List<Result> favouritesPlaceId = new ArrayList<>();
-    private String apiKey;
+    private final OnClickHandler mClickHandler;
     private Context context;
     private String photoReference = "";
+    private Integer dbSize;
 
-    public FavouritesAdapter(FavouriteAdapterOnClickHandler clickHandler, int size, String apiKey) {
-        this.apiKey = apiKey;
+    public FavouritesAdapter(OnClickHandler clickHandler, int dbSize, String API_KEY) {
+        this.API_KEY = API_KEY;
         this.mClickHandler = clickHandler;
+        this.dbSize = dbSize;
     }
 
     @NonNull
@@ -47,28 +54,32 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
 
     @Override
     public void onBindViewHolder(@NonNull FavouriteViewHolder holder, int position) {
-        Result currentPlaceId = favouritesPlaceId.get(position);
-        if (currentPlaceId.getPhotos() != null) {
-            photoReference = currentPlaceId.getPhotos().get(0).getPhotoReference();
-        }
-        String address = currentPlaceId.getVicinity();
-        String name = currentPlaceId.getName();
-        Double rating = currentPlaceId.getRating();
-        String photoUrl = PHOTO_PLACE_URL + "maxwidth=100&photoreference=" + photoReference + "&key=" + apiKey;
-        Glide.with(context)
-                .load(photoUrl)
-                .into(holder.favouriteImage);
+        Optional<Result> currentPlaceId = Optional.ofNullable(favouritesPlaceId.get(position));
+        currentPlaceId.ifPresent(p -> photoReference = p.getPhotos().get(0).getPhotoReference());
+        Optional<String> address = currentPlaceId.map(Result::getFormattedAddress);
+        Optional<String> name = currentPlaceId.map(Result::getName);
+        Optional<Double> rating = currentPlaceId.map(Result::getRating);
+        Optional<String> photoUrl = Optional.of(PHOTO_PLACE_URL +
+                MAX_WIDTH_100 +
+                AND_PHOTO_REFERENCE +
+                photoReference +
+                KEY +
+                API_KEY);
+        photoUrl.ifPresent(s -> Glide.with(context)
+                .load(photoUrl.get())
+                .into(holder.favouriteImage));
+        name.ifPresent(s -> {
+            ViewCompat.setTransitionName(holder.favouriteImage, s);
+            holder.favouriteName.setText(name.get());
+            holder.favouriteImage
+                    .setContentDescription(context.getString(R.string.the_image_view_cd) + name.get());
+            holder.favouriteName.setContentDescription(context.getString(R.string.the_name_is_cd) + name.get());
 
-        ViewCompat.setTransitionName(holder.favouriteImage, name);
-
-        holder.favouriteName.setText(name);
-        holder.favouriteAddress.setText(address);
-        holder.favouriteImage
-                .setContentDescription(context.getString(R.string.the_image_view_cd) + name);
-        holder.favouriteAddress
-                .setContentDescription(context.getString(R.string.the_address_is_cd) + address);
-        holder.favouriteName.setContentDescription(context.getString(R.string.the_name_is_cd) + name);
-        holder.ratingBar.setRating(rating.floatValue());
+        });
+        address.ifPresent(holder.favouriteAddress::setText);
+        address.orElse("");
+        rating.ifPresent(aDouble -> holder.ratingBar.setRating(rating.get().longValue()));
+        rating.orElse(0.00);
     }
 
     public void addAll(List<Result> result) {
@@ -86,20 +97,18 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
 
     public void restoreItem(Result item, int position) {
         favouritesPlaceId.add(position, item);
-        // notify item added by position
         notifyItemInserted(position);
     }
 
     @Override
     public int getItemCount() {
-        Log.i(LOG_TAG, "getItemCount PlaceId Size = " + favouritesPlaceId.size());
         return favouritesPlaceId.size();
     }
 
     /**
      * The interface that receives onClick messages.
      */
-    public interface FavouriteAdapterOnClickHandler {
+    public interface OnClickHandler {
         void onClick(Result result, View view);
     }
 
@@ -110,7 +119,6 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
         private final TextView favouriteName;
         private final TextView favouriteAddress;
         private final RatingBar ratingBar;
-
 
         private FavouriteViewHolder(View itemView) {
             super(itemView);
