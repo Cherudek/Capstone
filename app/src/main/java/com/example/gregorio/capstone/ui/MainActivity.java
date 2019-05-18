@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements
 
     public final static int RC_SIGN_IN = 1;
     public static final String GUEST_USER = "Guest";
-    public static final String SIGN_IN = "Sign in to read your favourite places!";
+    public static final String SIGN_IN = "Sign in";
     public final static String PLACE_PICKER_PLACE_ID_TAG = "PLACE PICKER PLACE ID";
     public final static String PHOTO_REFERENCE_TAG = "Photo Reference Tag";
     private final static String LOG_TAG = MainActivity.class.getSimpleName();

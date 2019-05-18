@@ -49,6 +49,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -189,10 +190,8 @@ public class FavouritesFragment extends Fragment implements
     }
 
     private void checkCurrentUser() {
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        if (currentUser != null) {
-            userID = currentUser.getUid();
-        }
+        Optional<FirebaseUser> user = Optional.ofNullable(firebaseAuth.getCurrentUser());
+        user.map(s -> userID = user.get().getUid());
     }
 
     private void loadFavouritesDb() {
