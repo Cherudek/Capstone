@@ -14,6 +14,7 @@ import com.example.gregorio.capstone.model.placeId.Review;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class FavouriteReviewAdapter extends RecyclerView.Adapter<FavouriteReviewAdapter.FavouriteReviewViewHold> {
 
@@ -54,10 +55,9 @@ public class FavouriteReviewAdapter extends RecyclerView.Adapter<FavouriteReview
                 .setContentDescription(context.getString(R.string.the_rating_is_cd) + authorRating);
     }
 
-    public void addAll(List<Review> reviews) {
+    public void addAll(Optional<List<Review>> reviews) {
         if (mReviewId != null) {
-            mReviewId.clear();
-            mReviewId.addAll(reviews);
+            reviews.ifPresent(reviews1 -> mReviewId.addAll(reviews1));
             notifyDataSetChanged();
         }
     }

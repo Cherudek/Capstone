@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements
     @Inject
     public AppComponent appComponent;
     private String name = GUEST_USER;
-    ;
     private String id;
     private TextView userName;
     private TextView userEmail;
@@ -114,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements
 
         appComponent = DaggerAppComponent.create();
         MapFragment mapFragment = appComponent.inject(new MapFragment());
+        FavouritesFragment favouritesFragment = appComponent.inject(new FavouritesFragment());
 
         firebaseAuth = FirebaseAuth.getInstance();
 
@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements
             mapFragmentSetUp(mapFragment);
         }
         if (extras != null) {
-            widgetSetUp(extras);
+            widgetSetUp(extras, favouritesFragment);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -203,12 +203,11 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private void widgetSetUp(Bundle extras) {
+    private void widgetSetUp(Bundle extras, FavouritesFragment fragment) {
         String widgetIntent = (String) extras.get(INTENT_TO_FAVOURITE_LIST_KEY);
         if (widgetIntent != null) {
-            FavouritesFragment favouritesFragment = new FavouritesFragment();
             FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.fragment_container, favouritesFragment)
+            fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
                     .addToBackStack(FAVOURITE_FRAGMENT_TAG)
                     .commit();
         }

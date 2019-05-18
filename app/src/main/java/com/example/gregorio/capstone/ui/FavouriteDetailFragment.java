@@ -42,6 +42,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
+import java.util.Optional;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -227,7 +228,7 @@ public class FavouriteDetailFragment extends Fragment implements OnMapReadyCallb
             mPhotoAdapter = new FavouritePhotoAdapter(apiKey);
         }
         rvPhotoGallery.setAdapter(mPhotoAdapter);
-        List<Review> reviewsList = resultFromFavourites.getReviews();
+        Optional<List<Review>> reviewsList = Optional.ofNullable(resultFromFavourites.getReviews());
         FavouriteReviewAdapter mReviewsAdapter = new FavouriteReviewAdapter();
         mReviewsAdapter.addAll(reviewsList);
         rvReviews.setAdapter(mReviewsAdapter);
